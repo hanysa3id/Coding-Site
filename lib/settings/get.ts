@@ -85,6 +85,10 @@ export async function getLandingSettings(): Promise<LandingSettings | null> {
   return getSetting<LandingSettings>("landing");
 }
 
+export async function getThemeCustomizationsRaw(): Promise<Record<string, unknown> | null> {
+  return getSetting<Record<string, unknown>>("theme_customizations");
+}
+
 /**
  * Convenience: resolve the localized site name with sensible fallback.
  */

@@ -7,10 +7,10 @@
  * ============================================================================ */
 
 .theme-moon {
-  /* Surfaces */
-  --moon-bg:          #060a16;
+  /* Surfaces — defer to admin --app-* tokens when present. */
+  --moon-bg:          var(--app-ink, #060a16);
   --moon-bg-soft:     #091020;
-  --moon-surface:     #0d182e;
+  --moon-surface:     var(--app-surface, #0d182e);
   --moon-surface-2:   #111e3a;
   --moon-border:      rgba(148, 163, 184, 0.10);
   --moon-border-2:    rgba(148, 163, 184, 0.18);
@@ -21,10 +21,10 @@
   --moon-fg-muted:    rgba(203, 213, 225, 0.66);   /* slate-300 */
   --moon-fg-dim:      rgba(148, 163, 184, 0.52);   /* slate-400 */
 
-  /* Brand */
-  --moon-brand:        #60a5fa;     /* sky-400 */
-  --moon-brand-2:      #818cf8;     /* indigo-400 */
-  --moon-brand-3:      #2dd4bf;     /* teal-400 */
+  /* Brand — Theme Builder primary/accent override the cool-tone defaults. */
+  --moon-brand:        var(--app-primary,  #60a5fa);
+  --moon-brand-2:      var(--app-accent,   #818cf8);
+  --moon-brand-3:      var(--app-accent-2, #2dd4bf);
   --moon-brand-deep:   #3b82f6;     /* sky-500 */
   --moon-silver:       #e2e8f0;     /* slate-200 */
   --moon-glow:         rgba(96, 165, 250, 0.32);

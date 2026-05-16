@@ -17,24 +17,25 @@
  * ============================================================================ */
 
 .theme-prism {
-  /* Base */
-  --p-ink:        #0b0b14;
-  --p-ink-2:      #14141f;
+  /* Base — defer to admin-driven --app-* vars when present, fall back to
+     Prism's spectrum defaults otherwise. */
+  --p-ink:        var(--app-ink, #0b0b14);
+  --p-ink-2:      var(--app-surface, #14141f);
   --p-ink-3:      #1c1c2a;
   --p-line:       rgba(255, 255, 255, 0.08);
   --p-line-2:     rgba(255, 255, 255, 0.16);
   --p-line-3:     rgba(255, 255, 255, 0.30);
-  --p-paper:      #f6f4ee;
+  --p-paper:      var(--app-paper, #f6f4ee);
 
   /* Foreground */
   --p-fg:         #f5f4ff;
   --p-fg-muted:   rgba(243, 240, 255, 0.65);
   --p-fg-dim:     rgba(243, 240, 255, 0.42);
 
-  /* Spectrum */
-  --p-magenta:    #ff2bb5;
-  --p-cyan:       #00e5ff;
-  --p-lime:       #c4ff3e;
+  /* Spectrum — Theme Builder primary/accent tokens override the brand stops. */
+  --p-magenta:    var(--app-primary, #ff2bb5);
+  --p-cyan:       var(--app-accent, #00e5ff);
+  --p-lime:       var(--app-accent-2, #c4ff3e);
   --p-amber:      #ffb800;
   --p-violet:     #7c3aed;
   --p-orange:     #ff6a3d;

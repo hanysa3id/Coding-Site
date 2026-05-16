@@ -20,6 +20,7 @@ import {
   UserCheck,
   Menu,
   Home,
+  Palette,
 } from "lucide-react";
 import {
   Sheet,
@@ -84,6 +85,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     items: [
       { href: "/admin/analytics", labelAr: "التحليلات", labelEn: "Analytics", icon: BarChart3, roles: ["admin"] },
+      { href: "/admin/themes", labelAr: "الثيمات", labelEn: "Themes", icon: Palette, roles: ["admin"] },
       { href: "/admin/settings", labelAr: "الإعدادات", labelEn: "Settings", icon: Settings, roles: ["admin"] },
     ],
   },
