@@ -205,16 +205,35 @@ export default async function ServicesPage({
                   {subs.map((sub) => {
                     const subServices = servicesByCat.get(sub.id) ?? [];
                     if (subServices.length === 0) return null;
+                    const subDesc = isAr ? sub.description_ar : sub.description_en;
                     return (
                       <div key={sub.id} className="mb-8">
-                        <div className="flex items-center gap-2 mb-3 ps-2 border-s-4 border-primary/40">
-                          <h3 className="text-lg font-semibold inline-flex items-center gap-2">
-                            <ChevronDown className="h-4 w-4 text-primary" />
-                            {isAr ? sub.name_ar : sub.name_en}
-                          </h3>
-                          <span className="text-xs text-muted-foreground">
-                            ({subServices.length})
-                          </span>
+                        <div className="flex items-start gap-3 mb-3 ps-2 border-s-4 border-primary/40">
+                          {sub.image_url && (
+                            <div className="relative h-10 w-10 shrink-0 rounded-md overflow-hidden bg-muted">
+                              <Image
+                                src={sub.image_url}
+                                alt=""
+                                fill
+                                sizes="40px"
+                                className="object-cover"
+                              />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <h3 className="text-lg font-semibold inline-flex items-center gap-2">
+                              <ChevronDown className="h-4 w-4 text-primary" />
+                              {isAr ? sub.name_ar : sub.name_en}
+                              <span className="text-xs font-normal text-muted-foreground">
+                                ({subServices.length})
+                              </span>
+                            </h3>
+                            {subDesc && (
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {subDesc}
+                              </p>
+                            )}
+                          </div>
                         </div>
                         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 ps-6">
                           {subServices.map((s) => (

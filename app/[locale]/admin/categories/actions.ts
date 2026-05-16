@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth/guards";
 import { categorySchema, type CategoryInput } from "@/lib/validators/admin";
+import { uploadToBucket } from "@/lib/storage/upload";
 import { revalidatePath } from "next/cache";
 
 type Result = { success: true; id?: string } | { success: false; error: string };
@@ -41,6 +42,13 @@ export async function updateCategoryAction(input: CategoryInput): Promise<Result
   if (error) return { success: false, error: error.message };
   revalidatePath("/admin/categories");
   return { success: true, id };
+}
+
+export async function uploadCategoryImage(formData: FormData) {
+  await requireAdmin();
+  const file = formData.get("file") as File | null;
+  if (!file) return { success: false as const, error: "No file" };
+  return uploadToBucket("service-images", file, "categories/");
 }
 
 export async function deleteCategoryAction(id: string): Promise<Result> {

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useTransition, useMemo } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Layers } from "lucide-react";
+import { Plus, Pencil, Trash2, Layers, ImageIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -116,8 +117,8 @@ export function CategoriesTable({ categories, locale, serviceCountMap = {} }: Pr
             <DialogTitle>{isAr ? "تأكيد الحذف" : "Confirm delete"}</DialogTitle>
             <DialogDescription>
               {isAr
-                ? "سيتم حذف هذا القسم وجميع أقسامه الفرعية. هل أنت متأكد؟"
-                : "This will delete the category and all its sub-categories. Are you sure?"}
+                ? "سيتم حذف هذا القسم. خدماته وأقسامه الفرعية ستصبح بدون قسم (دون فقد). هل أنت متأكد؟"
+                : "This will delete the category. Its services and sub-categories will become uncategorized (not lost). Continue?"}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -166,6 +167,7 @@ function CategoryRow({
   serviceCountMap: Record<string, { total: number; visible: number }>;
 }) {
   const svcCount = serviceCountMap[node.id];
+  const description = isAr ? node.description_ar : node.description_en;
   return (
     <>
       <li className="flex items-center justify-between p-4 hover:bg-muted/30 transition">
@@ -176,18 +178,40 @@ function CategoryRow({
           {depth > 0 && (
             <span className="text-muted-foreground text-xs shrink-0">└</span>
           )}
-          <span className="font-medium">{isAr ? node.name_ar : node.name_en}</span>
-          <code className="text-xs text-muted-foreground">{node.slug}</code>
-          {!node.is_visible && (
-            <Badge variant="secondary">{isAr ? "مخفي" : "Hidden"}</Badge>
-          )}
-          {svcCount && svcCount.total > 0 && (
-            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-              <Layers className="h-3 w-3" />
-              {svcCount.visible}/{svcCount.total}
-              {isAr ? " خدمة" : " services"}
-            </span>
-          )}
+          <div className="relative h-10 w-10 shrink-0 rounded-md overflow-hidden bg-muted border flex items-center justify-center">
+            {node.image_url ? (
+              <Image
+                src={node.image_url}
+                alt=""
+                fill
+                sizes="40px"
+                className="object-cover"
+              />
+            ) : (
+              <ImageIcon className="h-4 w-4 text-muted-foreground/50" />
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-medium truncate">{isAr ? node.name_ar : node.name_en}</span>
+              <code className="text-xs text-muted-foreground">{node.slug}</code>
+              {!node.is_visible && (
+                <Badge variant="secondary">{isAr ? "مخفي" : "Hidden"}</Badge>
+              )}
+              {svcCount && svcCount.total > 0 && (
+                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                  <Layers className="h-3 w-3" />
+                  {svcCount.visible}/{svcCount.total}
+                  {isAr ? " خدمة" : " services"}
+                </span>
+              )}
+            </div>
+            {description && (
+              <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                {description}
+              </p>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Button size="icon" variant="ghost" onClick={() => onEdit(node)}>

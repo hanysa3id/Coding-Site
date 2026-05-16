@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/select";
 import { categorySchema, type CategoryInput } from "@/lib/validators/admin";
 import type { Category } from "@/types/database";
-import { createCategoryAction, updateCategoryAction } from "./actions";
+import { ImageUpload } from "@/components/admin/image-upload";
+import { createCategoryAction, updateCategoryAction, uploadCategoryImage } from "./actions";
 
 type Props = {
   initial?: Category;
@@ -51,6 +52,7 @@ export function CategoryForm({ initial, categories, locale, onDone }: Props) {
 
   const visible = watch("is_visible");
   const parentId = watch("parent_id");
+  const imageUrl = watch("image_url");
 
   function onSubmit(data: CategoryInput) {
     startTransition(async () => {
@@ -109,6 +111,21 @@ export function CategoryForm({ initial, categories, locale, onDone }: Props) {
               ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>{isAr ? "الصورة المصغرة" : "Thumbnail image"}</Label>
+        <p className="text-xs text-muted-foreground">
+          {isAr
+            ? "صورة رمزية تُعرض بجوار اسم القسم في الجدول والصفحة العامة (اختيارية)"
+            : "Shown next to the category name in the admin list and on the public site (optional)"}
+        </p>
+        <ImageUpload
+          value={imageUrl ?? null}
+          onChange={(url) => setValue("image_url", url)}
+          uploadAction={uploadCategoryImage}
+          locale={locale}
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
