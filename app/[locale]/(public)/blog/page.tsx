@@ -3,6 +3,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { Link } from "@/i18n/routing";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { SearchBar } from "@/components/public/search-bar";
 import { formatDate } from "@/lib/utils";
 import type { BlogPost } from "@/types/database";
 import type { Metadata } from "next";
@@ -18,33 +19,68 @@ export async function generateMetadata({
 
 export default async function BlogIndexPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   const { locale } = await params;
+  const { q } = await searchParams;
   setRequestLocale(locale);
   const isAr = locale === "ar";
   const tc = await getTranslations("common");
 
+  const query = q?.trim() ?? "";
+  const isSearching = query.length > 0;
+
   const supabase = await createClient();
-  const { data: posts } = await supabase
+  let dbQuery = supabase
     .from("blog_posts")
     .select("*")
     .eq("status", "published")
     .order("published_at", { ascending: false });
 
+  if (isSearching) {
+    dbQuery = dbQuery.or(
+      `title_ar.ilike.%${query}%,title_en.ilike.%${query}%,excerpt_ar.ilike.%${query}%,excerpt_en.ilike.%${query}%`
+    );
+  }
+
+  const { data: posts } = await dbQuery;
+
   return (
     <div className="container py-12">
-      <header className="mb-12 text-center">
+      <header className="mb-10 text-center">
         <h1 className="text-4xl font-bold">{tc("blog")}</h1>
         <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
           {isAr ? "مقالات تقنية وأفكار من فريقنا" : "Tech articles and insights from our team"}
         </p>
       </header>
 
+      {/* Search bar */}
+      <div className="mb-10 max-w-md mx-auto">
+        <SearchBar
+          placeholder={isAr ? "ابحث في المقالات..." : "Search articles..."}
+        />
+      </div>
+
+      {isSearching && (
+        <p className="text-sm text-muted-foreground mb-6 text-center">
+          {isAr
+            ? `${posts?.length ?? 0} نتيجة لـ "${query}"`
+            : `${posts?.length ?? 0} result${(posts?.length ?? 0) !== 1 ? "s" : ""} for "${query}"`}
+        </p>
+      )}
+
       {!posts || posts.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">
-          {isAr ? "لا توجد مقالات منشورة حالياً" : "No posts published yet"}
+          {isSearching
+            ? isAr
+              ? "لا توجد مقالات تطابق بحثك"
+              : "No articles match your search"
+            : isAr
+            ? "لا توجد مقالات منشورة حالياً"
+            : "No posts published yet"}
         </p>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

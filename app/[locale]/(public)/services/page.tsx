@@ -1,8 +1,13 @@
 import Image from "next/image";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
-import { listVisibleCategories, listVisibleServices } from "@/lib/queries/services";
+import {
+  listVisibleCategories,
+  listVisibleServices,
+  searchVisibleServices,
+} from "@/lib/queries/services";
 import { ServiceCardMini } from "@/components/public/service-card-mini";
+import { SearchBar } from "@/components/public/search-bar";
 import { FolderTree, ChevronDown } from "lucide-react";
 import type { Category, Service } from "@/types/database";
 import type { Metadata } from "next";
@@ -24,20 +29,26 @@ export async function generateMetadata({
 
 export default async function ServicesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   const { locale } = await params;
+  const { q } = await searchParams;
   setRequestLocale(locale);
   const isAr = locale === "ar";
   const tc = await getTranslations("common");
 
+  const query = q?.trim() ?? "";
+  const isSearching = query.length > 0;
+
   const [services, categories] = await Promise.all([
-    listVisibleServices(),
-    listVisibleCategories(),
+    isSearching ? searchVisibleServices(query) : listVisibleServices(),
+    isSearching ? Promise.resolve([]) : listVisibleCategories(),
   ]);
 
-  // Build a parent → children map
+  // ── Category hierarchy (only used when not searching) ──────────────────────
   const childrenOf = new Map<string | null, Category[]>();
   for (const c of categories) {
     const key = c.parent_id ?? null;
@@ -46,7 +57,6 @@ export default async function ServicesPage({
     childrenOf.set(key, arr);
   }
 
-  // Index services by category id
   const servicesByCat = new Map<string, Service[]>();
   for (const s of services) {
     const arr = servicesByCat.get(s.category_id) ?? [];
@@ -54,7 +64,6 @@ export default async function ServicesPage({
     servicesByCat.set(s.category_id, arr);
   }
 
-  // Recursive helper: collect all services under a category (direct + descendants)
   function allServicesUnder(catId: string): Service[] {
     const direct = servicesByCat.get(catId) ?? [];
     const subs = childrenOf.get(catId) ?? [];
@@ -65,12 +74,11 @@ export default async function ServicesPage({
     (c) => allServicesUnder(c.id).length > 0
   );
 
-  // Featured services across all categories (shown at top)
   const featured = services.filter((s) => s.is_featured).slice(0, 6);
 
   return (
     <div className="container py-12">
-      <header className="mb-12 text-center">
+      <header className="mb-10 text-center">
         <h1 className="text-4xl md:text-5xl font-bold">{tc("services")}</h1>
         <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
           {isAr
@@ -79,7 +87,34 @@ export default async function ServicesPage({
         </p>
       </header>
 
-      {services.length === 0 ? (
+      {/* Search bar */}
+      <div className="mb-10 max-w-md mx-auto">
+        <SearchBar
+          placeholder={isAr ? "ابحث في الخدمات..." : "Search services..."}
+        />
+      </div>
+
+      {/* ── Search results ────────────────────────────────────────────────── */}
+      {isSearching ? (
+        <div>
+          <p className="text-sm text-muted-foreground mb-6">
+            {isAr
+              ? `${services.length} نتيجة لـ "${query}"`
+              : `${services.length} result${services.length !== 1 ? "s" : ""} for "${query}"`}
+          </p>
+          {services.length === 0 ? (
+            <p className="text-center text-muted-foreground py-12">
+              {isAr ? "لا توجد خدمات تطابق بحثك" : "No services match your search"}
+            </p>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {services.map((s) => (
+                <ServiceCardMini key={s.id} service={s} locale={locale} />
+              ))}
+            </div>
+          )}
+        </div>
+      ) : services.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">
           {isAr ? "لا توجد خدمات معروضة حالياً" : "No services available yet"}
         </p>
@@ -126,7 +161,6 @@ export default async function ServicesPage({
 
               return (
                 <section key={rootCat.id} id={`cat-${rootCat.slug}`} className="scroll-mt-20">
-                  {/* Main category header */}
                   <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-primary/20">
                     {rootCat.image_url && (
                       <div className="relative h-14 w-14 shrink-0 rounded-lg overflow-hidden bg-muted">
@@ -155,7 +189,6 @@ export default async function ServicesPage({
                     </Badge>
                   </div>
 
-                  {/* Direct services (no sub-category) */}
                   {directServices.length > 0 && (
                     <div className="mb-8 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                       {directServices.map((s) => (
@@ -164,7 +197,6 @@ export default async function ServicesPage({
                     </div>
                   )}
 
-                  {/* Sub-categories with their services */}
                   {subs.map((sub) => {
                     const subServices = servicesByCat.get(sub.id) ?? [];
                     if (subServices.length === 0) return null;

@@ -36,6 +36,20 @@ export async function getServiceBySlug(slug: string) {
   return data as Service | null;
 }
 
+export async function searchVisibleServices(q: string) {
+  const supabase = await createClient();
+  const term = q.trim();
+  const { data } = await supabase
+    .from("services")
+    .select("*")
+    .eq("is_visible", true)
+    .or(
+      `name_ar.ilike.%${term}%,name_en.ilike.%${term}%,short_description_ar.ilike.%${term}%,short_description_en.ilike.%${term}%`
+    )
+    .order("sort_order", { ascending: true });
+  return (data as Service[]) ?? [];
+}
+
 export async function listVisibleCategories() {
   const supabase = await createClient();
   const { data } = await supabase
