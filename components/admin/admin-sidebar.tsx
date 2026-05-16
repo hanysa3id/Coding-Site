@@ -15,6 +15,8 @@ import {
   Users,
   Settings,
   BarChart3,
+  FileEdit,
+  UsersRound,
 } from "lucide-react";
 import type { UserRole } from "@/types/database";
 
@@ -35,7 +37,9 @@ const ITEMS: Item[] = [
   { href: "/admin/payments", labelAr: "المدفوعات", labelEn: "Payments", icon: CreditCard, roles: ["admin", "sales"] },
   { href: "/admin/reviews", labelAr: "التقييمات", labelEn: "Reviews", icon: Star, roles: ["admin"] },
   { href: "/admin/blog", labelAr: "المدونة", labelEn: "Blog", icon: FileText, roles: ["admin"] },
+  { href: "/admin/pages", labelAr: "الصفحات", labelEn: "Pages", icon: FileEdit, roles: ["admin"] },
   { href: "/admin/customers", labelAr: "العملاء", labelEn: "Customers", icon: Users, roles: ["admin", "sales"] },
+  { href: "/admin/groups", labelAr: "المجموعات", labelEn: "Groups", icon: UsersRound, roles: ["admin"] },
   { href: "/admin/analytics", labelAr: "التحليلات", labelEn: "Analytics", icon: BarChart3, roles: ["admin"] },
   { href: "/admin/settings", labelAr: "الإعدادات", labelEn: "Settings", icon: Settings, roles: ["admin"] },
 ];

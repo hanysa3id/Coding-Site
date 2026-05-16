@@ -10,6 +10,9 @@ import { ContactSettingsForm } from "./_components/contact-form";
 import { PaymentsSettingsForm } from "./_components/payments-form";
 import { BankAccountsManager } from "./_components/bank-accounts-manager";
 import { IntegrationsSettingsForm } from "./_components/integrations-form";
+import { TelegramSettingsForm } from "./_components/telegram-form";
+import { OrdersPolicyForm } from "./_components/orders-policy-form";
+import { BusinessHoursForm } from "./_components/business-hours-form";
 import type { BankAccount } from "@/types/database";
 
 export default async function AdminSettingsPage() {
@@ -42,8 +45,11 @@ export default async function AdminSettingsPage() {
           <TabsTrigger value="site">{isAr ? "الموقع" : "Site"}</TabsTrigger>
           <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
           <TabsTrigger value="contact">{isAr ? "التواصل" : "Contact"}</TabsTrigger>
+          <TabsTrigger value="hours">{isAr ? "ساعات العمل" : "Business hours"}</TabsTrigger>
           <TabsTrigger value="payments">{isAr ? "الدفع" : "Payments"}</TabsTrigger>
           <TabsTrigger value="banks">{isAr ? "الحسابات البنكية" : "Bank accounts"}</TabsTrigger>
+          <TabsTrigger value="orders">{isAr ? "سياسة الطلبات" : "Orders policy"}</TabsTrigger>
+          <TabsTrigger value="telegram">Telegram</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="integrations">{isAr ? "التكاملات" : "Integrations"}</TabsTrigger>
         </TabsList>
@@ -140,6 +146,48 @@ export default async function AdminSettingsPage() {
             <CardContent>
               <IntegrationsSettingsForm
                 initial={settingsMap.get("integrations") ?? null}
+                locale={locale}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="hours" className="pt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{isAr ? "ساعات العمل" : "Business hours"}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BusinessHoursForm
+                initial={settingsMap.get("business_hours") ?? null}
+                locale={locale}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="orders" className="pt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{isAr ? "سياسة الطلبات" : "Orders policy"}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OrdersPolicyForm
+                initial={settingsMap.get("orders_policy") ?? null}
+                locale={locale}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="telegram" className="pt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{isAr ? "إشعارات Telegram" : "Telegram notifications"}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TelegramSettingsForm
+                initial={settingsMap.get("telegram") ?? null}
                 locale={locale}
               />
             </CardContent>

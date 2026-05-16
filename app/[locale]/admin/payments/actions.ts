@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireStaff } from "@/lib/auth/guards";
 import { revalidatePath } from "next/cache";
 import { createNotification } from "@/lib/notifications/create";
+import { sendTelegramForEvent } from "@/lib/telegram/send";
 import {
   sendEmail,
   paymentReceivedEmail,
@@ -79,6 +80,15 @@ export async function verifyPaymentAction(paymentId: string): Promise<Result> {
       body: `${amountStr} · ${paymentMethodLabel(payment.method, locale)}`,
       type: "payment_received",
       link: `/orders/${payment.order_id}`,
+    }).catch(() => {});
+
+    // Telegram alert to admin chat
+    sendTelegramForEvent("payment_received", {
+      order_number: order.order_number,
+      customer_name: order.customer?.full_name ?? "—",
+      amount: Number(payment.amount),
+      currency: payment.currency,
+      method: paymentMethodLabel(payment.method, locale),
     }).catch(() => {});
 
     if (order.customer?.email) {

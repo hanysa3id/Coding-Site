@@ -28,17 +28,28 @@ export const seoSettingsSchema = z.object({
 });
 export type SeoSettings = z.infer<typeof seoSettingsSchema>;
 
+const optionalStr = z.string().nullable().optional().or(z.literal(""));
+
 export const contactSettingsSchema = z.object({
   email: z.string().email().or(z.literal("")),
   phone: z.string().nullable().optional(),
   address_ar: z.string().nullable().optional(),
   address_en: z.string().nullable().optional(),
+  address_link: optionalStr,
+  working_hours_note_ar: optionalStr,
+  working_hours_note_en: optionalStr,
   social: z.object({
-    facebook: z.string().nullable().optional().or(z.literal("")),
-    instagram: z.string().nullable().optional().or(z.literal("")),
-    twitter: z.string().nullable().optional().or(z.literal("")),
-    linkedin: z.string().nullable().optional().or(z.literal("")),
-    youtube: z.string().nullable().optional().or(z.literal("")),
+    facebook:  optionalStr,
+    instagram: optionalStr,
+    twitter:   optionalStr,
+    linkedin:  optionalStr,
+    youtube:   optionalStr,
+    tiktok:    optionalStr,
+    snapchat:  optionalStr,
+    github:    optionalStr,
+    behance:   optionalStr,
+    dribbble:  optionalStr,
+    telegram:  optionalStr,
   }),
 });
 export type ContactSettings = z.infer<typeof contactSettingsSchema>;
@@ -104,3 +115,88 @@ export const integrationsSettingsSchema = z.object({
   crisp_website_id: optionalString,
 });
 export type IntegrationsSettings = z.infer<typeof integrationsSettingsSchema>;
+
+// ============================================================================
+// Telegram notifications
+// ============================================================================
+
+const TELEGRAM_EVENTS = [
+  "new_order",
+  "order_status_changed",
+  "payment_received",
+  "payment_failed",
+  "new_review",
+  "new_message_from_customer",
+  "order_cancelled",
+] as const;
+
+export const telegramEventEnum = z.enum(TELEGRAM_EVENTS);
+export type TelegramEventKey = z.infer<typeof telegramEventEnum>;
+
+const telegramEventBooleans = z.object(
+  Object.fromEntries(TELEGRAM_EVENTS.map((k) => [k, z.boolean()])) as Record<
+    TelegramEventKey,
+    z.ZodBoolean
+  >
+);
+
+const telegramEventTemplates = z.object(
+  Object.fromEntries(TELEGRAM_EVENTS.map((k) => [k, z.string()])) as Record<
+    TelegramEventKey,
+    z.ZodString
+  >
+);
+
+export const telegramSettingsSchema = z.object({
+  enabled: z.boolean().default(false),
+  bot_token: z.string().nullable().optional().or(z.literal("")),
+  admin_chat_id: z.string().nullable().optional().or(z.literal("")),
+  events: telegramEventBooleans,
+  templates: telegramEventTemplates,
+});
+export type TelegramSettingsInput = z.infer<typeof telegramSettingsSchema>;
+
+// ============================================================================
+// Orders policy
+// ============================================================================
+export const orderStatusEnum = z.enum([
+  "pending_review",
+  "under_negotiation",
+  "awaiting_customer_approval",
+  "awaiting_payment",
+  "in_progress",
+  "delivered",
+  "completed",
+  "cancelled",
+  "refunded",
+]);
+
+export const ordersPolicySchema = z.object({
+  max_pending_per_customer: z.coerce.number().int().min(0).max(1000).default(3),
+  pending_statuses: z.array(orderStatusEnum).default(["pending_review", "under_negotiation"]),
+  require_phone_on_signup: z.boolean().default(false),
+  auto_assign_sales: z.boolean().default(false),
+});
+export type OrdersPolicyInput = z.infer<typeof ordersPolicySchema>;
+
+// ============================================================================
+// Business hours
+// ============================================================================
+const timeStr = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "HH:MM");
+const businessDay = z.object({
+  open: timeStr,
+  close: timeStr,
+  closed: z.boolean().default(false),
+});
+
+export const businessHoursSchema = z.object({
+  timezone: z.string().min(1).default("Africa/Cairo"),
+  sunday: businessDay,
+  monday: businessDay,
+  tuesday: businessDay,
+  wednesday: businessDay,
+  thursday: businessDay,
+  friday: businessDay,
+  saturday: businessDay,
+});
+export type BusinessHoursInput = z.infer<typeof businessHoursSchema>;

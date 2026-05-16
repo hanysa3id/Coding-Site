@@ -13,6 +13,7 @@ import { revalidatePath } from "next/cache";
 import { createNotification, notifyAdmins } from "@/lib/notifications/create";
 import { sendEmail, orderCreatedEmail } from "@/lib/email/resend";
 import { getLocale } from "next-intl/server";
+import { getOrdersPolicy } from "@/lib/settings/get";
 import type { OrderAttachment } from "@/types/database";
 
 const MAX_ATTACHMENT_MB = 25;
@@ -53,6 +54,30 @@ export async function createOrderAction(
   }
 
   const supabase = await createClient();
+
+  // Enforce the configurable per-customer pending-orders limit
+  const policy = await getOrdersPolicy();
+  const limit = policy?.max_pending_per_customer ?? 0;
+  if (limit > 0) {
+    const pendingStatuses = policy?.pending_statuses?.length
+      ? policy.pending_statuses
+      : (["pending_review", "under_negotiation"] as const);
+    const { count } = await supabase
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("customer_id", profile.id)
+      .in("status", pendingStatuses as unknown as string[]);
+    if ((count ?? 0) >= limit) {
+      const isAr = (await getLocale()) === "ar";
+      return {
+        success: false,
+        error: isAr
+          ? `لديك ${count} طلب قيد المراجعة. الحد الأقصى المسموح به هو ${limit}. يرجى الانتظار حتى تتم مراجعة طلباتك الحالية.`
+          : `You have ${count} pending orders. The maximum allowed is ${limit}. Please wait until your existing orders are reviewed.`,
+      };
+    }
+  }
+
   const { data: service } = await supabase
     .from("services")
     .select("estimated_price_min, estimated_duration_days, currency, is_visible")
@@ -119,6 +144,7 @@ export async function createOrderAction(
     ? (locale === "ar" ? svcInfo.name_ar : svcInfo.name_en)
     : "";
 
+  const orderUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/${locale}/admin/orders/${order.id}`;
   notifyAdmins({
     title: locale === "ar" ? `طلب جديد ${order.order_number}` : `New order ${order.order_number}`,
     body: locale === "ar"
@@ -126,6 +152,15 @@ export async function createOrderAction(
       : `${profile.full_name ?? "Customer"} requested: ${serviceName}`,
     type: "order_created",
     link: `/admin/orders/${order.id}`,
+    telegramEvent: "new_order",
+    telegramVars: {
+      order_number: order.order_number,
+      customer_name: profile.full_name ?? "—",
+      service_name: serviceName,
+      estimated_price: service.estimated_price_min ?? "—",
+      currency: service.currency,
+      order_url: orderUrl,
+    },
   }).catch(() => {});
 
   if (profile.email) {
@@ -187,7 +222,7 @@ export async function cancelOrderAction(orderId: string): Promise<Result> {
 
   const { data: order } = await supabase
     .from("orders")
-    .select("status, customer_id")
+    .select("status, customer_id, order_number")
     .eq("id", orderId)
     .single();
 
@@ -205,6 +240,22 @@ export async function cancelOrderAction(orderId: string): Promise<Result> {
     .eq("id", orderId);
 
   if (error) return { success: false, error: error.message };
+
+  const locale = (await getLocale()) as "ar" | "en";
+  notifyAdmins({
+    title: locale === "ar" ? `🚫 تم إلغاء طلب ${order.order_number}` : `🚫 Order cancelled ${order.order_number}`,
+    body: locale === "ar"
+      ? `${profile.full_name ?? "العميل"} ألغى الطلب`
+      : `${profile.full_name ?? "Customer"} cancelled the order`,
+    type: "order_cancelled",
+    link: `/admin/orders/${orderId}`,
+    telegramEvent: "order_cancelled",
+    telegramVars: {
+      order_number: order.order_number,
+      customer_name: profile.full_name ?? "—",
+    },
+  }).catch(() => {});
+
   revalidatePath(`/orders/${orderId}`);
   return { success: true };
 }
@@ -295,6 +346,12 @@ export async function sendCustomerMessageAction(
       body: preview,
       type: "new_message",
       link: `/admin/orders/${order_id}`,
+      telegramEvent: "new_message_from_customer",
+      telegramVars: {
+        order_number: orderInfo.order_number,
+        customer_name: profile.full_name ?? "—",
+        preview,
+      },
     }).catch(() => {});
   }
 
@@ -337,6 +394,29 @@ export async function submitReviewAction(input: ReviewInput): Promise<Result> {
   // Mark order completed if it was delivered
   if (order.status === "delivered") {
     await supabase.from("orders").update({ status: "completed" }).eq("id", parsed.data.order_id);
+  }
+
+  // Notify admins (+Telegram) about the new review
+  const { data: orderInfo } = await supabase
+    .from("orders")
+    .select("order_number")
+    .eq("id", parsed.data.order_id)
+    .single();
+  if (orderInfo) {
+    const locale = (await getLocale()) as "ar" | "en";
+    notifyAdmins({
+      title: locale === "ar" ? `⭐ تقييم جديد ${parsed.data.rating}/5` : `⭐ New review ${parsed.data.rating}/5`,
+      body: parsed.data.comment ?? "",
+      type: "new_review",
+      link: `/admin/reviews`,
+      telegramEvent: "new_review",
+      telegramVars: {
+        order_number: orderInfo.order_number,
+        customer_name: profile.full_name ?? "—",
+        rating: parsed.data.rating,
+        comment: parsed.data.comment ?? "",
+      },
+    }).catch(() => {});
   }
 
   revalidatePath(`/orders/${parsed.data.order_id}`);

@@ -14,6 +14,20 @@ import {
 } from "@/lib/validators/settings";
 import { saveContactSettingsAction } from "../actions";
 
+const EMPTY_SOCIAL = {
+  facebook: "",
+  instagram: "",
+  twitter: "",
+  linkedin: "",
+  youtube: "",
+  tiktok: "",
+  snapchat: "",
+  github: "",
+  behance: "",
+  dribbble: "",
+  telegram: "",
+};
+
 export function ContactSettingsForm({
   initial,
   locale,
@@ -24,16 +38,26 @@ export function ContactSettingsForm({
   const isAr = locale === "ar";
   const [isPending, startTransition] = useTransition();
 
+  const initialValues = (initial as ContactSettings | null) ?? null;
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ContactSettings>({
     resolver: zodResolver(contactSettingsSchema),
-    defaultValues: (initial as ContactSettings | null) ?? {
-      email: "",
-      social: { facebook: "", instagram: "", twitter: "", linkedin: "", youtube: "" },
-    },
+    defaultValues: initialValues
+      ? { ...initialValues, social: { ...EMPTY_SOCIAL, ...initialValues.social } }
+      : {
+          email: "",
+          phone: "",
+          address_ar: "",
+          address_en: "",
+          address_link: "",
+          working_hours_note_ar: "",
+          working_hours_note_en: "",
+          social: EMPTY_SOCIAL,
+        },
   });
 
   function onSubmit(data: ContactSettings) {
@@ -72,8 +96,35 @@ export function ContactSettingsForm({
         </div>
       </div>
 
+      <div className="space-y-2">
+        <Label>{isAr ? "رابط الخريطة (Google Maps)" : "Map link (Google Maps)"}</Label>
+        <Input
+          {...register("address_link")}
+          dir="ltr"
+          placeholder="https://maps.google.com/?q=..."
+        />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label>{isAr ? "ملاحظة ساعات العمل (AR)" : "Working hours note (AR)"}</Label>
+          <Input {...register("working_hours_note_ar")} dir="rtl" placeholder={isAr ? "السبت — الخميس · 9 صباحاً - 6 مساءً" : ""} />
+        </div>
+        <div className="space-y-2">
+          <Label>{isAr ? "ملاحظة ساعات العمل (EN)" : "Working hours note (EN)"}</Label>
+          <Input {...register("working_hours_note_en")} dir="ltr" placeholder={!isAr ? "Sat-Thu · 9am - 6pm" : ""} />
+        </div>
+      </div>
+
       <div className="border-t pt-4 space-y-3">
-        <h3 className="font-semibold text-sm">{isAr ? "الشبكات الاجتماعية" : "Social media"}</h3>
+        <h3 className="font-semibold text-sm">
+          {isAr ? "الشبكات الاجتماعية" : "Social media"}
+        </h3>
+        <p className="text-xs text-muted-foreground">
+          {isAr
+            ? "اترك أي حقل فارغاً ليُخفى تلقائياً من الفوتر."
+            : "Leave any field blank to hide it from the footer automatically."}
+        </p>
         <div className="grid gap-3 md:grid-cols-2">
           <div className="space-y-1.5">
             <Label>Facebook URL</Label>
@@ -84,7 +135,7 @@ export function ContactSettingsForm({
             <Input {...register("social.instagram")} dir="ltr" placeholder="https://instagram.com/..." />
           </div>
           <div className="space-y-1.5">
-            <Label>Twitter / X URL</Label>
+            <Label>X (Twitter) URL</Label>
             <Input {...register("social.twitter")} dir="ltr" placeholder="https://x.com/..." />
           </div>
           <div className="space-y-1.5">
@@ -94,6 +145,30 @@ export function ContactSettingsForm({
           <div className="space-y-1.5">
             <Label>YouTube URL</Label>
             <Input {...register("social.youtube")} dir="ltr" placeholder="https://youtube.com/..." />
+          </div>
+          <div className="space-y-1.5">
+            <Label>TikTok URL</Label>
+            <Input {...register("social.tiktok")} dir="ltr" placeholder="https://tiktok.com/@..." />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Snapchat URL</Label>
+            <Input {...register("social.snapchat")} dir="ltr" placeholder="https://snapchat.com/add/..." />
+          </div>
+          <div className="space-y-1.5">
+            <Label>GitHub URL</Label>
+            <Input {...register("social.github")} dir="ltr" placeholder="https://github.com/..." />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Behance URL</Label>
+            <Input {...register("social.behance")} dir="ltr" placeholder="https://behance.net/..." />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Dribbble URL</Label>
+            <Input {...register("social.dribbble")} dir="ltr" placeholder="https://dribbble.com/..." />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Telegram URL</Label>
+            <Input {...register("social.telegram")} dir="ltr" placeholder="https://t.me/..." />
           </div>
         </div>
       </div>

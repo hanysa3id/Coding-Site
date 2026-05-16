@@ -11,6 +11,9 @@ import {
   paymentsSettingsSchema,
   bankAccountSchema,
   integrationsSettingsSchema,
+  telegramSettingsSchema,
+  ordersPolicySchema,
+  businessHoursSchema,
   type SiteSettings,
   type WhatsappSettings,
   type SeoSettings,
@@ -18,7 +21,11 @@ import {
   type PaymentsSettings,
   type BankAccountInput,
   type IntegrationsSettings,
+  type TelegramSettingsInput,
+  type OrdersPolicyInput,
+  type BusinessHoursInput,
 } from "@/lib/validators/settings";
+import { sendTelegramRaw } from "@/lib/telegram/send";
 
 type Result = { success: true } | { success: false; error: string };
 
@@ -109,5 +116,54 @@ export async function deleteBankAccountAction(id: string): Promise<Result> {
   const { error } = await supabase.from("bank_accounts").delete().eq("id", id);
   if (error) return { success: false, error: error.message };
   revalidatePath("/admin/settings");
+  return { success: true };
+}
+
+// ============================================================================
+// Telegram / Orders policy / Business hours
+// ============================================================================
+
+export async function saveTelegramSettingsAction(input: TelegramSettingsInput) {
+  const parsed = telegramSettingsSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false as const, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+  return upsertSetting("telegram", parsed.data);
+}
+
+export async function saveOrdersPolicyAction(input: OrdersPolicyInput) {
+  const parsed = ordersPolicySchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false as const, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+  return upsertSetting("orders_policy", parsed.data);
+}
+
+export async function saveBusinessHoursAction(input: BusinessHoursInput) {
+  const parsed = businessHoursSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false as const, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+  return upsertSetting("business_hours", parsed.data);
+}
+
+/**
+ * Send a "test" Telegram message using the supplied token + chat id so the
+ * admin can verify the connection works without persisting changes first.
+ */
+export async function testTelegramConnectionAction(input: {
+  bot_token: string;
+  admin_chat_id: string;
+}): Promise<Result> {
+  await requireAdmin();
+  if (!input.bot_token || !input.admin_chat_id) {
+    return { success: false, error: "bot_token and admin_chat_id are required" };
+  }
+  const ok = await sendTelegramRaw(
+    input.bot_token,
+    input.admin_chat_id,
+    "✅ *Test message* — اتصال تليجرام يعمل."
+  );
+  if (!ok) return { success: false, error: "Telegram rejected the request" };
   return { success: true };
 }

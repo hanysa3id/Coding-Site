@@ -340,6 +340,123 @@ export type Setting = {
 };
 
 // ============================================================================
+// CMS PAGES (privacy, terms, refund-policy, etc.)
+// ============================================================================
+export type CmsPage = {
+  id: string;
+  slug: string;
+  title_ar: string;
+  title_en: string;
+  content_ar: string | null;
+  content_en: string | null;
+  status: PostStatus;
+  show_in_footer: boolean;
+  sort_order: number;
+  is_system: boolean;
+  seo_title_ar: string | null;
+  seo_title_en: string | null;
+  seo_description_ar: string | null;
+  seo_description_en: string | null;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+// ============================================================================
+// USER GROUPS
+// ============================================================================
+export type UserGroup = {
+  id: string;
+  slug: string;
+  name_ar: string;
+  name_en: string;
+  description_ar: string | null;
+  description_en: string | null;
+  permissions: Record<string, Json>;
+  color: string | null;
+  is_system: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type UserGroupMember = {
+  group_id: string;
+  user_id: string;
+  added_by: string | null;
+  added_at: string;
+};
+
+// ============================================================================
+// SETTINGS sub-types (typed views over Setting.value JSON)
+// ============================================================================
+
+export type TelegramEvent =
+  | "new_order"
+  | "order_status_changed"
+  | "payment_received"
+  | "payment_failed"
+  | "new_review"
+  | "new_message_from_customer"
+  | "order_cancelled";
+
+export type TelegramSettings = {
+  enabled: boolean;
+  bot_token: string;
+  admin_chat_id: string;
+  events: Record<TelegramEvent, boolean>;
+  templates: Record<TelegramEvent, string>;
+};
+
+export type OrdersPolicySettings = {
+  max_pending_per_customer: number;
+  pending_statuses: OrderStatus[];
+  require_phone_on_signup: boolean;
+  auto_assign_sales: boolean;
+};
+
+export type BusinessHoursDay = {
+  open: string;   // "HH:MM"
+  close: string;  // "HH:MM"
+  closed: boolean;
+};
+
+export type BusinessHoursSettings = {
+  timezone: string;
+  sunday: BusinessHoursDay;
+  monday: BusinessHoursDay;
+  tuesday: BusinessHoursDay;
+  wednesday: BusinessHoursDay;
+  thursday: BusinessHoursDay;
+  friday: BusinessHoursDay;
+  saturday: BusinessHoursDay;
+};
+
+export type SocialLinks = {
+  facebook?: string | null;
+  instagram?: string | null;
+  twitter?: string | null;
+  linkedin?: string | null;
+  youtube?: string | null;
+  tiktok?: string | null;
+  snapchat?: string | null;
+  github?: string | null;
+  behance?: string | null;
+  dribbble?: string | null;
+  telegram?: string | null;
+};
+
+export type ContactSettings = {
+  email: string;
+  phone: string;
+  address_ar: string;
+  address_en: string;
+  address_link?: string;
+  working_hours_note_ar?: string;
+  working_hours_note_en?: string;
+  social: SocialLinks;
+};
+
+// ============================================================================
 // Supabase Database type
 // We keep this loose (Insert/Update are partials) to avoid friction with
 // server actions that build payloads from zod-validated input.
@@ -388,6 +505,9 @@ export type Database = {
       blog_post_categories: Tbl<{ post_id: string; category_id: string }>;
       notifications: Tbl<AppNotification>;
       settings: Tbl<Setting>;
+      cms_pages: Tbl<CmsPage>;
+      user_groups: Tbl<UserGroup>;
+      user_group_members: Tbl<UserGroupMember>;
     };
     Views: {
       [_ in never]: never;

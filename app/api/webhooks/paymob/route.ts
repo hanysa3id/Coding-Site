@@ -153,6 +153,14 @@ async function notifyParties(args: {
       body: `${amountStr} · ${paymentMethodLabel(payment.method, locale)}`,
       type: "payment_received",
       link: `/admin/orders/${payment.orderId}`,
+      telegramEvent: "payment_received",
+      telegramVars: {
+        order_number: order.order_number,
+        customer_name: order.customer?.full_name ?? "—",
+        amount: payment.amount,
+        currency: payment.currency,
+        method: paymentMethodLabel(payment.method, locale),
+      },
     }).catch(() => {});
   } else {
     // Customer: in-app + email
@@ -182,6 +190,12 @@ async function notifyParties(args: {
       body: failureReason ?? (isAr ? "العميل قد يحاول مرة أخرى" : "Customer may retry"),
       type: "payment_failed",
       link: `/admin/orders/${payment.orderId}`,
+      telegramEvent: "payment_failed",
+      telegramVars: {
+        order_number: order.order_number,
+        customer_name: order.customer?.full_name ?? "—",
+        reason: failureReason ?? "—",
+      },
     }).catch(() => {});
   }
 }

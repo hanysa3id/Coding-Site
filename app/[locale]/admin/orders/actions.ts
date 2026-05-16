@@ -14,6 +14,7 @@ import {
 import { canTransitionTo, ORDER_STATUS_LABELS } from "@/lib/orders/status";
 import { revalidatePath } from "next/cache";
 import { createNotification } from "@/lib/notifications/create";
+import { sendTelegramForEvent } from "@/lib/telegram/send";
 import {
   sendEmail,
   orderStatusChangedEmail,
@@ -121,6 +122,15 @@ export async function updateOrderStatusAction(
       body: `${locale === "ar" ? "الحالة الجديدة: " : "New status: "}${statusLabel}`,
       type: "order_status_changed",
       link: `/orders/${parsed.data.order_id}`,
+    }).catch(() => {});
+
+    // Mirror to Telegram (admin chat)
+    sendTelegramForEvent("order_status_changed", {
+      order_number: order.order_number,
+      customer_name: (order as unknown as { customer: { full_name: string | null } | null })
+        .customer?.full_name ?? "—",
+      new_status: statusLabel,
+      old_status: current.status,
     }).catch(() => {});
 
     const cust = (order as unknown as {

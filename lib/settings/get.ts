@@ -8,6 +8,9 @@ import type {
   ContactSettings,
   PaymentsSettings,
   IntegrationsSettings,
+  TelegramSettingsInput,
+  OrdersPolicyInput,
+  BusinessHoursInput,
 } from "@/lib/validators/settings";
 
 /**
@@ -58,6 +61,18 @@ export async function getPaymentsSettings(): Promise<PaymentsSettings | null> {
 
 export async function getIntegrationsSettings(): Promise<IntegrationsSettings | null> {
   return getSetting<IntegrationsSettings>("integrations");
+}
+
+export async function getTelegramSettings(): Promise<TelegramSettingsInput | null> {
+  return getSetting<TelegramSettingsInput>("telegram");
+}
+
+export async function getOrdersPolicy(): Promise<OrdersPolicyInput | null> {
+  return getSetting<OrdersPolicyInput>("orders_policy");
+}
+
+export async function getBusinessHours(): Promise<BusinessHoursInput | null> {
+  return getSetting<BusinessHoursInput>("business_hours");
 }
 
 /**
