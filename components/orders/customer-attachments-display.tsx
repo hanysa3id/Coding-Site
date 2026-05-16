@@ -1,4 +1,5 @@
 import { Download, FileText, FileImage, FileVideo, FileAudio, FileArchive, File as FileIcon, Volume2 } from "lucide-react";
+import { AudioPlayer } from "@/components/orders/audio-player";
 import type { OrderAttachment } from "@/types/database";
 
 type Props = {
@@ -27,19 +28,22 @@ export function CustomerAttachmentsDisplay({ attachments, locale }: Props) {
             {isAr ? "الملاحظات الصوتية" : "Voice notes"}
             <span className="text-xs text-muted-foreground">({audios.length})</span>
           </p>
-          <ul className="space-y-2">
+          <ul className="space-y-2.5">
             {audios.map((a, i) => (
-              <li key={i} className="rounded-md border bg-muted/30 p-3 space-y-2">
-                <div className="flex items-center justify-between gap-2 text-sm">
+              <li key={i} className="space-y-1.5">
+                <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground px-1">
                   <span className="font-medium inline-flex items-center gap-1.5 min-w-0">
-                    <FileAudio className="h-4 w-4 shrink-0 text-purple-600" />
+                    <FileAudio className="h-3.5 w-3.5 shrink-0" />
                     <span className="truncate">{a.name}</span>
                   </span>
-                  <span className="text-xs text-muted-foreground shrink-0">
-                    {formatBytes(a.size)}
-                  </span>
+                  <span className="shrink-0">{formatBytes(a.size)}</span>
                 </div>
-                <audio src={a.url} controls className="w-full" preload="metadata" />
+                <AudioPlayer
+                  src={a.url}
+                  tone="customer"
+                  sizeBytes={a.size}
+                  className="w-full"
+                />
               </li>
             ))}
           </ul>

@@ -4,9 +4,10 @@ import { useState, useTransition, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Shield, Mic, Square, Trash2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Send, Shield, Mic, Square, Trash2, User } from "lucide-react";
 import { cn, formatDateTime } from "@/lib/utils";
+import { AudioPlayer, type AudioTone } from "@/components/orders/audio-player";
 
 type Sender = {
   id: string;
@@ -334,61 +335,111 @@ function MessageBubble({
   locale: string;
 }) {
   const isAr = locale === "ar";
-  const isStaff = m.sender?.role && m.sender.role !== "customer";
+  const isStaff = !!m.sender?.role && m.sender.role !== "customer";
+  const role = m.sender?.role ?? "customer";
+
   const initials = (m.sender?.full_name ?? "?")
     .split(" ")
     .map((p) => p[0])
-    .join("")
+    .filter(Boolean)
     .slice(0, 2)
+    .join("")
     .toUpperCase();
 
   const hasAudio = m.attachment_kind === "audio" && m.attachment_url;
   const hasText = !!m.content;
 
+  // Color scheme is driven by SENDER ROLE (not by who's viewing) so that an
+  // admin's bubble looks the same whether the customer or another admin is
+  // reading the thread — clear visual attribution.
+  const audioTone: AudioTone = isStaff ? "admin" : "customer";
+  const bubble = isStaff
+    ? "bg-primary text-primary-foreground"
+    : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-100 border border-emerald-200/60 dark:border-emerald-800/60";
+
+  const roleLabel = roleLabelFor(role, locale);
+
   return (
-    <div className={cn("flex gap-3", isMine && "flex-row-reverse")}>
-      <Avatar className="h-8 w-8 shrink-0">
-        <AvatarFallback className={isStaff ? "bg-primary text-primary-foreground" : ""}>
-          {isStaff ? <Shield className="h-4 w-4" /> : initials}
+    <div className={cn("flex gap-2.5", isMine && "flex-row-reverse")}>
+      <Avatar
+        className={cn(
+          "h-9 w-9 shrink-0 ring-2",
+          isStaff ? "ring-primary/20" : "ring-emerald-400/30"
+        )}
+      >
+        {m.sender?.avatar_url && (
+          <AvatarImage src={m.sender.avatar_url} alt={m.sender.full_name ?? ""} />
+        )}
+        <AvatarFallback
+          className={cn(
+            "text-xs font-semibold",
+            isStaff
+              ? "bg-primary text-primary-foreground"
+              : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-200"
+          )}
+        >
+          {isStaff && !m.sender?.avatar_url ? (
+            <Shield className="h-4 w-4" />
+          ) : initials ? (
+            initials
+          ) : (
+            <User className="h-4 w-4" />
+          )}
         </AvatarFallback>
       </Avatar>
-      <div className={cn("max-w-[75%] space-y-1", isMine && "items-end")}>
-        {hasAudio && (
-          <div
-            className={cn(
-              "rounded-lg p-2",
-              isMine ? "bg-primary text-primary-foreground" : "bg-background border"
-            )}
-          >
-            <audio
-              src={m.attachment_url!}
-              controls
-              preload="metadata"
+
+      <div className={cn("max-w-[85%] sm:max-w-[75%] space-y-1.5", isMine && "items-end")}>
+        {/* Header: name + role chip — same side as bubble */}
+        <div
+          className={cn(
+            "flex items-center gap-1.5 text-[11px]",
+            isMine ? "justify-end" : "justify-start"
+          )}
+        >
+          <span className="font-semibold text-foreground">
+            {m.sender?.full_name ?? (isAr ? "مجهول" : "Unknown")}
+          </span>
+          {roleLabel && (
+            <span
               className={cn(
-                "h-10 max-w-full",
-                // Force a consistent look across browsers
-                isMine && "[&::-webkit-media-controls-panel]:bg-primary"
+                "rounded-full px-1.5 py-0.5 text-[10px] font-medium",
+                isStaff
+                  ? "bg-primary/10 text-primary"
+                  : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
               )}
-            />
-            {m.attachment_size && (
-              <p className={cn("text-[10px] mt-1 text-end", isMine ? "opacity-80" : "text-muted-foreground")}>
-                {formatBytes(m.attachment_size)}
-              </p>
-            )}
-          </div>
+            >
+              {roleLabel}
+            </span>
+          )}
+        </div>
+
+        {hasAudio && (
+          <AudioPlayer
+            src={m.attachment_url!}
+            tone={audioTone}
+            sizeBytes={m.attachment_size}
+            className="shadow-sm"
+          />
         )}
+
         {hasText && (
           <div
             className={cn(
-              "rounded-lg px-3 py-2 text-sm whitespace-pre-wrap break-words",
-              isMine ? "bg-primary text-primary-foreground" : "bg-background border"
+              "rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap break-words shadow-sm",
+              isMine ? "rounded-tr-sm" : "rounded-tl-sm",
+              bubble
             )}
           >
             {m.content}
           </div>
         )}
-        <div className={cn("text-xs text-muted-foreground", isMine && "text-end")}>
-          {m.sender?.full_name ?? "—"} ·{" "}
+
+        <div
+          className={cn(
+            "text-[10px] text-muted-foreground px-1 tabular-nums",
+            isMine && "text-end"
+          )}
+        >
           {formatDateTime(m.created_at, isAr ? "ar-EG" : "en-US")}
         </div>
       </div>
@@ -396,14 +447,24 @@ function MessageBubble({
   );
 }
 
+function roleLabelFor(role: string, locale: string): string | null {
+  const isAr = locale === "ar";
+  switch (role) {
+    case "admin":
+      return isAr ? "مدير" : "Admin";
+    case "sales":
+      return isAr ? "مبيعات" : "Sales";
+    case "staff":
+      return isAr ? "فريق العمل" : "Team";
+    case "customer":
+      return isAr ? "عميل" : "Customer";
+    default:
+      return null;
+  }
+}
+
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-}
-
-function formatBytes(n: number): string {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
