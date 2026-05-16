@@ -143,7 +143,6 @@ export async function HomePage({
         <ServicesByCategory locale={locale} services={services} categories={categories} />
       )}
       {show("portfolio") && <PortfolioShowcase locale={locale} projects={projects} />}
-      {show("cta") && <CtaBand locale={locale} whatsappNumber={waNumber} />}
       {show("testimonials") && <SkyTestimonials locale={locale} reviews={reviews} />}
       {show("team") && (
         <TeamStats
