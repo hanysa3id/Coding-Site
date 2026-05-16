@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { signStorageUrls } from "@/lib/storage/sign-url";
 import type {
   Order,
@@ -315,10 +316,12 @@ export async function getOrderForAdmin(orderId: string) {
 }
 
 export async function listOrderMessages(orderId: string) {
-  const supabase = await createClient();
+  // Use the service-role client so the profiles join is never blocked by RLS.
+  // The caller is always an authenticated page (admin or customer guard runs first).
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("order_messages")
-    .select("*, sender:profiles(id, full_name, role, avatar_url)")
+    .select("*, sender:profiles!sender_id(id, full_name, role, avatar_url)")
     .eq("order_id", orderId)
     .order("created_at", { ascending: true });
 

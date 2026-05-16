@@ -357,6 +357,12 @@ function MessageBubble({
     ? "bg-primary text-primary-foreground"
     : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-100 border border-emerald-200/60 dark:border-emerald-800/60";
 
+  // Container for audio-only messages: same shape/color as the text bubble
+  // so the sender's role is always visually obvious even without a text body.
+  const audioBubble = isStaff
+    ? "bg-primary/10 border border-primary/25 dark:bg-primary/15"
+    : "bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/60";
+
   const roleLabel = roleLabelFor(role, locale);
 
   return (
@@ -414,12 +420,19 @@ function MessageBubble({
         </div>
 
         {hasAudio && (
-          <AudioPlayer
-            src={m.attachment_url!}
-            tone={audioTone}
-            sizeBytes={m.attachment_size}
-            className="shadow-sm"
-          />
+          <div
+            className={cn(
+              "rounded-2xl p-2.5 shadow-sm",
+              isMine ? "rounded-tr-sm" : "rounded-tl-sm",
+              audioBubble
+            )}
+          >
+            <AudioPlayer
+              src={m.attachment_url!}
+              tone={audioTone}
+              sizeBytes={m.attachment_size}
+            />
+          </div>
         )}
 
         {hasText && (
