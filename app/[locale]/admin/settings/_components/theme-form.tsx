@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import type { ThemeSettings } from "@/lib/validators/settings";
 import { saveThemeSettingsAction } from "../actions";
 
-type ThemeId = "classic" | "aurora" | "nova" | "sky" | "moon";
+type ThemeId = "classic" | "aurora" | "nova" | "sky" | "moon" | "prism";
 
 type ThemeOption = {
   id: ThemeId;
@@ -61,6 +61,14 @@ const OPTIONS: ThemeOption[] = [
     descEn: "Deep midnight + cool tones — starfield, moon disc, 4-slide hero, every landing section covered. The most comprehensive theme.",
     preview: <MoonPreview />,
   },
+  {
+    id: "prism",
+    nameAr: "Prism",
+    nameEn: "Prism",
+    descAr: "ثيم الوكالات — ألوان طيفية صاخبة، ستيكرز، marquee، فيديو في الـ Hero، spotlight cursor، يعبر عن كود + تصميم + تسويق.",
+    descEn: "Full-spectrum agency theme — bold magenta/cyan/lime, sticker tags, marquee strips, video hero, spotlight cursor. Code + design + marketing in one voice.",
+    preview: <PrismPreview />,
+  },
 ];
 
 export function ThemeSettingsForm({
@@ -107,7 +115,7 @@ export function ThemeSettingsForm({
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {OPTIONS.map((option) => {
           const isActive = option.id === current;
           const isPicked = option.id === selected;
@@ -308,6 +316,53 @@ function NovaPreview() {
         <div className="h-1 w-1 rounded-full bg-yellow-400/70" />
         <div className="h-1 w-1 rounded-full bg-green-400/70" />
         <div className="ms-1 h-1 w-12 rounded bg-violet-400/70" />
+      </div>
+    </div>
+  );
+}
+
+function PrismPreview() {
+  return (
+    <div
+      className="relative h-full w-full p-2 flex flex-col gap-1.5 overflow-hidden"
+      style={{
+        backgroundColor: "#0b0b14",
+        backgroundImage:
+          "radial-gradient(20rem 14rem at 5% -10%, rgba(255,43,181,.35), transparent 60%), radial-gradient(18rem 14rem at 100% 30%, rgba(0,229,255,.30), transparent 60%), radial-gradient(16rem 12rem at 50% 110%, rgba(196,255,62,.20), transparent 60%)",
+      }}
+    >
+      {/* sticker */}
+      <span
+        className="absolute top-1.5 left-2 px-1.5 py-0.5 text-[7px] font-black text-[#0b0b14]"
+        style={{ background: "#c4ff3e", border: "1.5px solid #0b0b14", borderRadius: 2, transform: "rotate(-3deg)", boxShadow: "2px 2px 0 #0b0b14" }}
+      >
+        STUDIO
+      </span>
+      {/* navbar */}
+      <div className="flex items-center gap-1 rounded-lg bg-white/[0.06] backdrop-blur border-2 border-white/15 px-1.5 py-1 mt-3" style={{ boxShadow: "3px 3px 0 rgba(255,43,181,.5)" }}>
+        <div className="h-2 w-2 rounded-sm" style={{ background: "linear-gradient(135deg,#ff2bb5,#00e5ff)" }} />
+        <div className="h-1.5 w-8 rounded bg-white/85" />
+        <div className="ms-auto flex gap-0.5">
+          <div className="h-1 w-3 rounded bg-white/35" />
+          <div className="h-1 w-3 rounded bg-white/35" />
+          <div className="h-1 w-3 rounded bg-white/35" />
+        </div>
+      </div>
+      {/* hero */}
+      <div className="relative flex-1 flex flex-col items-start justify-center gap-1 px-1">
+        <div className="h-1 w-6 rounded-full bg-cyan-300" />
+        <div className="h-1.5 w-20 rounded bg-white/90" />
+        <div className="h-1.5 w-14 rounded" style={{ background: "linear-gradient(90deg,#ff2bb5,#7c3aed,#00e5ff,#c4ff3e)" }} />
+        <div className="mt-1.5 flex gap-1">
+          <div className="h-3 w-10 rounded-full" style={{ background: "linear-gradient(90deg,#ff2bb5,#00e5ff,#c4ff3e)", border: "1.5px solid #0b0b14", boxShadow: "2px 2px 0 #0b0b14" }} />
+          <div className="h-3 w-10 rounded-full border-2 border-white/85 bg-transparent" />
+        </div>
+      </div>
+      {/* marquee strip */}
+      <div className="h-3 rounded-sm overflow-hidden" style={{ background: "linear-gradient(90deg,#ff2bb5,#00e5ff,#c4ff3e)", border: "1.5px solid #0b0b14" }}>
+        <div className="flex items-center gap-2 h-full px-1">
+          <span className="text-[6px] font-black text-[#0b0b14]">CODE • DESIGN • MARKETING</span>
+        </div>
       </div>
     </div>
   );

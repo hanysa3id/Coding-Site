@@ -58,7 +58,7 @@ const SECTIONS: {
     en: "Hero",
     description_ar: "أول قسم يراه الزائر — العنوان والـ CTAs.",
     description_en: "First-screen — headline + primary CTAs.",
-    themes: ["classic", "aurora", "nova", "sky", "moon"],
+    themes: ["classic", "aurora", "nova", "sky", "moon", "prism"],
   },
   {
     id: "logo_cloud",
@@ -67,7 +67,7 @@ const SECTIONS: {
     en: "Logo cloud",
     description_ar: "شريط متحرك بأسماء/شعارات الشركات.",
     description_en: "Marquee strip of client names / logos.",
-    themes: ["aurora", "nova", "sky", "moon"],
+    themes: ["aurora", "nova", "sky", "moon", "prism"],
   },
   {
     id: "features",
@@ -76,7 +76,7 @@ const SECTIONS: {
     en: "Features / Bento",
     description_ar: "بطاقات تشرح ما الذي يميزك.",
     description_en: "Cards explaining what makes you different.",
-    themes: ["classic", "aurora", "nova", "moon"],
+    themes: ["classic", "aurora", "nova", "moon", "prism"],
   },
   {
     id: "stats",
@@ -85,7 +85,7 @@ const SECTIONS: {
     en: "Stats",
     description_ar: "أرقام بارزة (مشاريع، عملاء، سنوات).",
     description_en: "Big numbers (projects, clients, years).",
-    themes: ["aurora", "sky", "moon"],
+    themes: ["aurora", "sky", "moon", "prism"],
   },
   {
     id: "services",
@@ -94,7 +94,7 @@ const SECTIONS: {
     en: "Services",
     description_ar: "قائمة الخدمات المعروضة (تُسحب من DB).",
     description_en: "Service offerings (pulled from DB).",
-    themes: ["classic", "aurora", "nova", "sky", "moon"],
+    themes: ["classic", "aurora", "nova", "sky", "moon", "prism"],
   },
   {
     id: "process",
@@ -103,7 +103,7 @@ const SECTIONS: {
     en: "Process steps",
     description_ar: "كيف نعمل — 4 مراحل من البداية للتسليم.",
     description_en: "How we work — 4 stages from start to finish.",
-    themes: ["aurora", "sky", "moon"],
+    themes: ["aurora", "sky", "moon", "prism"],
   },
   {
     id: "portfolio",
@@ -112,7 +112,7 @@ const SECTIONS: {
     en: "Portfolio",
     description_ar: "آخر المشاريع المنجزة (من DB).",
     description_en: "Recent projects (from DB).",
-    themes: ["aurora", "sky", "moon"],
+    themes: ["aurora", "sky", "moon", "prism"],
   },
   {
     id: "testimonials",
@@ -121,7 +121,7 @@ const SECTIONS: {
     en: "Testimonials",
     description_ar: "شهادات العملاء (من الـ reviews أو بديل).",
     description_en: "Customer quotes (from reviews or fallback).",
-    themes: ["aurora", "nova", "sky", "moon"],
+    themes: ["aurora", "nova", "sky", "moon", "prism"],
   },
   {
     id: "pricing",
@@ -130,7 +130,7 @@ const SECTIONS: {
     en: "Pricing",
     description_ar: "ثلاث باقات بأسعار شفافة.",
     description_en: "Three transparent pricing tiers.",
-    themes: ["aurora", "moon"],
+    themes: ["aurora", "moon", "prism"],
   },
   {
     id: "team",
@@ -139,7 +139,7 @@ const SECTIONS: {
     en: "Team + Mission/Vision",
     description_ar: "أعضاء الفريق + رسالة الشركة + إحصائيات.",
     description_en: "Team members + mission + stats.",
-    themes: ["sky", "moon"],
+    themes: ["sky", "moon", "prism"],
   },
   {
     id: "blog",
@@ -148,7 +148,7 @@ const SECTIONS: {
     en: "Blog",
     description_ar: "آخر 3 مقالات منشورة من المدونة.",
     description_en: "Latest 3 published blog posts.",
-    themes: ["aurora", "sky", "moon"],
+    themes: ["aurora", "sky", "moon", "prism"],
   },
   {
     id: "faq",
@@ -157,7 +157,7 @@ const SECTIONS: {
     en: "FAQ",
     description_ar: "قسم الأسئلة الشائعة بـ accordion.",
     description_en: "FAQ accordion section.",
-    themes: ["aurora", "sky", "moon"],
+    themes: ["aurora", "sky", "moon", "prism"],
   },
   {
     id: "newsletter",
@@ -166,7 +166,7 @@ const SECTIONS: {
     en: "Newsletter",
     description_ar: "نموذج اشتراك في النشرة الأسبوعية.",
     description_en: "Weekly newsletter signup form.",
-    themes: ["aurora", "moon"],
+    themes: ["aurora", "moon", "prism"],
   },
   {
     id: "cta",
@@ -175,7 +175,7 @@ const SECTIONS: {
     en: "Final CTA",
     description_ar: "قسم تحفيز أخير لبدء مشروع.",
     description_en: "Final conversion strip before footer.",
-    themes: ["classic", "aurora", "nova", "sky", "moon"],
+    themes: ["classic", "aurora", "nova", "sky", "moon", "prism"],
   },
 ];
 
