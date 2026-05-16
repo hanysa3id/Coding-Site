@@ -25,11 +25,13 @@ export function LogoMarquee({
     seen.add(label.toLowerCase());
     items.push({ key: p.id, label, image: p.cover_image });
   }
-  // Fallback names when projects DB is empty so the section never collapses.
-  if (items.length === 0) {
-    ["Northwind", "Acme", "Helios", "Vertex", "Lumen", "Atlas", "Quanta", "Orbit"].forEach(
-      (n) => items.push({ key: n, label: n, image: null })
-    );
+  // Always pad up to at least 8 items so the marquee never looks empty.
+  // Real client names appear first; stylized fallbacks fill the gap.
+  const FILLER = ["Northwind", "Acme", "Helios", "Vertex", "Lumen", "Atlas", "Quanta", "Orbit", "Polaris", "Stratus"];
+  for (const n of FILLER) {
+    if (items.length >= 8) break;
+    if (seen.has(n.toLowerCase())) continue;
+    items.push({ key: `filler-${n}`, label: n, image: null });
   }
 
   const doubled = [...items, ...items];

@@ -32,9 +32,17 @@ export function PortfolioShowcase({
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 mt-14">
+      <div
+        className={
+          // Bento layout (featured 2×2) only with >= 5 projects, otherwise
+          // a simple equal grid so the section never shows empty cells.
+          projects.length >= 5
+            ? "grid gap-4 md:grid-cols-3 lg:grid-cols-4 mt-14"
+            : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-14"
+        }
+      >
         {projects.slice(0, 6).map((p, i) => {
-          const featured = i === 0; // first project is featured (large)
+          const featured = projects.length >= 5 && i === 0;
           const name = isAr ? p.title_ar : p.title_en;
           return (
             <Link

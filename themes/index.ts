@@ -22,6 +22,9 @@ function envThemeId(): ThemeId | null {
 }
 
 async function resolveThemeId(): Promise<ThemeId> {
+  // Resolution order: DB setting → env var → safe default.
+  // The admin theme picker writes to settings.theme, so that wins by default;
+  // env var is the build-time escape hatch when no DB is reachable.
   try {
     const settings = await getThemeSettings();
     const id = settings?.active;
