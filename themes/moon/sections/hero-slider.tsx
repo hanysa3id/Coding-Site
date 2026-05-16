@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import {
   ArrowRight,
@@ -19,9 +20,9 @@ import {
   Zap,
   CheckCircle2,
   TrendingUp,
+  PlayCircle,
 } from "lucide-react";
 import { MoonButton } from "../ui/moon-button";
-import { MoonOrbs, MoonDisc } from "../ui/moon-orbs";
 import { cn } from "@/lib/utils";
 import type { LandingSettings } from "@/lib/validators/settings";
 
@@ -37,7 +38,9 @@ type HeroOverride = {
 
 type Slide = {
   id: string;
-  bgClass: string;
+  image: string;
+  imageAlt: { ar: string; en: string };
+  accent: string; // tailwind gradient (for accent ring + badge)
   render: (locale: string, override?: HeroOverride) => React.ReactNode;
 };
 
@@ -78,69 +81,172 @@ export function MoonHero({
   }
 
   return (
-    <section className="relative overflow-hidden pt-10 md:pt-14 pb-24 md:pb-32">
-      <div className="absolute inset-0 -z-10" aria-hidden>
-        <MoonOrbs />
-      </div>
-      <div className="moon-stars" aria-hidden />
-
-      <div className="container relative">
-        <div className="relative h-[40rem] md:h-[42rem] rounded-3xl overflow-hidden border border-white/[0.07] bg-white/[0.02] shadow-[0_40px_100px_-40px_rgba(96,165,250,0.45)] backdrop-blur-sm">
-          {SLIDES.map((s, i) => (
+    <section className="relative w-full overflow-hidden -mt-px" aria-roledescription="carousel">
+      {/* Layered slide stack */}
+      <div className="relative h-[640px] md:h-[760px] lg:h-[820px]">
+        {SLIDES.map((s, i) => {
+          const active = i === index;
+          return (
             <div
               key={s.id}
-              className={cn("moon-slide", s.bgClass)}
-              data-active={i === index || undefined}
-              aria-hidden={i !== index}
+              className={cn(
+                "absolute inset-0 transition-opacity duration-[1100ms] ease-out",
+                active ? "opacity-100" : "opacity-0 pointer-events-none"
+              )}
+              aria-hidden={!active}
             >
-              {i === index && (
-                <>
-                  <span className="moon-beam" aria-hidden />
-                  {s.render(locale, i === 0 ? heroOverride : undefined)}
-                </>
+              {/* Backdrop image */}
+              <div className="absolute inset-0">
+                <Image
+                  src={s.image}
+                  alt={isAr ? s.imageAlt.ar : s.imageAlt.en}
+                  fill
+                  priority={i === 0}
+                  sizes="100vw"
+                  className={cn(
+                    "object-cover transition-transform duration-[8000ms] ease-out",
+                    active ? "scale-105" : "scale-100"
+                  )}
+                />
+              </div>
+
+              {/* Cool-tone color wash + readability gradients */}
+              <div
+                className="absolute inset-0"
+                aria-hidden
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(6,10,22,0.55) 0%, rgba(6,10,22,0.78) 60%, rgba(6,10,22,0.96) 100%)",
+                }}
+              />
+              <div
+                className="absolute inset-0 mix-blend-color"
+                aria-hidden
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(59,130,246,0.55), rgba(99,102,241,0.40) 45%, rgba(20,184,166,0.35) 100%)",
+                }}
+              />
+              {/* Side fade for content side (LTR: left, RTL flips via dir) */}
+              <div
+                className="absolute inset-y-0 start-0 w-full md:w-[68%]"
+                aria-hidden
+                style={{
+                  background:
+                    "linear-gradient(90deg, rgba(6,10,22,0.92) 0%, rgba(6,10,22,0.78) 35%, rgba(6,10,22,0.30) 70%, transparent 100%)",
+                }}
+              />
+              {/* Floating colored glows */}
+              <span
+                className="absolute -top-24 -end-24 h-[28rem] w-[28rem] rounded-full opacity-50 blur-3xl"
+                style={{
+                  background:
+                    "radial-gradient(closest-side, rgba(96,165,250,0.55), transparent)",
+                }}
+                aria-hidden
+              />
+              <span
+                className="absolute -bottom-24 start-1/3 h-[22rem] w-[22rem] rounded-full opacity-40 blur-3xl"
+                style={{
+                  background:
+                    "radial-gradient(closest-side, rgba(45,212,191,0.40), transparent)",
+                }}
+                aria-hidden
+              />
+              {/* Star dots */}
+              <div className="moon-stars absolute inset-0" aria-hidden />
+              {/* Light beam sweep on active */}
+              {active && <span className="moon-beam" aria-hidden />}
+
+              {/* Slide content */}
+              {active && (
+                <div className="relative z-10 h-full">
+                  <div className="container h-full">
+                    {s.render(locale, i === 0 ? heroOverride : undefined)}
+                  </div>
+                </div>
               )}
             </div>
+          );
+        })}
+
+        {/* ─── Persistent overlay UI ─────────────────────────────────────── */}
+
+        {/* Top bar: counter + progress thumbs */}
+        <div className="absolute top-6 inset-x-0 z-30 pointer-events-none">
+          <div className="container flex items-center justify-between">
+            <div className="moon-pill px-3 py-1.5 text-[11px] moon-mono pointer-events-auto">
+              <span className="text-white">{String(index + 1).padStart(2, "0")}</span>
+              <span className="text-white/40"> / {String(SLIDES.length).padStart(2, "0")}</span>
+            </div>
+            <div className="hidden md:flex items-center gap-1.5 pointer-events-auto">
+              {SLIDES.map((s, i) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => go(i)}
+                  className={cn(
+                    "relative h-12 w-16 rounded-lg overflow-hidden border transition-all",
+                    i === index
+                      ? "border-sky-400/70 ring-1 ring-sky-400/50 scale-105"
+                      : "border-white/15 opacity-55 hover:opacity-100"
+                  )}
+                  aria-label={`${isAr ? "الشريحة" : "Slide"} ${i + 1}`}
+                >
+                  <Image
+                    src={s.image}
+                    alt=""
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
+                  <span
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(180deg, rgba(6,10,22,0.20), rgba(6,10,22,0.65))",
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Prev / Next */}
+        <button
+          type="button"
+          onClick={() => go(index - 1)}
+          aria-label={isAr ? "السابق" : "Previous"}
+          className="absolute start-4 md:start-8 top-1/2 -translate-y-1/2 z-20 grid place-items-center h-12 w-12 rounded-full bg-white/[0.08] border border-white/20 text-white hover:bg-white/[0.18] hover:border-sky-400/60 backdrop-blur-md transition"
+        >
+          <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
+        </button>
+        <button
+          type="button"
+          onClick={() => go(index + 1)}
+          aria-label={isAr ? "التالي" : "Next"}
+          className="absolute end-4 md:end-8 top-1/2 -translate-y-1/2 z-20 grid place-items-center h-12 w-12 rounded-full bg-white/[0.08] border border-white/20 text-white hover:bg-white/[0.18] hover:border-sky-400/60 backdrop-blur-md transition"
+        >
+          <ChevronRight className="h-5 w-5 rtl:rotate-180" />
+        </button>
+
+        {/* Bottom dots */}
+        <div className="absolute bottom-7 inset-x-0 z-20 flex items-center justify-center gap-2">
+          {SLIDES.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => go(i)}
+              aria-label={`${isAr ? "الشريحة" : "Slide"} ${i + 1}`}
+              className={cn(
+                "h-1.5 rounded-full transition-all",
+                i === index
+                  ? "w-12 bg-gradient-to-r from-sky-400 to-indigo-400"
+                  : "w-2 bg-white/30 hover:bg-white/55"
+              )}
+            />
           ))}
-
-          {/* Slide counter chip */}
-          <div className="absolute top-5 end-5 z-20 moon-pill px-3 py-1 text-[11px] moon-mono">
-            {String(index + 1).padStart(2, "0")}{" "}
-            <span className="text-white/40">/ {String(SLIDES.length).padStart(2, "0")}</span>
-          </div>
-
-          {/* Controls */}
-          <button
-            type="button"
-            onClick={() => go(index - 1)}
-            aria-label={isAr ? "السابق" : "Previous"}
-            className="absolute start-4 top-1/2 -translate-y-1/2 z-20 grid place-items-center h-11 w-11 rounded-full bg-white/[0.08] border border-white/15 text-white/85 hover:bg-white/[0.16] hover:border-white/30 backdrop-blur transition"
-          >
-            <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
-          </button>
-          <button
-            type="button"
-            onClick={() => go(index + 1)}
-            aria-label={isAr ? "التالي" : "Next"}
-            className="absolute end-4 top-1/2 -translate-y-1/2 z-20 grid place-items-center h-11 w-11 rounded-full bg-white/[0.08] border border-white/15 text-white/85 hover:bg-white/[0.16] hover:border-white/30 backdrop-blur transition"
-          >
-            <ChevronRight className="h-5 w-5 rtl:rotate-180" />
-          </button>
-
-          {/* Dots */}
-          <div className="absolute bottom-5 inset-x-0 z-20 flex items-center justify-center gap-2">
-            {SLIDES.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => go(i)}
-                aria-label={`${isAr ? "الشريحة" : "Slide"} ${i + 1}`}
-                className={cn(
-                  "h-2 rounded-full transition-all",
-                  i === index ? "w-10 bg-white" : "w-2 bg-white/30 hover:bg-white/55"
-                )}
-              />
-            ))}
-          </div>
         </div>
       </div>
     </section>
@@ -149,111 +255,170 @@ export function MoonHero({
 
 // ─── 6 distinct premium slides ───────────────────────────────────────────────
 
-const SLIDES: Slide[] = [
-  // ─── SLIDE 1 — Cinematic launch (moon disc + orbiting rings + typewriter) ───
-  {
-    id: "moon-cinematic",
-    bgClass: "moon-slide-bg-1",
-    render: (locale, override) => {
-      const isAr = locale === "ar";
-      const badge = override?.badge ?? (isAr ? "نصمم تجارب من نور القمر" : "Crafted in moonlight");
-      const title = override?.title ?? (isAr ? "تجارب رقمية " : "Digital experiences ");
-      const titleEm = isAr ? "تتجاوز الخيال." : "beyond imagination.";
-      const subtitle =
-        override?.subtitle ??
-        (isAr
-          ? "نطلق منتجات لامعة، سريعة، وأنيقة بكل تفصيلة — من فكرة على ورق إلى منصّة يعشقها عملاؤك."
-          : "We launch radiant, blazing-fast products refined to the last pixel — from napkin sketch to platform your users love.");
-      const primaryLabel = override?.primaryLabel ?? (isAr ? "ابدأ مشروعك" : "Start a project");
-      const primaryHref = override?.primaryHref ?? "/contact";
-      const secondaryLabel = override?.secondaryLabel ?? (isAr ? "تصفّح الخدمات" : "Browse services");
-      const secondaryHref = override?.secondaryHref ?? "/services";
-
-      const chips = isAr
-        ? ["Next.js", "تصميم متجاوب", "SEO", "أداء 95+"]
-        : ["Next.js", "Responsive", "SEO", "95+ Lighthouse"];
-
-      return (
-        <div className="relative z-10 h-full grid lg:grid-cols-[1.15fr_1fr] gap-6 px-6 md:px-14 py-12">
-          <div className="flex flex-col justify-center max-w-2xl space-y-6">
-            <span className="moon-pill moon-fade-in moon-pulse inline-flex items-center gap-2 px-3 py-1.5 text-xs w-fit">
-              <Sparkles className="h-3.5 w-3.5 text-sky-300" />
-              {badge}
-            </span>
-            <h1
-              className="moon-display moon-fade-up text-5xl md:text-7xl leading-[1.05] text-white"
-              style={{ "--moon-delay": "120ms" } as React.CSSProperties}
-            >
-              <span className="moon-grad-silver">{title}</span>
-              <br />
-              <span className="moon-grad-text">{titleEm}</span>
-              <span className="moon-caret" aria-hidden />
-            </h1>
-            <p
-              className="moon-fade-up text-base md:text-lg text-white/65 leading-relaxed max-w-xl"
-              style={{ "--moon-delay": "280ms" } as React.CSSProperties}
-            >
-              {subtitle}
-            </p>
-            <div
-              className="moon-fade-up flex flex-wrap items-center gap-2"
-              style={{ "--moon-delay": "380ms" } as React.CSSProperties}
-            >
-              {chips.map((c) => (
-                <span
-                  key={c}
-                  className="moon-pill px-2.5 py-1 text-[11px] moon-mono text-white/65"
-                >
-                  {c}
-                </span>
-              ))}
-            </div>
-            <div
-              className="moon-fade-up flex flex-wrap gap-3 pt-1"
-              style={{ "--moon-delay": "500ms" } as React.CSSProperties}
-            >
+// Reusable scaffold for the content side (gives every slide the same layout discipline)
+function SlideContent({
+  badge,
+  badgeIcon: BadgeIcon,
+  title,
+  titleEm,
+  subtitle,
+  primary,
+  secondary,
+  side,
+}: {
+  badge: string;
+  badgeIcon: React.ComponentType<{ className?: string }>;
+  title: string;
+  titleEm: string;
+  subtitle: string;
+  primary?: { label: string; href: string };
+  secondary?: { label: string; href: string };
+  side: React.ReactNode;
+}) {
+  return (
+    <div className="grid lg:grid-cols-[1.05fr_1fr] gap-10 items-center h-full py-20 md:py-24">
+      <div className="max-w-2xl space-y-6 relative">
+        <span className="moon-pill moon-fade-in moon-pulse inline-flex items-center gap-2 px-3 py-1.5 text-xs w-fit">
+          <BadgeIcon className="h-3.5 w-3.5 text-sky-300" />
+          {badge}
+        </span>
+        <h1
+          className="moon-display moon-fade-up text-5xl md:text-7xl leading-[1.04] text-white"
+          style={{ "--moon-delay": "120ms" } as React.CSSProperties}
+        >
+          <span className="moon-grad-silver">{title}</span>
+          <br />
+          <span className="moon-grad-text">{titleEm}</span>
+        </h1>
+        <p
+          className="moon-fade-up text-base md:text-lg text-white/75 leading-relaxed max-w-xl"
+          style={{ "--moon-delay": "280ms" } as React.CSSProperties}
+        >
+          {subtitle}
+        </p>
+        {(primary || secondary) && (
+          <div
+            className="moon-fade-up flex flex-wrap gap-3 pt-2"
+            style={{ "--moon-delay": "420ms" } as React.CSSProperties}
+          >
+            {primary && (
               <MoonButton asChild size="lg" variant="primary">
-                <Link href={primaryHref}>
-                  {primaryLabel}
+                <Link href={primary.href}>
+                  {primary.label}
                   <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                 </Link>
               </MoonButton>
+            )}
+            {secondary && (
               <MoonButton asChild size="lg" variant="secondary">
-                <Link href={secondaryHref}>{secondaryLabel}</Link>
+                <Link href={secondary.href}>{secondary.label}</Link>
               </MoonButton>
-            </div>
+            )}
           </div>
+        )}
+      </div>
 
-          {/* Floating moon disc with orbit rings */}
-          <div className="hidden lg:flex items-center justify-center relative">
-            <div
-              className="relative w-[320px] h-[320px] moon-fade-in"
-              style={{ "--moon-delay": "200ms" } as React.CSSProperties}
-            >
-              <span className="moon-orbit-ring moon-orbit-ring-3" aria-hidden>
-                <span className="moon-orbit-dot" style={{ background: "linear-gradient(135deg,#2dd4bf,#60a5fa)" }} />
-              </span>
-              <span className="moon-orbit-ring moon-orbit-ring-2" aria-hidden>
-                <span className="moon-orbit-dot" />
-              </span>
-              <span className="moon-orbit-ring" aria-hidden />
-              <div
-                className="absolute inset-0 grid place-items-center"
-                style={{ filter: "drop-shadow(0 0 80px rgba(96,165,250,0.40))" }}
-              >
-                <MoonDisc size={300} className="moon-orb" />
+      <div
+        className="hidden lg:flex items-center justify-center moon-fade-up"
+        style={{ "--moon-delay": "320ms" } as React.CSSProperties}
+      >
+        {side}
+      </div>
+    </div>
+  );
+}
+
+const SLIDES: Slide[] = [
+  // ─── SLIDE 1 — Cinematic launch ────────────────────────────────────────────
+  {
+    id: "moon-cinematic",
+    image:
+      "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=2400&q=80",
+    imageAlt: { ar: "سماء ليلية بالنجوم", en: "Starry night sky" },
+    accent: "from-sky-400 to-indigo-500",
+    render: (locale, override) => {
+      const isAr = locale === "ar";
+      const chips = isAr
+        ? ["Next.js 16", "تصميم متجاوب", "SEO", "Lighthouse 95+"]
+        : ["Next.js 16", "Responsive", "SEO", "Lighthouse 95+"];
+      return (
+        <SlideContent
+          badge={override?.badge ?? (isAr ? "نصمم تجارب من نور القمر" : "Crafted in moonlight")}
+          badgeIcon={Sparkles}
+          title={override?.title ?? (isAr ? "تجارب رقمية " : "Digital experiences ")}
+          titleEm={isAr ? "تتجاوز الخيال." : "beyond imagination."}
+          subtitle={
+            override?.subtitle ??
+            (isAr
+              ? "نطلق منتجات لامعة، سريعة، وأنيقة بكل تفصيلة — من فكرة على ورق إلى منصّة يعشقها عملاؤك."
+              : "We launch radiant, blazing-fast products refined to the last pixel — from sketch to platform your users love.")
+          }
+          primary={{
+            label: override?.primaryLabel ?? (isAr ? "ابدأ مشروعك" : "Start a project"),
+            href: override?.primaryHref ?? "/contact",
+          }}
+          secondary={{
+            label: override?.secondaryLabel ?? (isAr ? "تصفّح الخدمات" : "Browse services"),
+            href: override?.secondaryHref ?? "/services",
+          }}
+          side={
+            <div className="relative w-full max-w-md aspect-[4/5]">
+              {/* Featured image card */}
+              <div className="moon-card moon-card-premium absolute inset-0 p-3">
+                <div className="relative h-full w-full moon-image-frame">
+                  <Image
+                    src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1200&q=80"
+                    alt=""
+                    fill
+                    sizes="(min-width:1024px) 28rem, 100vw"
+                    className="object-cover moon-img-zoom"
+                  />
+                </div>
+                {/* Floating chips */}
+                <div className="absolute bottom-6 inset-x-6 flex flex-wrap gap-2">
+                  {chips.map((c) => (
+                    <span
+                      key={c}
+                      className="moon-pill px-2.5 py-1 text-[11px] moon-mono backdrop-blur-md bg-black/40"
+                    >
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              {/* Floating stat tile */}
+              <div className="absolute -bottom-6 -start-6 moon-card moon-card-premium px-4 py-3 flex items-center gap-3 shadow-2xl">
+                <span className="grid place-items-center h-10 w-10 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 text-white">
+                  <Rocket className="h-5 w-5" />
+                </span>
+                <div className="leading-tight">
+                  <p className="moon-grad-text text-xl font-bold">120+</p>
+                  <p className="text-[10px] text-white/55 moon-mono uppercase tracking-wider">
+                    {isAr ? "مشاريع مُسلَّمة" : "Projects shipped"}
+                  </p>
+                </div>
+              </div>
+              {/* Floating play card */}
+              <div className="absolute -top-4 -end-4 moon-card moon-card-premium px-3 py-2 flex items-center gap-2">
+                <PlayCircle className="h-5 w-5 text-sky-300" />
+                <p className="text-[11px] text-white/80">
+                  {isAr ? "شاهد قصصنا" : "Watch our story"}
+                </p>
               </div>
             </div>
-          </div>
-        </div>
+          }
+        />
       );
     },
   },
 
-  // ─── SLIDE 2 — Performance dashboard (live-metric cards + score ring) ───────
+  // ─── SLIDE 2 — Performance dashboard ───────────────────────────────────────
   {
     id: "moon-performance",
-    bgClass: "moon-slide-bg-2",
+    image:
+      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=2400&q=80",
+    imageAlt: { ar: "كود برمجي على شاشة", en: "Source code on a screen" },
+    accent: "from-teal-400 to-sky-500",
     render: (locale) => {
       const isAr = locale === "ar";
       const metrics = [
@@ -262,76 +427,32 @@ const SLIDES: Slide[] = [
         { label: "CLS", v: 94, hint: "0.02" },
       ];
       return (
-        <div className="relative z-10 h-full grid lg:grid-cols-[1fr_1fr] gap-8 px-6 md:px-14 py-12">
-          <div className="flex flex-col justify-center max-w-xl space-y-6">
-            <span
-              className="moon-pill moon-fade-in inline-flex items-center gap-2 px-3 py-1.5 text-xs w-fit"
-              style={{ "--moon-delay": "0ms" } as React.CSSProperties}
-            >
-              <Gauge className="h-3.5 w-3.5 text-sky-300" />
-              {isAr ? "أداء يُقاس بالأرقام" : "Performance, measured"}
-            </span>
-            <h1
-              className="moon-display moon-fade-up text-4xl md:text-6xl leading-[1.05] text-white"
-              style={{ "--moon-delay": "150ms" } as React.CSSProperties}
-            >
-              <span className="moon-grad-silver">{isAr ? "سرعة " : "Speed "}</span>
-              <span className="moon-grad-text">{isAr ? "تشعر بها." : "you can feel."}</span>
-            </h1>
-            <p
-              className="moon-fade-up text-base md:text-lg text-white/65 leading-relaxed"
-              style={{ "--moon-delay": "300ms" } as React.CSSProperties}
-            >
-              {isAr
-                ? "موقعك يفتح فوراً، يتنقّل بسلاسة، ويظهر متّقن على كل جهاز. أداء Lighthouse 95+ من أول إطلاق."
-                : "Your site opens instantly, navigates smoothly, looks refined on every device. 95+ Lighthouse scores from day one."}
-            </p>
-            <div
-              className="moon-fade-up flex flex-wrap gap-3 pt-1"
-              style={{ "--moon-delay": "450ms" } as React.CSSProperties}
-            >
-              <MoonButton asChild size="lg" variant="primary">
-                <Link href="/services">
-                  {isAr ? "اعرف كيف" : "See how"}
-                  <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-                </Link>
-              </MoonButton>
-              <MoonButton asChild size="lg" variant="ghost">
-                <Link href="/portfolio">{isAr ? "أمثلة حية" : "Live examples"}</Link>
-              </MoonButton>
-            </div>
-          </div>
-
-          {/* Right: score ring + metrics */}
-          <div className="hidden lg:flex items-center justify-center">
+        <SlideContent
+          badge={isAr ? "أداء يُقاس بالأرقام" : "Performance, measured"}
+          badgeIcon={Gauge}
+          title={isAr ? "سرعة " : "Speed "}
+          titleEm={isAr ? "تشعر بها." : "you can feel."}
+          subtitle={
+            isAr
+              ? "موقعك يفتح فوراً، يتنقّل بسلاسة، ويظهر متّقن على كل جهاز. أداء Lighthouse 95+ من أول إطلاق."
+              : "Your site opens instantly, navigates smoothly, looks refined on every device. 95+ Lighthouse scores from day one."
+          }
+          primary={{ label: isAr ? "اعرف كيف" : "See how", href: "/services" }}
+          secondary={{ label: isAr ? "أمثلة حية" : "Live examples", href: "/portfolio" }}
+          side={
             <div className="grid grid-cols-2 gap-4 w-full max-w-md">
-              {/* Big circular score */}
-              <div
-                className="moon-card moon-fade-up p-5 col-span-2 flex items-center gap-5 relative overflow-hidden"
-                style={{ "--moon-delay": "200ms" } as React.CSSProperties}
-              >
+              <div className="moon-card moon-card-premium p-5 col-span-2 flex items-center gap-5">
                 <div className="relative h-24 w-24 shrink-0">
                   <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+                    <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.07)" strokeWidth="8" fill="none" />
                     <circle
-                      cx="50"
-                      cy="50"
-                      r="42"
-                      stroke="rgba(255,255,255,0.07)"
-                      strokeWidth="8"
-                      fill="none"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="42"
-                      stroke="url(#moonScoreG)"
-                      strokeWidth="8"
-                      fill="none"
-                      strokeLinecap="round"
+                      cx="50" cy="50" r="42"
+                      stroke="url(#mhg1)"
+                      strokeWidth="8" fill="none" strokeLinecap="round"
                       strokeDasharray={`${(96 / 100) * (2 * Math.PI * 42)} 999`}
                     />
                     <defs>
-                      <linearGradient id="moonScoreG" x1="0" y1="0" x2="1" y2="1">
+                      <linearGradient id="mhg1" x1="0" y1="0" x2="1" y2="1">
                         <stop offset="0%" stopColor="#60a5fa" />
                         <stop offset="100%" stopColor="#2dd4bf" />
                       </linearGradient>
@@ -342,9 +463,7 @@ const SLIDES: Slide[] = [
                   </div>
                 </div>
                 <div>
-                  <p className="text-[10px] moon-mono uppercase tracking-wider text-white/45">
-                    Lighthouse
-                  </p>
+                  <p className="text-[10px] moon-mono uppercase tracking-wider text-white/45">Lighthouse</p>
                   <p className="text-white font-semibold text-lg mt-0.5">
                     {isAr ? "تقييم ممتاز" : "Excellent score"}
                   </p>
@@ -353,20 +472,11 @@ const SLIDES: Slide[] = [
                   </p>
                 </div>
               </div>
-
-              {metrics.map((m, i) => (
-                <div
-                  key={m.label}
-                  className="moon-card moon-stat moon-fade-up p-4 relative"
-                  style={{ "--moon-delay": `${300 + i * 100}ms` } as React.CSSProperties}
-                >
+              {metrics.map((m) => (
+                <div key={m.label} className="moon-card p-4">
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] moon-mono uppercase tracking-wider text-white/45">
-                      {m.label}
-                    </p>
-                    <span className="text-[10px] moon-mono text-emerald-300/90">
-                      {m.hint}
-                    </span>
+                    <p className="text-[10px] moon-mono uppercase tracking-wider text-white/45">{m.label}</p>
+                    <span className="text-[10px] moon-mono text-emerald-300/90">{m.hint}</span>
                   </div>
                   <p className="moon-num-pop text-2xl font-bold text-white mt-1.5">{m.v}</p>
                   <div className="mt-2 h-1.5 w-full rounded-full bg-white/[0.05] overflow-hidden">
@@ -375,71 +485,40 @@ const SLIDES: Slide[] = [
                 </div>
               ))}
             </div>
-          </div>
-        </div>
+          }
+        />
       );
     },
   },
 
-  // ─── SLIDE 3 — Code window mockup + headline ───────────────────────────────
+  // ─── SLIDE 3 — Code craft ──────────────────────────────────────────────────
   {
     id: "moon-craft",
-    bgClass: "moon-slide-bg-3",
+    image:
+      "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=2400&q=80",
+    imageAlt: { ar: "محرر كود مظلم", en: "Dark code editor" },
+    accent: "from-indigo-400 to-fuchsia-500",
     render: (locale) => {
       const isAr = locale === "ar";
       return (
-        <div className="relative z-10 h-full grid lg:grid-cols-[1fr_1.15fr] gap-8 px-6 md:px-14 py-12">
-          <div className="flex flex-col justify-center max-w-xl space-y-6">
-            <span
-              className="moon-pill moon-fade-in inline-flex items-center gap-2 px-3 py-1.5 text-xs w-fit"
-              style={{ "--moon-delay": "0ms" } as React.CSSProperties}
-            >
-              <Code2 className="h-3.5 w-3.5 text-sky-300" />
-              {isAr ? "كود نظيف، صنعة دقيقة" : "Clean code, real craft"}
-            </span>
-            <h1
-              className="moon-display moon-fade-up text-4xl md:text-6xl leading-[1.05] text-white"
-              style={{ "--moon-delay": "150ms" } as React.CSSProperties}
-            >
-              <span className="moon-grad-silver">
-                {isAr ? "ليس مجرد موقع — " : "Not just a site — "}
-              </span>
-              <span className="moon-grad-text">
-                {isAr ? "بنية تدوم." : "an architecture that lasts."}
-              </span>
-            </h1>
-            <p
-              className="moon-fade-up text-base md:text-lg text-white/65 leading-relaxed"
-              style={{ "--moon-delay": "300ms" } as React.CSSProperties}
-            >
-              {isAr
-                ? "TypeScript ، اختبارات تلقائية، CI/CD، ومراجعة كود حقيقية — تستلم منتجاً يسهل تطويره لسنوات قادمة."
-                : "TypeScript, automated tests, CI/CD, and real code review — you receive a product you can grow for years."}
-            </p>
-            <div
-              className="moon-fade-up flex flex-wrap gap-3 pt-1"
-              style={{ "--moon-delay": "450ms" } as React.CSSProperties}
-            >
-              <MoonButton asChild size="lg" variant="primary">
-                <Link href="/contact">
-                  {isAr ? "تحدّث مع المهندسين" : "Talk to engineers"}
-                </Link>
-              </MoonButton>
-            </div>
-          </div>
-
-          <div className="hidden lg:flex items-center justify-center">
-            <div
-              className="moon-code moon-fade-up w-full max-w-lg shadow-[0_30px_60px_-30px_rgba(96,165,250,0.45)]"
-              style={{ "--moon-delay": "250ms" } as React.CSSProperties}
-            >
+        <SlideContent
+          badge={isAr ? "كود نظيف، صنعة دقيقة" : "Clean code, real craft"}
+          badgeIcon={Code2}
+          title={isAr ? "ليس مجرد موقع — " : "Not just a site — "}
+          titleEm={isAr ? "بنية تدوم." : "an architecture that lasts."}
+          subtitle={
+            isAr
+              ? "TypeScript ، اختبارات تلقائية، CI/CD، ومراجعة كود حقيقية — تستلم منتجاً يسهل تطويره لسنوات قادمة."
+              : "TypeScript, automated tests, CI/CD, and real code review — you receive a product you can grow for years."
+          }
+          primary={{ label: isAr ? "تحدّث مع المهندسين" : "Talk to engineers", href: "/contact" }}
+          side={
+            <div className="moon-code w-full max-w-lg shadow-[0_30px_60px_-30px_rgba(96,165,250,0.55)]">
               <div className="moon-code-titlebar">
                 <span className="moon-code-dot" style={{ background: "#f87171" }} />
                 <span className="moon-code-dot" style={{ background: "#fbbf24" }} />
                 <span className="moon-code-dot" style={{ background: "#34d399" }} />
-                <span className="ms-3 text-[11px] moon-mono text-white/45">
-                  ~/launch.ts
-                </span>
+                <span className="ms-3 text-[11px] moon-mono text-white/45">~/launch.ts</span>
               </div>
               <pre className="p-5 text-[12.5px] leading-relaxed moon-mono overflow-x-auto">
                 <code className="block">
@@ -452,37 +531,31 @@ const SLIDES: Slide[] = [
                   <span className="text-indigo-300">export async function</span>{" "}
                   <span className="text-white">launch</span>
                   <span className="text-white/60">() {`{`}</span>
-                  {"\n"}
-                  {"  "}
+                  {"\n  "}
                   <span className="text-sky-300">const</span>{" "}
                   <span className="text-white">product</span>{" "}
                   <span className="text-white/60">=</span>{" "}
                   <span className="text-sky-300">await</span>{" "}
                   <span className="text-emerald-300">ship</span>
                   <span className="text-white/60">({`{`}</span>
-                  {"\n"}
-                  {"    "}
+                  {"\n    "}
                   <span className="text-white/85">stack</span>
                   <span className="text-white/60">:</span>{" "}
                   <span className="text-amber-200">&apos;Next.js + PG&apos;</span>
                   <span className="text-white/60">,</span>
-                  {"\n"}
-                  {"    "}
+                  {"\n    "}
                   <span className="text-white/85">tests</span>
                   <span className="text-white/60">:</span>{" "}
                   <span className="text-pink-300">true</span>
                   <span className="text-white/60">,</span>
-                  {"\n"}
-                  {"    "}
+                  {"\n    "}
                   <span className="text-white/85">support</span>
                   <span className="text-white/60">:</span>{" "}
                   <span className="text-amber-200">&apos;24/7&apos;</span>
                   <span className="text-white/60">,</span>
-                  {"\n"}
-                  {"  "}
+                  {"\n  "}
                   <span className="text-white/60">{`});`}</span>
-                  {"\n\n"}
-                  {"  "}
+                  {"\n\n  "}
                   <span className="text-sky-300">return</span>{" "}
                   <span className="text-white">product</span>
                   <span className="text-white/40">.</span>
@@ -500,66 +573,35 @@ const SLIDES: Slide[] = [
                 <span className="text-[11px] moon-mono text-white/40">1.2s</span>
               </div>
             </div>
-          </div>
-        </div>
+          }
+        />
       );
     },
   },
 
-  // ─── SLIDE 4 — Featured testimonial + trust marks ──────────────────────────
+  // ─── SLIDE 4 — Trust / testimonial ─────────────────────────────────────────
   {
     id: "moon-trust",
-    bgClass: "moon-slide-bg-4",
+    image:
+      "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=2400&q=80",
+    imageAlt: { ar: "فريق يعمل معاً", en: "Team working together" },
+    accent: "from-emerald-400 to-teal-500",
     render: (locale) => {
       const isAr = locale === "ar";
       return (
-        <div className="relative z-10 h-full grid lg:grid-cols-[1fr_1.1fr] gap-8 px-6 md:px-14 py-12">
-          <div className="flex flex-col justify-center max-w-xl space-y-6">
-            <span
-              className="moon-pill moon-fade-in inline-flex items-center gap-2 px-3 py-1.5 text-xs w-fit"
-              style={{ "--moon-delay": "0ms" } as React.CSSProperties}
-            >
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-300" />
-              {isAr ? "موثوق من فرق حقيقية" : "Trusted by real teams"}
-            </span>
-            <h1
-              className="moon-display moon-fade-up text-4xl md:text-6xl leading-[1.05] text-white"
-              style={{ "--moon-delay": "150ms" } as React.CSSProperties}
-            >
-              <span className="moon-grad-silver">
-                {isAr ? "شراكة طويلة، " : "Partnership for the long run, "}
-              </span>
-              <span className="moon-grad-text">
-                {isAr ? "ليست تسليم وانتهى." : "not a drop-and-go."}
-              </span>
-            </h1>
-            <p
-              className="moon-fade-up text-base md:text-lg text-white/65 leading-relaxed"
-              style={{ "--moon-delay": "280ms" } as React.CSSProperties}
-            >
-              {isAr
-                ? "بعد الإطلاق نبقى معك — مراقبة 24/7، تحديثات أمنية فورية، واستجابة خلال دقائق."
-                : "After launch we stay with you — 24/7 monitoring, instant security patches, response within minutes."}
-            </p>
-            <div
-              className="moon-fade-up grid grid-cols-3 gap-2 max-w-sm pt-1"
-              style={{ "--moon-delay": "400ms" } as React.CSSProperties}
-            >
-              {["Northwind", "Aerolux", "Verdant"].map((b) => (
-                <div
-                  key={b}
-                  className="moon-pill px-2 py-1.5 text-center text-[11px] moon-mono text-white/55"
-                >
-                  {b}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="hidden lg:flex items-center justify-center">
-            <div
-              className="moon-card moon-card-glow is-active moon-fade-up p-8 max-w-md relative"
-              style={{ "--moon-delay": "260ms" } as React.CSSProperties}
-            >
+        <SlideContent
+          badge={isAr ? "موثوق من فرق حقيقية" : "Trusted by real teams"}
+          badgeIcon={ShieldCheck}
+          title={isAr ? "شراكة طويلة، " : "Partnership for the long run, "}
+          titleEm={isAr ? "ليست تسليم وانتهى." : "not a drop-and-go."}
+          subtitle={
+            isAr
+              ? "بعد الإطلاق نبقى معك — مراقبة 24/7، تحديثات أمنية فورية، واستجابة خلال دقائق."
+              : "After launch we stay with you — 24/7 monitoring, instant security patches, response within minutes."
+          }
+          primary={{ label: isAr ? "اقرأ آراء العملاء" : "Read client reviews", href: "/contact" }}
+          side={
+            <div className="moon-card moon-card-premium p-8 max-w-md relative">
               <span className="absolute -top-4 start-6 moon-pill px-2.5 py-1 text-[10px] moon-mono">
                 {isAr ? "تقييم العميل" : "Client review"}
               </span>
@@ -568,7 +610,7 @@ const SLIDES: Slide[] = [
                   <Star key={i} className="h-4 w-4 fill-amber-300 text-amber-300" />
                 ))}
               </div>
-              <p className="text-base md:text-lg text-white/90 leading-relaxed">
+              <p className="text-base md:text-lg text-white/95 leading-relaxed">
                 &ldquo;
                 {isAr
                   ? "أفضل تعاقد قمنا به هذا العام. الفريق متفهم، النتائج فاقت التوقعات، والدعم بعد الإطلاق ممتاز."
@@ -576,9 +618,15 @@ const SLIDES: Slide[] = [
                 &rdquo;
               </p>
               <div className="mt-6 flex items-center gap-3 pt-4 border-t border-white/[0.06]">
-                <span className="grid place-items-center h-11 w-11 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white font-semibold">
-                  AM
-                </span>
+                <div className="relative h-11 w-11 rounded-full overflow-hidden ring-2 ring-sky-400/40">
+                  <Image
+                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80"
+                    alt=""
+                    fill
+                    sizes="44px"
+                    className="object-cover"
+                  />
+                </div>
                 <div>
                   <p className="text-sm font-medium text-white">
                     {isAr ? "أحمد المنصوري" : "Ahmed Al-Mansouri"}
@@ -593,123 +641,62 @@ const SLIDES: Slide[] = [
                 </span>
               </div>
             </div>
-          </div>
-        </div>
+          }
+        />
       );
     },
   },
 
-  // ─── SLIDE 5 — Process: 4 steps with traveling line ────────────────────────
+  // ─── SLIDE 5 — Process steps ───────────────────────────────────────────────
   {
     id: "moon-process",
-    bgClass: "moon-slide-bg-5",
+    image:
+      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=2400&q=80",
+    imageAlt: { ar: "تخطيط مشروع على لوحة", en: "Project planning on a board" },
+    accent: "from-sky-400 to-purple-500",
     render: (locale) => {
       const isAr = locale === "ar";
       const steps = [
-        {
-          icon: Sparkles,
-          ar: "اكتشاف",
-          en: "Discover",
-          arDesc: "ورشة استكشاف",
-          enDesc: "Scoping workshop",
-        },
-        {
-          icon: Layers,
-          ar: "تصميم",
-          en: "Design",
-          arDesc: "نماذج تفاعلية",
-          enDesc: "Interactive mockups",
-        },
-        {
-          icon: Code2,
-          ar: "تطوير",
-          en: "Build",
-          arDesc: "كود نظيف",
-          enDesc: "Clean code",
-        },
-        {
-          icon: Rocket,
-          ar: "إطلاق",
-          en: "Launch",
-          arDesc: "مع دعم 24/7",
-          enDesc: "24/7 support",
-        },
+        { icon: Sparkles, ar: "اكتشاف", en: "Discover", arDesc: "ورشة استكشاف مجانية", enDesc: "Free scoping workshop" },
+        { icon: Layers, ar: "تصميم", en: "Design", arDesc: "نماذج تفاعلية قابلة للنقر", enDesc: "Clickable interactive mockups" },
+        { icon: Code2, ar: "تطوير", en: "Build", arDesc: "كود نظيف + اختبارات", enDesc: "Clean code + automated tests" },
+        { icon: Rocket, ar: "إطلاق", en: "Launch", arDesc: "دعم 24/7 بعد التسليم", enDesc: "24/7 post-launch support" },
       ];
       return (
-        <div className="relative z-10 h-full grid lg:grid-cols-[1fr_1.2fr] gap-8 px-6 md:px-14 py-12">
-          <div className="flex flex-col justify-center max-w-xl space-y-6">
-            <span
-              className="moon-pill moon-fade-in inline-flex items-center gap-2 px-3 py-1.5 text-xs w-fit"
-              style={{ "--moon-delay": "0ms" } as React.CSSProperties}
-            >
-              <Workflow className="h-3.5 w-3.5 text-sky-300" />
-              {isAr ? "عملية واضحة كالقمر" : "Clear as moonlight"}
-            </span>
-            <h1
-              className="moon-display moon-fade-up text-4xl md:text-6xl leading-[1.05] text-white"
-              style={{ "--moon-delay": "150ms" } as React.CSSProperties}
-            >
-              <span className="moon-grad-silver">{isAr ? "أربع خطوات " : "Four steps "}</span>
-              <span className="moon-grad-text">
-                {isAr ? "من الفكرة للإطلاق." : "from idea to launch."}
-              </span>
-            </h1>
-            <p
-              className="moon-fade-up text-base md:text-lg text-white/65 leading-relaxed"
-              style={{ "--moon-delay": "300ms" } as React.CSSProperties}
-            >
-              {isAr
-                ? "تعرف بالضبط أين نحن في كل لحظة. اجتماعات أسبوعية، عرض تجريبي مباشر، ولا مفاجآت."
-                : "You know exactly where we are at any moment. Weekly demos, live previews, no surprises."}
-            </p>
-            <MoonButton
-              asChild
-              size="lg"
-              variant="primary"
-              className="moon-fade-up w-fit"
-              style={{ "--moon-delay": "450ms" } as React.CSSProperties}
-            >
-              <Link href="/contact">
-                {isAr ? "ابدأ الخطوة 1" : "Start step 1"}
-                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-              </Link>
-            </MoonButton>
-          </div>
-
-          <div className="hidden lg:flex items-center justify-center">
-            <div className="w-full max-w-lg space-y-4">
+        <SlideContent
+          badge={isAr ? "عملية واضحة كالقمر" : "Clear as moonlight"}
+          badgeIcon={Workflow}
+          title={isAr ? "أربع خطوات " : "Four steps "}
+          titleEm={isAr ? "من الفكرة للإطلاق." : "from idea to launch."}
+          subtitle={
+            isAr
+              ? "تعرف بالضبط أين نحن في كل لحظة. اجتماعات أسبوعية، عرض تجريبي مباشر، ولا مفاجآت."
+              : "You know exactly where we are at any moment. Weekly demos, live previews, no surprises."
+          }
+          primary={{ label: isAr ? "ابدأ الخطوة 1" : "Start step 1", href: "/contact" }}
+          side={
+            <div className="w-full max-w-md space-y-3.5">
               {steps.map((s, i) => {
                 const Icon = s.icon;
                 return (
-                  <div
-                    key={s.en}
-                    className="moon-card moon-fade-up p-4 flex items-center gap-4 relative"
-                    style={{ "--moon-delay": `${200 + i * 120}ms` } as React.CSSProperties}
-                  >
+                  <div key={s.en} className="moon-card p-4 flex items-center gap-4 relative">
                     <span className="relative grid place-items-center h-12 w-12 rounded-2xl bg-gradient-to-br from-sky-500/20 to-indigo-500/20 border border-sky-400/30 text-sky-300 shrink-0">
                       <Icon className="h-5 w-5" />
-                      <span className="absolute -top-2 -end-2 grid place-items-center h-5 w-5 rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-[10px] font-bold text-white">
+                      <span className="absolute -top-2 -end-2 grid place-items-center h-5 w-5 rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-[10px] font-bold text-white shadow">
                         {i + 1}
                       </span>
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-white font-semibold">{isAr ? s.ar : s.en}</p>
-                      <p className="text-xs text-white/55 mt-0.5">
-                        {isAr ? s.arDesc : s.enDesc}
-                      </p>
+                      <p className="text-xs text-white/55 mt-0.5">{isAr ? s.arDesc : s.enDesc}</p>
                     </div>
-                    {i < steps.length - 1 && (
-                      <div className="absolute start-[2.65rem] -bottom-4 h-4 w-px bg-gradient-to-b from-sky-400/50 to-transparent" />
-                    )}
-                    <span className="text-[10px] moon-mono text-white/40">
-                      0{i + 1}
-                    </span>
+                    <span className="text-[10px] moon-mono text-white/40">0{i + 1}</span>
                   </div>
                 );
               })}
             </div>
-          </div>
-        </div>
+          }
+        />
       );
     },
   },
@@ -717,130 +704,61 @@ const SLIDES: Slide[] = [
   // ─── SLIDE 6 — Big stats showcase ──────────────────────────────────────────
   {
     id: "moon-stats",
-    bgClass: "moon-slide-bg-6",
+    image:
+      "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=2400&q=80",
+    imageAlt: { ar: "قمر مكتمل في الفضاء", en: "Full moon in space" },
+    accent: "from-indigo-400 to-fuchsia-500",
     render: (locale) => {
       const isAr = locale === "ar";
       const stats = [
-        {
-          v: "120+",
-          l: isAr ? "مشروع مُسلَّم" : "Projects shipped",
-          icon: Rocket,
-          accent: "from-sky-400 to-indigo-500",
-        },
-        {
-          v: "8",
-          l: isAr ? "سنوات خبرة" : "Years of craft",
-          icon: TrendingUp,
-          accent: "from-teal-400 to-sky-500",
-        },
-        {
-          v: "98%",
-          l: isAr ? "رضا العملاء" : "Client satisfaction",
-          icon: Star,
-          accent: "from-amber-300 to-orange-400",
-        },
-        {
-          v: "24/7",
-          l: isAr ? "دعم متاح" : "Support coverage",
-          icon: Zap,
-          accent: "from-indigo-400 to-fuchsia-500",
-        },
-        {
-          v: "12",
-          l: isAr ? "دولة نخدمها" : "Countries served",
-          icon: Globe2,
-          accent: "from-emerald-400 to-teal-500",
-        },
+        { v: "120+", l: isAr ? "مشروع مُسلَّم" : "Projects shipped", icon: Rocket },
+        { v: "8", l: isAr ? "سنوات خبرة" : "Years of craft", icon: TrendingUp },
+        { v: "98%", l: isAr ? "رضا العملاء" : "Client satisfaction", icon: Star },
+        { v: "24/7", l: isAr ? "دعم متاح" : "Support coverage", icon: Zap },
+        { v: "12", l: isAr ? "دولة" : "Countries", icon: Globe2 },
       ];
       return (
-        <div className="relative z-10 h-full grid lg:grid-cols-[0.9fr_1.3fr] gap-8 px-6 md:px-14 py-12">
-          <div className="flex flex-col justify-center max-w-md space-y-6">
-            <span
-              className="moon-pill moon-fade-in inline-flex items-center gap-2 px-3 py-1.5 text-xs w-fit"
-              style={{ "--moon-delay": "0ms" } as React.CSSProperties}
-            >
-              <Cpu className="h-3.5 w-3.5 text-sky-300" />
-              {isAr ? "نتائج تتحدث عنّا" : "Numbers speak"}
-            </span>
-            <h1
-              className="moon-display moon-fade-up text-4xl md:text-6xl leading-[1.05] text-white"
-              style={{ "--moon-delay": "150ms" } as React.CSSProperties}
-            >
-              <span className="moon-grad-silver">
-                {isAr ? "ثقة بُنيت " : "Trust earned "}
-              </span>
-              <span className="moon-grad-text">
-                {isAr ? "بالأرقام، لا الوعود." : "in numbers, not promises."}
-              </span>
-            </h1>
-            <p
-              className="moon-fade-up text-base md:text-lg text-white/65 leading-relaxed"
-              style={{ "--moon-delay": "300ms" } as React.CSSProperties}
-            >
-              {isAr
-                ? "من شركات ناشئة في بداياتها إلى مؤسسات راسخة — كلهم اختاروا الاستمرار معنا."
-                : "From early-stage startups to enterprise leaders — they all chose to keep working with us."}
-            </p>
-            <MoonButton
-              asChild
-              size="lg"
-              variant="primary"
-              className="moon-fade-up w-fit"
-              style={{ "--moon-delay": "440ms" } as React.CSSProperties}
-            >
-              <Link href="/about">
-                {isAr ? "اقرأ قصتنا" : "Read our story"}
-                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-              </Link>
-            </MoonButton>
-          </div>
-
-          <div className="hidden lg:grid grid-cols-6 grid-rows-2 gap-4 items-stretch">
-            {stats.map((s, i) => {
-              const Icon = s.icon;
-              const span =
-                i === 0
-                  ? "col-span-4 row-span-1"
-                  : i === 1
-                  ? "col-span-2 row-span-1"
-                  : i === 2
-                  ? "col-span-2 row-span-1"
-                  : i === 3
-                  ? "col-span-2 row-span-1"
-                  : "col-span-2 row-span-1";
-              return (
-                <div
-                  key={i}
-                  className={cn(
-                    "moon-card moon-fade-up p-6 relative overflow-hidden",
-                    span
-                  )}
-                  style={{ "--moon-delay": `${200 + i * 110}ms` } as React.CSSProperties}
-                >
-                  <span
+        <SlideContent
+          badge={isAr ? "نتائج تتحدث عنّا" : "Numbers speak"}
+          badgeIcon={Cpu}
+          title={isAr ? "ثقة بُنيت " : "Trust earned "}
+          titleEm={isAr ? "بالأرقام، لا الوعود." : "in numbers, not promises."}
+          subtitle={
+            isAr
+              ? "من شركات ناشئة في بداياتها إلى مؤسسات راسخة — كلهم اختاروا الاستمرار معنا."
+              : "From early-stage startups to enterprise leaders — they all chose to keep working with us."
+          }
+          primary={{ label: isAr ? "اقرأ قصتنا" : "Read our story", href: "/about" }}
+          side={
+            <div className="grid grid-cols-2 gap-3 w-full max-w-md">
+              {stats.map((s, i) => {
+                const Icon = s.icon;
+                return (
+                  <div
+                    key={i}
                     className={cn(
-                      "absolute -top-8 -end-8 h-24 w-24 rounded-full opacity-20 blur-2xl bg-gradient-to-br",
-                      s.accent
-                    )}
-                    aria-hidden
-                  />
-                  <Icon className="h-4 w-4 text-white/55" />
-                  <p
-                    className={cn(
-                      "moon-num-pop moon-display moon-grad-text mt-3",
-                      i === 0 ? "text-6xl md:text-7xl" : "text-4xl"
+                      "moon-card moon-card-premium p-5 relative overflow-hidden",
+                      i === 0 && "col-span-2"
                     )}
                   >
-                    {s.v}
-                  </p>
-                  <p className="text-xs md:text-sm text-white/60 mt-2 moon-mono uppercase tracking-wider">
-                    {s.l}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                    <Icon className="h-4 w-4 text-sky-300" />
+                    <p
+                      className={cn(
+                        "moon-num-pop moon-display moon-grad-text mt-2",
+                        i === 0 ? "text-5xl md:text-6xl" : "text-3xl"
+                      )}
+                    >
+                      {s.v}
+                    </p>
+                    <p className="text-[11px] md:text-xs text-white/60 mt-1.5 moon-mono uppercase tracking-wider">
+                      {s.l}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          }
+        />
       );
     },
   },

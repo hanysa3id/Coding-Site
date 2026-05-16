@@ -101,22 +101,87 @@
   -webkit-mask-image: linear-gradient(180deg, black, transparent 88%);
 }
 
-/* Glass card */
+/* Glass card — premium surface with top highlight + ambient glow */
 .theme-moon .moon-card {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.005)),
+    radial-gradient(120% 90% at 0% 0%, rgba(96, 165, 250, 0.10), transparent 55%),
+    radial-gradient(120% 90% at 100% 100%, rgba(45, 212, 191, 0.08), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012) 40%, rgba(255, 255, 255, 0) 100%),
     var(--moon-surface);
   border: 1px solid var(--moon-border);
-  border-radius: 18px;
+  border-radius: 20px;
   position: relative;
   overflow: hidden;
-  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1), border-color 280ms, box-shadow 280ms;
+  isolation: isolate;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 -1px 0 rgba(255, 255, 255, 0.02) inset,
+    0 12px 36px -22px rgba(0, 0, 0, 0.65);
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1), border-color 280ms, box-shadow 320ms;
+}
+
+/* Top hairline highlight */
+.theme-moon .moon-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(186, 230, 253, 0.55), transparent);
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity 280ms;
 }
 
 .theme-moon .moon-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--moon-border-2);
-  box-shadow: 0 16px 40px -16px var(--moon-glow);
+  transform: translateY(-4px);
+  border-color: rgba(96, 165, 250, 0.32);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.10) inset,
+    0 -1px 0 rgba(255, 255, 255, 0.03) inset,
+    0 24px 60px -24px rgba(96, 165, 250, 0.45),
+    0 0 0 1px rgba(96, 165, 250, 0.10);
+}
+
+.theme-moon .moon-card:hover::before {
+  opacity: 1;
+}
+
+/* Premium variant — for hero accent cards, pricing highlighted tier */
+.theme-moon .moon-card-premium {
+  background:
+    radial-gradient(140% 100% at 0% 0%, rgba(96, 165, 250, 0.18), transparent 50%),
+    radial-gradient(140% 100% at 100% 100%, rgba(129, 140, 248, 0.16), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015) 50%, rgba(255, 255, 255, 0) 100%),
+    var(--moon-surface-2);
+}
+
+/* Image frame for portfolio/blog/team avatars */
+.theme-moon .moon-image-frame {
+  position: relative;
+  border-radius: inherit;
+  overflow: hidden;
+  background:
+    radial-gradient(80% 80% at 50% 0%, rgba(96, 165, 250, 0.20), transparent 60%),
+    var(--moon-surface);
+}
+.theme-moon .moon-image-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, transparent 55%, rgba(6, 10, 22, 0.75) 100%);
+  pointer-events: none;
+}
+
+/* Soft float-on-hover container for image cards (no transform on parent — child transforms) */
+.theme-moon .moon-img-zoom {
+  transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.theme-moon .moon-card:hover .moon-img-zoom,
+.theme-moon .moon-tile:hover .moon-img-zoom {
+  transform: scale(1.06);
 }
 
 /* Card with gradient ring on hover */
