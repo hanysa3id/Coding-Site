@@ -1,0 +1,75 @@
+import Image from "next/image";
+import { Link } from "@/i18n/routing";
+import { getTranslations, getLocale } from "next-intl/server";
+import { getCurrentProfile } from "@/lib/auth/guards";
+import { getSiteSettings } from "@/lib/settings/get";
+import { LocaleSwitcher } from "@/components/shared/locale-switcher";
+import { UserMenu } from "@/components/shared/user-menu";
+import { NotificationsBell } from "@/components/shared/notifications-bell";
+import { Button } from "@/components/ui/button";
+
+export async function SiteHeader() {
+  const tc = await getTranslations("common");
+  const locale = await getLocale();
+  const [profile, site] = await Promise.all([getCurrentProfile(), getSiteSettings()]);
+
+  const isAr = locale === "ar";
+  const siteName = site ? (isAr ? site.name_ar : site.name_en) : tc("siteName");
+
+  return (
+    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
+      <div className="container flex h-16 items-center justify-between gap-4">
+        <Link href="/" className="flex items-center gap-2 whitespace-nowrap" aria-label={siteName}>
+          {site?.logo_url ? (
+            <Image
+              src={site.logo_url}
+              alt={siteName}
+              width={32}
+              height={32}
+              className="h-8 w-auto object-contain"
+              unoptimized
+            />
+          ) : null}
+          <span className="text-xl font-bold">{siteName}</span>
+        </Link>
+
+        <nav className="hidden md:flex items-center gap-6">
+          <Link href="/services" className="text-sm hover:text-primary">
+            {tc("services")}
+          </Link>
+          <Link href="/portfolio" className="text-sm hover:text-primary">
+            {tc("portfolio")}
+          </Link>
+          <Link href="/blog" className="text-sm hover:text-primary">
+            {tc("blog")}
+          </Link>
+          <Link href="/about" className="text-sm hover:text-primary">
+            {tc("about")}
+          </Link>
+          <Link href="/contact" className="text-sm hover:text-primary">
+            {tc("contact")}
+          </Link>
+        </nav>
+
+        <div className="flex items-center gap-3">
+          <LocaleSwitcher currentLocale={locale} />
+          {profile ? (
+            <>
+              <NotificationsBell userId={profile.id} />
+              <UserMenu profile={profile} />
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/login">{tc("login")}</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link href="/register">{tc("register")}</Link>
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}

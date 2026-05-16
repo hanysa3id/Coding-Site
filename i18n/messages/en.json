@@ -1,0 +1,57 @@
+{
+  "common": {
+    "siteName": "Company Platform",
+    "home": "Home",
+    "services": "Services",
+    "portfolio": "Portfolio",
+    "blog": "Blog",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "myOrders": "My Orders",
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "search": "Search",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "submit": "Submit",
+    "back": "Back",
+    "loading": "Loading...",
+    "noResults": "No results found",
+    "language": "Language",
+    "arabic": "Arabic",
+    "english": "English"
+  },
+  "home": {
+    "heroTitle": "We design and code your projects with professionalism",
+    "heroSubtitle": "Complete programming and design services for your company or next idea — request your service today and let's start.",
+    "ctaServices": "Browse Services",
+    "ctaContact": "Contact via WhatsApp",
+    "featuredServices": "Featured Services",
+    "featuredPortfolio": "Latest Work",
+    "testimonials": "Client Testimonials"
+  },
+  "auth": {
+    "loginTitle": "Sign In",
+    "registerTitle": "Create New Account",
+    "email": "Email Address",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "fullName": "Full Name",
+    "phone": "Phone Number",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account? Sign up",
+    "haveAccount": "Already have an account? Sign in"
+  },
+  "whatsapp": {
+    "inquireAbout": "I would like to inquire about the service:",
+    "regardingOrder": "I would like to follow up on order:",
+    "openChat": "Chat via WhatsApp",
+    "generalInquiry": "Hello, I would like to inquire about your services."
+  }
+}

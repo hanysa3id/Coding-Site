@@ -1,0 +1,57 @@
+{
+  "common": {
+    "siteName": "منصة الشركة",
+    "home": "الرئيسية",
+    "services": "الخدمات",
+    "portfolio": "معرض الأعمال",
+    "blog": "المدونة",
+    "about": "عن الشركة",
+    "contact": "تواصل معنا",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "dashboard": "لوحة التحكم",
+    "myOrders": "طلباتي",
+    "profile": "الملف الشخصي",
+    "notifications": "الإشعارات",
+    "search": "بحث",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "submit": "إرسال",
+    "back": "رجوع",
+    "loading": "جارٍ التحميل...",
+    "noResults": "لا توجد نتائج",
+    "language": "اللغة",
+    "arabic": "العربية",
+    "english": "الإنجليزية"
+  },
+  "home": {
+    "heroTitle": "نصمم ونبرمج مشاريعك بإحترافية",
+    "heroSubtitle": "خدمات برمجة وتصميم متكاملة لشركتك أو فكرتك القادمة — اطلب خدمتك اليوم وابدأ التنفيذ.",
+    "ctaServices": "تصفح الخدمات",
+    "ctaContact": "تواصل عبر واتس آب",
+    "featuredServices": "خدماتنا المميزة",
+    "featuredPortfolio": "أحدث أعمالنا",
+    "testimonials": "آراء عملائنا"
+  },
+  "auth": {
+    "loginTitle": "تسجيل الدخول",
+    "registerTitle": "إنشاء حساب جديد",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "fullName": "الاسم الكامل",
+    "phone": "رقم الهاتف",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "لا تملك حساباً؟ سجل الآن",
+    "haveAccount": "لديك حساب؟ سجل دخول"
+  },
+  "whatsapp": {
+    "inquireAbout": "أرغب في الاستفسار عن خدمة:",
+    "regardingOrder": "أرغب في متابعة الطلب رقم:",
+    "openChat": "محادثة عبر واتس آب",
+    "generalInquiry": "مرحباً، أرغب في الاستفسار عن خدماتكم."
+  }
+}
