@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import type { ThemeSettings } from "@/lib/validators/settings";
 import { saveThemeSettingsAction } from "../actions";
 
-type ThemeId = "classic" | "aurora" | "nova" | "sky";
+type ThemeId = "classic" | "aurora" | "nova" | "sky" | "moon";
 
 type ThemeOption = {
   id: ThemeId;
@@ -52,6 +52,14 @@ const OPTIONS: ThemeOption[] = [
     descAr: "فاتح سماوي مفعم بالحركة — Navbar زجاجي، Hero بشرائح متعددة، marquee لشعارات العملاء، أقسام خدمات حسب التصنيف.",
     descEn: "Bright sky-blue with motion — glass navbar, multi-slide hero, client logo marquee, services by category.",
     preview: <SkyPreview />,
+  },
+  {
+    id: "moon",
+    nameAr: "Moon",
+    nameEn: "Moon",
+    descAr: "ليلي غامق متكامل — starfield, moon disc, hero بأربع شرائح، كل أقسام لوحة التحكم مدعومة. أكثر الثيمات شمولاً.",
+    descEn: "Deep midnight + cool tones — starfield, moon disc, 4-slide hero, every landing section covered. The most comprehensive theme.",
+    preview: <MoonPreview />,
   },
 ];
 
@@ -300,6 +308,70 @@ function NovaPreview() {
         <div className="h-1 w-1 rounded-full bg-yellow-400/70" />
         <div className="h-1 w-1 rounded-full bg-green-400/70" />
         <div className="ms-1 h-1 w-12 rounded bg-violet-400/70" />
+      </div>
+    </div>
+  );
+}
+
+function MoonPreview() {
+  return (
+    <div
+      className="relative h-full w-full p-2 flex flex-col gap-1.5 overflow-hidden"
+      style={{
+        backgroundColor: "#060a16",
+        backgroundImage:
+          "radial-gradient(18rem 14rem at 85% -10%, rgba(96,165,250,.35), transparent 60%), radial-gradient(16rem 14rem at 0% 100%, rgba(45,212,191,.22), transparent 60%)",
+      }}
+    >
+      {/* tiny stars */}
+      <div className="absolute inset-0 opacity-70" aria-hidden>
+        <div className="absolute top-2 left-3 h-[2px] w-[2px] rounded-full bg-white" />
+        <div className="absolute top-4 left-8 h-[1px] w-[1px] rounded-full bg-white/70" />
+        <div className="absolute top-3 right-6 h-[2px] w-[2px] rounded-full bg-white/80" />
+        <div className="absolute top-7 right-10 h-[1px] w-[1px] rounded-full bg-white/60" />
+        <div className="absolute bottom-6 left-12 h-[1px] w-[1px] rounded-full bg-white/70" />
+      </div>
+      {/* moon disc */}
+      <div
+        className="absolute -top-3 -right-3 h-10 w-10 rounded-full"
+        style={{
+          background:
+            "radial-gradient(circle at 35% 35%, #f1f5f9, #94a3b8 60%, #334155)",
+          boxShadow: "0 0 16px rgba(96,165,250,.45)",
+        }}
+        aria-hidden
+      />
+      <div className="relative flex items-center gap-1 rounded-lg bg-white/[0.06] backdrop-blur border border-white/10 px-1.5 py-1">
+        <div
+          className="h-2 w-2 rounded-sm"
+          style={{ background: "linear-gradient(135deg, #60a5fa, #818cf8)" }}
+        />
+        <div className="h-1.5 w-8 rounded bg-white/80" />
+        <div className="ms-auto flex gap-0.5">
+          <div className="h-1 w-3 rounded bg-white/30" />
+          <div className="h-1 w-3 rounded bg-white/30" />
+          <div className="h-1 w-3 rounded bg-white/30" />
+        </div>
+      </div>
+      <div className="relative flex-1 flex flex-col items-start justify-center gap-1 px-1">
+        <div className="h-1 w-6 rounded-full bg-sky-400/60" />
+        <div className="h-1.5 w-20 rounded bg-white/85" />
+        <div
+          className="h-1.5 w-14 rounded"
+          style={{ background: "linear-gradient(135deg, #60a5fa, #818cf8, #2dd4bf)" }}
+        />
+        <div className="mt-1.5 flex gap-1">
+          <div
+            className="h-3 w-10 rounded-full"
+            style={{ background: "linear-gradient(135deg, #60a5fa, #818cf8)" }}
+          />
+          <div className="h-3 w-10 rounded-full border border-white/15 bg-white/[0.05]" />
+        </div>
+      </div>
+      <div className="relative grid grid-cols-3 gap-1">
+        <div className="h-3 rounded border border-white/10 bg-white/[0.04]" />
+        <div className="h-3 rounded border border-sky-400/30 bg-sky-400/[0.08]" />
+        <div className="h-3 rounded border border-white/10 bg-white/[0.04]" />
       </div>
     </div>
   );

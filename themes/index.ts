@@ -2,6 +2,7 @@ import * as aurora from "./aurora";
 import * as classic from "./classic";
 import * as nova from "./nova";
 import * as sky from "./sky";
+import * as moon from "./moon";
 import { getThemeSettings } from "@/lib/settings/get";
 
 export const themes = {
@@ -9,6 +10,7 @@ export const themes = {
   aurora,
   nova,
   sky,
+  moon,
 } as const;
 
 export type ThemeId = keyof typeof themes;

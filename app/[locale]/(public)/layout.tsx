@@ -15,6 +15,12 @@ export default async function PublicLayout({ children }: { children: React.React
       {themeId === "aurora" && <div className="aurora-mesh" aria-hidden />}
       {themeId === "nova" && <div className="nova-mesh" aria-hidden />}
       {themeId === "sky" && <div className="sky-mesh" aria-hidden />}
+      {themeId === "moon" && (
+        <>
+          <div className="moon-mesh" aria-hidden />
+          <div className="moon-stars" aria-hidden />
+        </>
+      )}
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <SiteFooter />
