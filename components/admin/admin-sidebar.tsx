@@ -145,7 +145,7 @@ function SidebarNav({
 export function AdminSidebar({ role, locale }: { role: UserRole; locale: string }) {
   const pathname = usePathname();
   return (
-    <aside className="hidden md:flex w-56 shrink-0 flex-col border-e bg-card min-h-[calc(100vh-4rem)] sticky top-16 overflow-y-auto">
+    <aside className="hidden md:flex w-56 shrink-0 flex-col border-e bg-card min-h-[calc(100vh-3.5rem)] sticky top-14 overflow-y-auto">
       <SidebarNav role={role} locale={locale} pathname={pathname} />
     </aside>
   );
