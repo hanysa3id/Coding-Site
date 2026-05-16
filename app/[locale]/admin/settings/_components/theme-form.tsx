@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import type { ThemeSettings } from "@/lib/validators/settings";
 import { saveThemeSettingsAction } from "../actions";
 
-type ThemeId = "classic" | "aurora" | "nova";
+type ThemeId = "classic" | "aurora" | "nova" | "sky";
 
 type ThemeOption = {
   id: ThemeId;
@@ -44,6 +44,14 @@ const OPTIONS: ThemeOption[] = [
     descAr: "مظلم تطويري — بنفسجي صاف، code blocks، 3D mockups. مستوحى من novu.co.",
     descEn: "Developer-platform dark — pure violet, code blocks, 3D mockups. Inspired by novu.co.",
     preview: <NovaPreview />,
+  },
+  {
+    id: "sky",
+    nameAr: "Sky",
+    nameEn: "Sky",
+    descAr: "فاتح سماوي مفعم بالحركة — Navbar زجاجي، Hero بشرائح متعددة، marquee لشعارات العملاء، أقسام خدمات حسب التصنيف.",
+    descEn: "Bright sky-blue with motion — glass navbar, multi-slide hero, client logo marquee, services by category.",
+    preview: <SkyPreview />,
   },
 ];
 
@@ -292,6 +300,56 @@ function NovaPreview() {
         <div className="h-1 w-1 rounded-full bg-yellow-400/70" />
         <div className="h-1 w-1 rounded-full bg-green-400/70" />
         <div className="ms-1 h-1 w-12 rounded bg-violet-400/70" />
+      </div>
+    </div>
+  );
+}
+
+function SkyPreview() {
+  return (
+    <div
+      className="relative h-full w-full p-2 flex flex-col gap-1.5 overflow-hidden"
+      style={{
+        backgroundColor: "#f0f9ff",
+        backgroundImage:
+          "radial-gradient(20rem 15rem at 80% -10%, rgba(14,165,233,.25), transparent 60%), radial-gradient(20rem 15rem at -10% 50%, rgba(99,102,241,.18), transparent 60%)",
+      }}
+    >
+      {/* Glass navbar pill */}
+      <div className="flex items-center gap-1 rounded-lg bg-white/70 backdrop-blur border border-white/60 px-1.5 py-1 shadow-sm">
+        <div className="h-2 w-2 rounded-sm bg-gradient-to-br from-sky-400 to-indigo-500" />
+        <div className="h-1.5 w-8 rounded bg-slate-700" />
+        <div className="ms-auto flex gap-0.5">
+          <div className="h-1 w-3 rounded bg-slate-300" />
+          <div className="h-1 w-3 rounded bg-slate-300" />
+          <div className="h-1 w-3 rounded bg-slate-300" />
+        </div>
+      </div>
+      {/* Hero slide */}
+      <div className="flex-1 flex flex-col items-start justify-center gap-1 px-1">
+        <div className="h-1 w-6 rounded-full bg-sky-300" />
+        <div className="h-1.5 w-20 rounded bg-slate-800" />
+        <div
+          className="h-1.5 w-14 rounded"
+          style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)" }}
+        />
+        <div className="mt-1.5 flex gap-1">
+          <div
+            className="h-3 w-10 rounded-full"
+            style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)" }}
+          />
+          <div className="h-3 w-10 rounded-full border border-slate-300 bg-white" />
+        </div>
+      </div>
+      {/* Category pills */}
+      <div className="flex gap-0.5">
+        <div
+          className="h-2 w-6 rounded-full"
+          style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)" }}
+        />
+        <div className="h-2 w-5 rounded-full bg-white border border-slate-200" />
+        <div className="h-2 w-5 rounded-full bg-white border border-slate-200" />
+        <div className="h-2 w-5 rounded-full bg-white border border-slate-200" />
       </div>
     </div>
   );

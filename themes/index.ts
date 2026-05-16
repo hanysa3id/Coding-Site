@@ -1,12 +1,14 @@
 import * as aurora from "./aurora";
 import * as classic from "./classic";
 import * as nova from "./nova";
+import * as sky from "./sky";
 import { getThemeSettings } from "@/lib/settings/get";
 
 export const themes = {
   classic,
   aurora,
   nova,
+  sky,
 } as const;
 
 export type ThemeId = keyof typeof themes;
@@ -19,22 +21,13 @@ function envThemeId(): ThemeId | null {
   return null;
 }
 
-/**
- * Resolution order:
- *   1. DB setting (admins toggle this from /admin/settings → Theme)
- *   2. NEXT_PUBLIC_SITE_THEME env var (build-time override)
- *   3. DEFAULT_THEME ("classic")
- *
- * Uses React cache via getThemeSettings(), so calling this multiple times per
- * request does a single DB read.
- */
 async function resolveThemeId(): Promise<ThemeId> {
   try {
     const settings = await getThemeSettings();
     const id = settings?.active;
     if (id && id in themes) return id as ThemeId;
   } catch {
-    // ignore — fall through to env/default
+    // fall through
   }
   return envThemeId() ?? DEFAULT_THEME;
 }
