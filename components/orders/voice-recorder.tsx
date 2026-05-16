@@ -38,8 +38,11 @@ export function VoiceRecorder({
   const chunksRef = useRef<BlobPart[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<number | null>(null);
-  const audioUrlRef = useRef<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // `audioUrl` must be state (not a ref) so the <audio> element re-renders
+  // when the URL is created — otherwise the playback element never appears.
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
   // Detect current permission state up-front so we can show a helpful hint
   // before the user clicks "Start recording" — saves them a confusing prompt
@@ -78,17 +81,19 @@ export function VoiceRecorder({
     };
   }, []);
 
-  // Build playback URL whenever the blob changes
+  // Build playback URL whenever the blob changes. Using state (instead of a
+  // ref) is the whole point — the <audio> element below needs a re-render
+  // when the URL is ready, otherwise it stays empty even though the blob
+  // exists.
   useEffect(() => {
-    if (audioUrlRef.current) {
-      URL.revokeObjectURL(audioUrlRef.current);
-      audioUrlRef.current = null;
+    if (!value) {
+      setAudioUrl(null);
+      return;
     }
-    if (value) {
-      audioUrlRef.current = URL.createObjectURL(value);
-    }
+    const url = URL.createObjectURL(value);
+    setAudioUrl(url);
     return () => {
-      if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
+      URL.revokeObjectURL(url);
     };
   }, [value]);
 
@@ -312,15 +317,16 @@ export function VoiceRecorder({
         )}
       </div>
 
-      {state === "recorded" && audioUrlRef.current && (
+      {state === "recorded" && audioUrl && (
         <audio
           ref={audioRef}
-          src={audioUrlRef.current}
+          src={audioUrl}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onEnded={() => setIsPlaying(false)}
           className="w-full"
           controls
+          preload="metadata"
         />
       )}
 

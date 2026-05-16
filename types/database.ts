@@ -238,8 +238,12 @@ export type OrderMessage = {
   id: string;
   order_id: string;
   sender_id: string;
-  content: string;
+  content: string | null;
   attachment_url: string | null;
+  attachment_kind: "audio" | "image" | "file" | null;
+  attachment_mime: string | null;
+  attachment_size: number | null;
+  attachment_name: string | null;
   is_read: boolean;
   created_at: string;
 };

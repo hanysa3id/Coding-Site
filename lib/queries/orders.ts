@@ -82,8 +82,12 @@ export async function listOrderMessages(orderId: string) {
     id: string;
     order_id: string;
     sender_id: string;
-    content: string;
+    content: string | null;
     attachment_url: string | null;
+    attachment_kind: "audio" | "image" | "file" | null;
+    attachment_mime: string | null;
+    attachment_size: number | null;
+    attachment_name: string | null;
     is_read: boolean;
     created_at: string;
     sender: { id: string; full_name: string | null; role: string; avatar_url: string | null } | null;

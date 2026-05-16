@@ -6,11 +6,9 @@ import { uploadToBucket } from "@/lib/storage/upload";
 import {
   negotiateOrderSchema,
   updateOrderStatusSchema,
-  sendMessageSchema,
   milestoneSchema,
   type NegotiateOrderInput,
   type UpdateOrderStatusInput,
-  type SendMessageInput,
   type MilestoneInput,
 } from "@/lib/validators/orders";
 import { canTransitionTo, ORDER_STATUS_LABELS } from "@/lib/orders/status";
@@ -171,24 +169,56 @@ export async function assignSalesAction(
   return { success: true };
 }
 
-export async function sendStaffMessageAction(input: SendMessageInput): Promise<Result> {
+export async function sendStaffMessageAction(formData: FormData): Promise<Result> {
   const profile = await requireStaff();
-  const parsed = sendMessageSchema.safeParse(input);
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  const order_id = String(formData.get("order_id") ?? "");
+  const content = String(formData.get("content") ?? "").trim();
+  const audio = formData.get("audio");
+  const audioFile = audio instanceof File && audio.size > 0 ? audio : null;
+
+  if (!order_id) return { success: false, error: "Missing order id" };
+  if (!content && !audioFile) {
+    return { success: false, error: "Message is empty" };
+  }
+  if (audioFile && audioFile.size > 25 * 1024 * 1024) {
+    return { success: false, error: "Voice note too large (max 25MB)" };
   }
 
   const supabase = await createClient();
+
+  let attachmentUrl: string | null = null;
+  let attachmentMeta = {
+    kind: null as "audio" | "image" | "file" | null,
+    mime: null as string | null,
+    size: null as number | null,
+    name: null as string | null,
+  };
+  if (audioFile) {
+    const upload = await uploadToBucket("order-attachments", audioFile, `${order_id}/messages/`);
+    if (!upload.success) return { success: false, error: upload.error };
+    attachmentUrl = upload.url;
+    attachmentMeta = {
+      kind: "audio",
+      mime: audioFile.type || "audio/webm",
+      size: audioFile.size,
+      name: audioFile.name,
+    };
+  }
+
   const { error } = await supabase.from("order_messages").insert({
-    order_id: parsed.data.order_id,
+    order_id,
     sender_id: profile.id,
-    content: parsed.data.content,
-    attachment_url: parsed.data.attachment_url ?? null,
+    content: content || null,
+    attachment_url: attachmentUrl,
+    attachment_kind: attachmentMeta.kind,
+    attachment_mime: attachmentMeta.mime,
+    attachment_size: attachmentMeta.size,
+    attachment_name: attachmentMeta.name,
   });
   if (error) return { success: false, error: error.message };
 
-  revalidatePath(`/admin/orders/${parsed.data.order_id}`);
-  revalidatePath(`/orders/${parsed.data.order_id}`);
+  revalidatePath(`/admin/orders/${order_id}`);
+  revalidatePath(`/orders/${order_id}`);
   return { success: true };
 }
 
