@@ -18,6 +18,7 @@ import { getWhatsappNumber, getSiteName } from "@/lib/settings/get";
 import type { Metadata } from "next";
 import type {
   PortfolioProject,
+  ServiceFaq,
   ServiceGalleryMedia,
   TimelineStep,
 } from "@/types/database";
@@ -70,7 +71,7 @@ export default async function ServiceDetailPage({
   if (!service) notFound();
 
   const supabase = await createClient();
-  const [{ data: gallery }, { data: reviews }, { data: portfolioLinks }, waNumber] =
+  const [{ data: gallery }, { data: reviews }, { data: portfolioLinks }, { data: faqsRaw }, waNumber] =
     await Promise.all([
       supabase
         .from("service_gallery")
@@ -90,8 +91,15 @@ export default async function ServiceDetailPage({
         .from("portfolio_services")
         .select("portfolio_id, portfolio_projects(*)")
         .eq("service_id", service.id),
+      supabase
+        .from("service_faqs")
+        .select("*")
+        .eq("service_id", service.id)
+        .order("sort_order", { ascending: true }),
       getWhatsappNumber(),
     ]);
+
+  const faqs = (faqsRaw as ServiceFaq[]) ?? [];
 
   const galleryItems = (gallery as ServiceGalleryMedia[]) ?? [];
   const portfolioProjects = (
@@ -432,6 +440,36 @@ export default async function ServiceDetailPage({
                   locale={locale}
                   brandName={brandName}
                 />
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+
+      {/* FAQ */}
+      {faqs.length > 0 && (
+        <>
+          <Separator className="my-12" />
+          <section className="space-y-6">
+            <h2 className="text-2xl font-bold">
+              {isAr ? "الأسئلة الشائعة" : "Frequently asked questions"}
+            </h2>
+            <div className="space-y-3">
+              {faqs.map((faq) => (
+                <details
+                  key={faq.id}
+                  className="group rounded-xl border bg-card overflow-hidden"
+                >
+                  <summary className="flex cursor-pointer items-center justify-between gap-4 p-5 font-medium list-none select-none hover:bg-muted/40 transition">
+                    <span>{isAr ? faq.question_ar : faq.question_en}</span>
+                    <span className="text-muted-foreground text-lg shrink-0 group-open:rotate-180 transition-transform">
+                      ↓
+                    </span>
+                  </summary>
+                  <div className="px-5 pb-5 pt-0 text-muted-foreground text-sm leading-relaxed">
+                    {isAr ? faq.answer_ar : faq.answer_en}
+                  </div>
+                </details>
               ))}
             </div>
           </section>

@@ -34,6 +34,7 @@ import {
   uploadServiceImage,
 } from "./actions";
 import { Trash2 } from "lucide-react";
+import { ServiceFaqEditor } from "./faq-editor";
 
 type Props = {
   initial?: Partial<ServiceExtendedInput> & { id?: string };
@@ -119,6 +120,9 @@ export function ServiceForm({ initial, categories, locale }: Props) {
           <TabsTrigger value="pricing">{isAr ? "السعر والمدة" : "Pricing"}</TabsTrigger>
           <TabsTrigger value="media">{isAr ? "الوسائط" : "Media"}</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
+          {initial?.id && (
+            <TabsTrigger value="faq">FAQ</TabsTrigger>
+          )}
         </TabsList>
 
         {/* ───────────────────────── BASIC ───────────────────────── */}
@@ -503,6 +507,13 @@ export function ServiceForm({ initial, categories, locale }: Props) {
             <Input {...register("seo_keywords")} dir="ltr" placeholder="keyword1, keyword2" />
           </div>
         </TabsContent>
+
+        {/* ───────────────────────── FAQ ───────────────────────── */}
+        {initial?.id && (
+          <TabsContent value="faq">
+            <ServiceFaqEditor serviceId={initial.id} locale={locale} />
+          </TabsContent>
+        )}
       </Tabs>
 
       <div className="flex items-center justify-between pt-4 border-t">

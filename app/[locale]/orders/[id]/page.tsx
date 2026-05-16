@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { MessageThread } from "@/components/orders/message-thread";
-import { MilestonesList } from "@/components/orders/milestones-list";
+import { ProjectTimeline } from "@/components/orders/project-timeline";
 import { DeliverablesList } from "@/components/orders/deliverables-list";
 import { CustomerAttachmentsDisplay } from "@/components/orders/customer-attachments-display";
 import { PaymentStatusCard } from "@/components/orders/payment-status-card";
@@ -21,10 +21,10 @@ import { PaymentHistoryList } from "@/components/orders/payment-history-list";
 import { summarizePayments } from "@/lib/orders/payment-summary";
 import { signStorageUrls } from "@/lib/storage/sign-url";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
-import type { Payment, OrderAttachment } from "@/types/database";
+import type { Payment, OrderAttachment, PaymentInstallment } from "@/types/database";
 import { getWhatsappNumber } from "@/lib/settings/get";
 import { Link } from "@/i18n/routing";
-import { CheckCircle, XCircle, CreditCard, Star, MessageSquare } from "lucide-react";
+import { CheckCircle, XCircle, CreditCard, Star, MessageSquare, FileText } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { sendCustomerMessageAction } from "../actions";
 import { OrderActionsClient } from "./order-actions-client";
@@ -86,12 +86,20 @@ export default async function CustomerOrderDetailPage({
             {formatDate(order.created_at, isAr ? "ar-EG" : "en-US")}
           </p>
         </div>
-        <WhatsAppButton
-          variant="inline"
-          phoneNumber={await getWhatsappNumber()}
-          context={{ type: "order", orderNumber: order.order_number, serviceName: isAr ? order.services?.name_ar : order.services?.name_en }}
-          label={isAr ? "تواصل عبر واتس آب" : "Chat on WhatsApp"}
-        />
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/orders/${order.id}/invoice`}>
+              <FileText className="h-4 w-4" />
+              {isAr ? "الفاتورة" : "Invoice"}
+            </Link>
+          </Button>
+          <WhatsAppButton
+            variant="inline"
+            phoneNumber={await getWhatsappNumber()}
+            context={{ type: "order", orderNumber: order.order_number, serviceName: isAr ? order.services?.name_ar : order.services?.name_en }}
+            label={isAr ? "تواصل عبر واتس آب" : "Chat on WhatsApp"}
+          />
+        </div>
       </header>
 
       {/* Order summary cards */}
@@ -140,6 +148,45 @@ export default async function CustomerOrderDetailPage({
         orderId={order.id}
         orderStatus={order.status}
       />
+
+      {/* Installment payment plan */}
+      {order.payment_plan && (order.payment_plan as unknown as PaymentInstallment[]).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{isAr ? "خطة الدفع" : "Payment plan"}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {(order.payment_plan as unknown as PaymentInstallment[]).map((inst, i) => (
+                <div
+                  key={i}
+                  className={`flex items-center justify-between rounded-lg border p-3 ${inst.paid ? "bg-green-50 dark:bg-green-950/20 border-green-200" : ""}`}
+                >
+                  <div className="space-y-0.5">
+                    <p className="font-medium text-sm">
+                      {isAr ? inst.label_ar : inst.label_en}
+                    </p>
+                    {inst.due_date && (
+                      <p className="text-xs text-muted-foreground">
+                        {isAr ? "تاريخ الاستحقاق: " : "Due: "}
+                        {formatDate(inst.due_date, isAr ? "ar-EG" : "en-US")}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-end">
+                    <p className="font-bold tabular-nums">
+                      {formatCurrency(inst.amount, order.currency, isAr ? "ar-EG" : "en-US")}
+                    </p>
+                    <p className={`text-xs ${inst.paid ? "text-green-600" : "text-muted-foreground"}`}>
+                      {inst.paid ? (isAr ? "✓ مدفوع" : "✓ Paid") : (isAr ? "غير مدفوع" : "Pending")}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Payment history */}
       <PaymentHistoryList payments={(payments as Payment[]) ?? []} locale={locale} />
@@ -197,14 +244,19 @@ export default async function CustomerOrderDetailPage({
         </Card>
       )}
 
-      {/* Milestones */}
+      {/* Milestones — Visual Timeline */}
       {milestones.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{isAr ? "مراحل التنفيذ" : "Execution stages"}</CardTitle>
           </CardHeader>
           <CardContent>
-            <MilestonesList milestones={milestones} locale={locale} />
+            <ProjectTimeline
+              milestones={milestones}
+              orderId={order.id}
+              locale={locale}
+              canApprove={["in_progress", "delivered", "completed"].includes(order.status)}
+            />
           </CardContent>
         </Card>
       )}

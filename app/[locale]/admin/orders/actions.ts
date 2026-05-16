@@ -419,3 +419,19 @@ export async function deleteDeliverableAction(
   revalidatePath(`/orders/${orderId}`);
   return { success: true };
 }
+
+export async function setPaymentPlanAction(
+  orderId: string,
+  plan: { label_ar: string; label_en: string; amount: number; due_date: string | null; paid: boolean }[]
+): Promise<Result> {
+  await requireStaff();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("orders")
+    .update({ payment_plan: plan })
+    .eq("id", orderId);
+  if (error) return { success: false, error: error.message };
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath(`/orders/${orderId}`);
+  return { success: true };
+}

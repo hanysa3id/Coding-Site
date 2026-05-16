@@ -24,6 +24,7 @@ export function ServiceCardMini({
   return (
     <Link
       href={`/services/${service.slug}`}
+      prefetch={true}
       className="group flex gap-3 rounded-lg border bg-card p-3 transition hover:border-primary/40 hover:shadow-sm"
     >
       {/* Thumbnail — uses thumbnail_url, falls back to cover_image, then to an icon */}

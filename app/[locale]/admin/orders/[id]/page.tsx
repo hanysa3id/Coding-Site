@@ -26,6 +26,8 @@ import { NegotiationPanel } from "./_components/negotiation-panel";
 import { StatusChanger } from "./_components/status-changer";
 import { StaffAssigner } from "./_components/staff-assigner";
 import { MilestonesEditor } from "./_components/milestones-editor";
+import { PaymentPlanEditor } from "./_components/payment-plan-editor";
+import type { PaymentInstallment } from "@/types/database";
 import { DeliverableUploader } from "./_components/deliverable-uploader";
 import { DeliverableRow } from "./_components/deliverable-row";
 import type { Profile } from "@/types/database";
@@ -285,6 +287,22 @@ export default async function AdminOrderDetailPage({
               )}
             </CardContent>
           </Card>
+          {/* Payment plan (installments) */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">{isAr ? "خطة الدفع (أقساط)" : "Payment plan (installments)"}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PaymentPlanEditor
+                orderId={order.id}
+                initialPlan={(order.payment_plan as unknown as PaymentInstallment[]) ?? null}
+                finalPrice={order.final_price}
+                currency={order.currency}
+                locale={locale}
+              />
+            </CardContent>
+          </Card>
+
           {/* Payment status + history */}
           <PaymentStatusCard
             summary={summarizePayments(order, (payments as Payment[]) ?? [])}

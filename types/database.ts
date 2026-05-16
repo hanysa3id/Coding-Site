@@ -127,6 +127,40 @@ export type ServiceStage = {
   sort_order: number;
 };
 
+export type ServiceFaq = {
+  id: string;
+  service_id: string;
+  question_ar: string;
+  question_en: string;
+  answer_ar: string;
+  answer_en: string;
+  sort_order: number;
+  created_at: string;
+};
+
+export type TeamMember = {
+  id: string;
+  name_ar: string;
+  name_en: string;
+  role_ar: string;
+  role_en: string;
+  bio_ar: string | null;
+  bio_en: string | null;
+  avatar_url: string | null;
+  sort_order: number;
+  is_visible: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AboutSettings = {
+  mission_ar: string;
+  mission_en: string;
+  vision_ar: string;
+  vision_en: string;
+  stats: { label_ar: string; label_en: string; value: string }[];
+};
+
 export type TimelineStep = {
   title: string;
   description?: string | null;
@@ -181,6 +215,14 @@ export type OrderAttachment = {
   kind: "file" | "audio";
 };
 
+export type PaymentInstallment = {
+  label_ar: string;
+  label_en: string;
+  amount: number;
+  due_date: string | null;
+  paid: boolean;
+};
+
 export type Order = {
   id: string;
   order_number: string;
@@ -197,6 +239,7 @@ export type Order = {
   admin_notes: string | null;
   sales_id: string | null;
   assigned_staff_id: string | null;
+  payment_plan: PaymentInstallment[] | null;
   created_at: string;
   updated_at: string;
 };
@@ -220,6 +263,7 @@ export type OrderMilestone = {
   status: MilestoneStatus;
   sort_order: number;
   completed_at: string | null;
+  customer_approved_at: string | null;
   created_at: string;
 };
 
@@ -508,6 +552,8 @@ export type Database = {
       cms_pages: Tbl<CmsPage>;
       user_groups: Tbl<UserGroup>;
       user_group_members: Tbl<UserGroupMember>;
+      service_faqs: Tbl<ServiceFaq>;
+      team_members: Tbl<TeamMember>;
     };
     Views: {
       [_ in never]: never;

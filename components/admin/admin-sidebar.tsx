@@ -40,6 +40,7 @@ const ITEMS: Item[] = [
   { href: "/admin/pages", labelAr: "الصفحات", labelEn: "Pages", icon: FileEdit, roles: ["admin"] },
   { href: "/admin/customers", labelAr: "العملاء", labelEn: "Customers", icon: Users, roles: ["admin", "sales"] },
   { href: "/admin/groups", labelAr: "المجموعات", labelEn: "Groups", icon: UsersRound, roles: ["admin"] },
+  { href: "/admin/team", labelAr: "الفريق", labelEn: "Team", icon: Users, roles: ["admin"] },
   { href: "/admin/analytics", labelAr: "التحليلات", labelEn: "Analytics", icon: BarChart3, roles: ["admin"] },
   { href: "/admin/settings", labelAr: "الإعدادات", labelEn: "Settings", icon: Settings, roles: ["admin"] },
 ];

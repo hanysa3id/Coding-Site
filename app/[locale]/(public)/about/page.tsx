@@ -1,6 +1,9 @@
-import { setRequestLocale, getTranslations } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
+import { createClient } from "@/lib/supabase/server";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Target, Eye, Heart } from "lucide-react";
+import { Target, Eye, Users } from "lucide-react";
+import type { TeamMember, AboutSettings } from "@/types/database";
 import type { Metadata } from "next";
 
 export async function generateMetadata({
@@ -9,8 +12,22 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  return { title: locale === "ar" ? "عن الشركة" : "About" };
+  const isAr = locale === "ar";
+  return {
+    title: isAr ? "عن الشركة" : "About us",
+    description: isAr
+      ? "تعرف على فريقنا ورسالتنا ورؤيتنا"
+      : "Learn about our team, mission, and vision",
+  };
 }
+
+const FALLBACK_ABOUT: AboutSettings = {
+  mission_ar: "تقديم خدمات برمجة وتصميم احترافية تساعد عملاءنا على تحقيق أهدافهم الرقمية.",
+  mission_en: "Provide professional programming and design services that help our clients achieve their digital goals.",
+  vision_ar: "أن نكون الخيار الأول للشركات والأفراد الباحثين عن جودة وموثوقية.",
+  vision_en: "To be the first choice for businesses and individuals seeking quality and reliability.",
+  stats: [],
+};
 
 export default async function AboutPage({
   params,
@@ -20,67 +37,131 @@ export default async function AboutPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const isAr = locale === "ar";
-  const tc = await getTranslations("common");
 
-  const values = [
+  const supabase = await createClient();
+  const [{ data: members }, { data: aboutSetting }] = await Promise.all([
+    supabase
+      .from("team_members")
+      .select("*")
+      .eq("is_visible", true)
+      .order("sort_order", { ascending: true }),
+    supabase.from("settings").select("value").eq("key", "about").single(),
+  ]);
+
+  const about: AboutSettings =
+    (aboutSetting?.value as unknown as AboutSettings) ?? FALLBACK_ABOUT;
+  const team = (members as TeamMember[]) ?? [];
+
+  const cards = [
     {
       icon: Target,
       titleAr: "رسالتنا",
       titleEn: "Our mission",
-      textAr: "تقديم خدمات برمجة وتصميم احترافية تساعد عملاءنا على تحقيق أهدافهم الرقمية.",
-      textEn: "Provide professional programming and design services that help our clients reach their digital goals.",
+      textAr: about.mission_ar || FALLBACK_ABOUT.mission_ar,
+      textEn: about.mission_en || FALLBACK_ABOUT.mission_en,
+      accent: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
     },
     {
       icon: Eye,
       titleAr: "رؤيتنا",
       titleEn: "Our vision",
-      textAr: "أن نكون الخيار الأول للشركات والأفراد الباحثين عن جودة وموثوقية.",
-      textEn: "To be the first choice for businesses and individuals seeking quality and reliability.",
-    },
-    {
-      icon: Heart,
-      titleAr: "قيمنا",
-      titleEn: "Our values",
-      textAr: "الالتزام بالمواعيد، الجودة في التفاصيل، الشفافية في التعامل.",
-      textEn: "On-time delivery, attention to detail, and transparency in everything we do.",
+      textAr: about.vision_ar || FALLBACK_ABOUT.vision_ar,
+      textEn: about.vision_en || FALLBACK_ABOUT.vision_en,
+      accent: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
     },
   ];
 
   return (
-    <div className="container py-12">
-      <header className="mb-12 text-center">
-        <h1 className="text-4xl font-bold">{tc("about")}</h1>
-        <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+    <div className="container py-16 space-y-20">
+      {/* Hero */}
+      <header className="text-center max-w-3xl mx-auto space-y-4">
+        <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm text-primary font-medium">
+          <Users className="h-4 w-4" />
+          {isAr ? "من نحن" : "About us"}
+        </div>
+        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
+          {isAr ? "نحن فريق متخصص" : "We're a specialized team"}
+        </h1>
+        <p className="text-muted-foreground text-lg leading-relaxed">
           {isAr
-            ? "نحن فريق متخصص في تقديم حلول البرمجة والتصميم الرقمي"
-            : "We are a specialized team delivering programming and digital design solutions."}
+            ? "نقدم حلول برمجية وتصميمية احترافية تجمع بين الجودة التقنية والجمال البصري"
+            : "We deliver professional programming and design solutions combining technical quality with visual appeal"}
         </p>
       </header>
 
-      <div className="grid gap-6 md:grid-cols-3 mb-12">
-        {values.map((v) => {
-          const Icon = v.icon;
+      {/* Stats strip */}
+      {about.stats.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+          {about.stats.map((stat, i) => (
+            <div key={i} className="space-y-1">
+              <p className="text-4xl font-bold text-primary tabular-nums">{stat.value}</p>
+              <p className="text-sm text-muted-foreground">{isAr ? stat.label_ar : stat.label_en}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Mission / Vision */}
+      <div className="grid sm:grid-cols-2 gap-6">
+        {cards.map((c) => {
+          const Icon = c.icon;
           return (
-            <Card key={v.titleEn}>
-              <CardContent className="pt-6 space-y-3">
-                <Icon className="h-10 w-10 text-primary" />
-                <h2 className="text-xl font-bold">{isAr ? v.titleAr : v.titleEn}</h2>
-                <p className="text-muted-foreground">{isAr ? v.textAr : v.textEn}</p>
+            <Card key={c.titleEn} className="border-0 shadow-sm bg-muted/30">
+              <CardContent className="pt-6 space-y-4">
+                <div className={`inline-flex rounded-xl p-3 ${c.accent}`}>
+                  <Icon className="h-6 w-6" />
+                </div>
+                <h2 className="text-xl font-bold">{isAr ? c.titleAr : c.titleEn}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {isAr ? c.textAr : c.textEn}
+                </p>
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      <Card>
-        <CardContent className="pt-6 prose max-w-none">
-          <p className="text-lg leading-relaxed">
-            {isAr
-              ? "بفضل خبرة فريقنا في البرمجة والتصميم، نقدم لعملائنا حلولاً متكاملة تجمع بين الجودة التقنية والجمال البصري. نلتزم بمبدأ التواصل المستمر مع العميل في جميع مراحل المشروع لضمان تحقيق رؤيته بدقة."
-              : "Drawing on our team's experience in programming and design, we deliver integrated solutions that combine technical quality with visual appeal. We commit to continuous communication with the client at every stage to ensure their vision is realized precisely."}
-          </p>
-        </CardContent>
-      </Card>
+      {/* Team */}
+      {team.length > 0 && (
+        <section className="space-y-10">
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl font-bold">{isAr ? "فريق العمل" : "Meet the team"}</h2>
+            <p className="text-muted-foreground">
+              {isAr ? "الأشخاص الذين يجعلون الأمور تحدث" : "The people who make things happen"}
+            </p>
+          </div>
+          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+            {team.map((member) => (
+              <div key={member.id} className="group text-center space-y-4">
+                <div className="relative mx-auto h-28 w-28 rounded-full overflow-hidden bg-muted ring-4 ring-muted group-hover:ring-primary/30 transition-all duration-300">
+                  {member.avatar_url ? (
+                    <Image
+                      src={member.avatar_url}
+                      alt={isAr ? member.name_ar : member.name_en}
+                      fill
+                      sizes="112px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-muted-foreground">
+                      {(isAr ? member.name_ar : member.name_en).charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <p className="font-semibold text-lg">{isAr ? member.name_ar : member.name_en}</p>
+                  <p className="text-sm text-primary font-medium">{isAr ? member.role_ar : member.role_en}</p>
+                  {(isAr ? member.bio_ar : member.bio_en) && (
+                    <p className="text-sm text-muted-foreground leading-relaxed mt-2">
+                      {isAr ? member.bio_ar : member.bio_en}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

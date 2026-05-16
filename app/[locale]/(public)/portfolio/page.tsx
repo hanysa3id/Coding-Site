@@ -50,7 +50,7 @@ export default async function PortfolioPage({
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {(projects as PortfolioProject[]).map((p) => (
-            <Link key={p.id} href={`/portfolio/${p.slug}`}>
+            <Link key={p.id} href={`/portfolio/${p.slug}`} prefetch={true}>
               <Card className="h-full overflow-hidden transition hover:shadow-md">
                 {p.cover_image ? (
                   <div className="relative aspect-video">

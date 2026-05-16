@@ -423,3 +423,29 @@ export async function submitReviewAction(input: ReviewInput): Promise<Result> {
   revalidatePath("/admin/orders");
   return { success: true };
 }
+
+export async function approveMilestoneAction(milestoneId: string, orderId: string): Promise<Result> {
+  const profile = await requireUser();
+  const supabase = await createClient();
+
+  // Verify the order belongs to this customer
+  const { data: order } = await supabase
+    .from("orders")
+    .select("id, customer_id, order_number")
+    .eq("id", orderId)
+    .eq("customer_id", profile.id)
+    .single();
+  if (!order) return { success: false, error: "Order not found" };
+
+  const { error } = await supabase
+    .from("order_milestones")
+    .update({ customer_approved_at: new Date().toISOString() })
+    .eq("id", milestoneId)
+    .eq("order_id", orderId);
+
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath(`/orders/${orderId}`);
+  revalidatePath(`/admin/orders/${orderId}`);
+  return { success: true };
+}

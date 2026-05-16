@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Link } from "@/i18n/routing";
+import Image from "next/image";
 import {
   ArrowRight,
   LayoutGrid,
@@ -123,16 +124,17 @@ function OrdersCards({
               <li key={o.id} className="p-4 hover:bg-muted/30 transition">
                 <Link href={`/admin/orders/${o.id}`} className="block">
                   <div className="flex items-start gap-4">
-                    <div
-                      className={`h-14 w-14 shrink-0 rounded-md bg-cover bg-center bg-muted ${
-                        o.services?.cover_image ? "" : "border"
-                      }`}
-                      style={
-                        o.services?.cover_image
-                          ? { backgroundImage: `url(${o.services.cover_image})` }
-                          : undefined
-                      }
-                    />
+                    <div className="h-14 w-14 shrink-0 rounded-md bg-muted border overflow-hidden relative">
+                      {o.services?.cover_image ? (
+                        <Image
+                          src={o.services.cover_image}
+                          alt={o.services.name_en ?? ""}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      ) : null}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <code className="text-xs font-mono">{o.order_number}</code>

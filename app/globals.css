@@ -83,3 +83,16 @@
     font-family: var(--font-inter), system-ui, sans-serif;
   }
 }
+
+@media print {
+  /* Hide everything except the invoice document */
+  body > *:not(#__next) { display: none; }
+  header, nav, footer, aside { display: none !important; }
+  .print\:hidden { display: none !important; }
+  .print\:shadow-none { box-shadow: none !important; }
+  .print\:rounded-none { border-radius: 0 !important; }
+  .print\:p-0 { padding: 0 !important; }
+  .print\:p-8 { padding: 2rem !important; }
+  .print\:bg-white { background-color: white !important; }
+  @page { margin: 0; size: A4; }
+}
