@@ -6,6 +6,6 @@ export default async function HomePage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  const { HomePage: ThemeHomePage } = getActiveTheme();
+  const { HomePage: ThemeHomePage } = await getActiveTheme();
   return <ThemeHomePage params={params} />;
 }

@@ -13,6 +13,7 @@ import { IntegrationsSettingsForm } from "./_components/integrations-form";
 import { TelegramSettingsForm } from "./_components/telegram-form";
 import { OrdersPolicyForm } from "./_components/orders-policy-form";
 import { BusinessHoursForm } from "./_components/business-hours-form";
+import { ThemeSettingsForm } from "./_components/theme-form";
 import type { BankAccount } from "@/types/database";
 
 export default async function AdminSettingsPage() {
@@ -43,6 +44,7 @@ export default async function AdminSettingsPage() {
       <Tabs defaultValue="site">
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="site">{isAr ? "الموقع" : "Site"}</TabsTrigger>
+          <TabsTrigger value="theme">{isAr ? "المظهر" : "Theme"}</TabsTrigger>
           <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
           <TabsTrigger value="contact">{isAr ? "التواصل" : "Contact"}</TabsTrigger>
           <TabsTrigger value="hours">{isAr ? "ساعات العمل" : "Business hours"}</TabsTrigger>
@@ -53,6 +55,20 @@ export default async function AdminSettingsPage() {
           <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="integrations">{isAr ? "التكاملات" : "Integrations"}</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="theme" className="pt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{isAr ? "تصميم الموقع العام" : "Public site theme"}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ThemeSettingsForm
+                initial={settingsMap.get("theme") ?? null}
+                locale={locale}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="site" className="pt-4">
           <Card>

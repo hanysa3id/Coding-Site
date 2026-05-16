@@ -7,8 +7,7 @@ import { WhatsAppFloatingButton } from "@/components/shared/whatsapp-floating";
 // theme renders a fixed gradient mesh as the page backdrop.
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
-  const theme = getActiveTheme();
-  const themeId = getActiveThemeId();
+  const [theme, themeId] = await Promise.all([getActiveTheme(), getActiveThemeId()]);
   const { SiteHeader, SiteFooter, config } = theme;
 
   return (

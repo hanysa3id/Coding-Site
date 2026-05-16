@@ -11,6 +11,7 @@ import type {
   TelegramSettingsInput,
   OrdersPolicyInput,
   BusinessHoursInput,
+  ThemeSettings,
 } from "@/lib/validators/settings";
 
 /**
@@ -73,6 +74,10 @@ export async function getOrdersPolicy(): Promise<OrdersPolicyInput | null> {
 
 export async function getBusinessHours(): Promise<BusinessHoursInput | null> {
   return getSetting<BusinessHoursInput>("business_hours");
+}
+
+export async function getThemeSettings(): Promise<ThemeSettings | null> {
+  return getSetting<ThemeSettings>("theme");
 }
 
 /**

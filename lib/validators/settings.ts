@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+// Available theme ids must stay in sync with themes/index.ts THEMES map.
+export const themeIdSchema = z.enum(["classic", "aurora", "nova"]);
+export type ThemeId = z.infer<typeof themeIdSchema>;
+
+export const themeSettingsSchema = z.object({
+  active: themeIdSchema.default("classic"),
+});
+export type ThemeSettings = z.infer<typeof themeSettingsSchema>;
+
 export const siteSettingsSchema = z.object({
   name_ar: z.string().min(1),
   name_en: z.string().min(1),
