@@ -16,7 +16,10 @@ export function PrismLogoCloud({
 }) {
   const isAr = locale === "ar";
   // Build entries: admin logos → project client names → generic fallbacks
-  const adminLogos: LogoEntry[] = (logos ?? []).map((name) => ({ name }));
+  const adminLogos: LogoEntry[] = (logos ?? []).map((l) => ({
+    name: l.name,
+    url: l.image_url || undefined,
+  }));
   const clientNames: LogoEntry[] = projects
     .filter((p) => p.client_name)
     .slice(0, 8)

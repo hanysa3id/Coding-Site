@@ -34,7 +34,42 @@ type HeroOverride = {
   primaryHref: string | null;
   secondaryLabel: string | null;
   secondaryHref: string | null;
+  imageUrl?: string | null;
+  videoUrl?: string | null;
 };
+
+function pickOverride(
+  isAr: boolean,
+  src:
+    | NonNullable<LandingSettings["hero"]>
+    | NonNullable<LandingSettings["hero_slides"]>[number]
+    | undefined
+): HeroOverride {
+  if (!src) {
+    return {
+      badge: null,
+      title: null,
+      subtitle: null,
+      primaryLabel: null,
+      primaryHref: null,
+      secondaryLabel: null,
+      secondaryHref: null,
+    };
+  }
+  return {
+    badge: (isAr ? src.badge_ar : src.badge_en)?.trim() || null,
+    title: (isAr ? src.title_ar : src.title_en)?.trim() || null,
+    subtitle: (isAr ? src.subtitle_ar : src.subtitle_en)?.trim() || null,
+    primaryLabel:
+      (isAr ? src.primary_cta_label_ar : src.primary_cta_label_en)?.trim() || null,
+    primaryHref: src.primary_cta_href?.trim() || null,
+    secondaryLabel:
+      (isAr ? src.secondary_cta_label_ar : src.secondary_cta_label_en)?.trim() || null,
+    secondaryHref: src.secondary_cta_href?.trim() || null,
+    imageUrl: "image_url" in src ? src.image_url?.trim() || null : null,
+    videoUrl: "video_url" in src ? src.video_url?.trim() || null : null,
+  };
+}
 
 type Slide = {
   id: string;
@@ -85,41 +120,49 @@ export function MoonHero({
   const isAr = locale === "ar";
   const [index, setIndex] = useState(0);
 
-  const h = landing?.hero;
-  const heroOverride: HeroOverride = useMemo(
-    () => ({
-      badge: (isAr ? h?.badge_ar : h?.badge_en)?.trim() || null,
-      title: (isAr ? h?.title_ar : h?.title_en)?.trim() || null,
-      subtitle: (isAr ? h?.subtitle_ar : h?.subtitle_en)?.trim() || null,
-      primaryLabel: (isAr ? h?.primary_cta_label_ar : h?.primary_cta_label_en)?.trim() || null,
-      primaryHref: h?.primary_cta_href?.trim() || null,
-      secondaryLabel:
-        (isAr ? h?.secondary_cta_label_ar : h?.secondary_cta_label_en)?.trim() || null,
-      secondaryHref: h?.secondary_cta_href?.trim() || null,
-    }),
-    [isAr, h]
-  );
+  // Build the actual slide list: when admin provides `hero_slides`, each one
+  // takes the next built-in visual template as its scaffold + overrides badge/
+  // title/subtitle/CTAs/backdrop. When no admin slides, legacy single `hero`
+  // override applies only to slide 0.
+  const renderedSlides = useMemo(() => {
+    const adminSlides = landing?.hero_slides ?? [];
+    if (adminSlides.length > 0) {
+      return adminSlides.map((s, i) => ({
+        template: SLIDES[i % SLIDES.length],
+        override: pickOverride(isAr, s),
+      }));
+    }
+    return SLIDES.map((tpl, i) => ({
+      template: tpl,
+      override: i === 0 ? pickOverride(isAr, landing?.hero) : pickOverride(isAr, undefined),
+    }));
+  }, [isAr, landing]);
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
-    const t = setInterval(() => setIndex((i) => (i + 1) % SLIDES.length), 9000);
+    const t = setInterval(
+      () => setIndex((i) => (i + 1) % renderedSlides.length),
+      9000
+    );
     return () => clearInterval(t);
-  }, []);
+  }, [renderedSlides.length]);
 
   function go(i: number) {
-    setIndex((i + SLIDES.length) % SLIDES.length);
+    setIndex((i + renderedSlides.length) % renderedSlides.length);
   }
 
   return (
     <section className="relative w-full overflow-hidden -mt-px" aria-roledescription="carousel">
       {/* Layered slide stack */}
       <div className="relative h-[640px] md:h-[760px] lg:h-[820px]">
-        {SLIDES.map((s, i) => {
+        {renderedSlides.map(({ template: s, override }, i) => {
           const active = i === index;
+          const slideImage = override.imageUrl || s.image;
+          const slideVideo = override.videoUrl || s.video;
           return (
             <div
-              key={s.id}
+              key={`${s.id}-${i}`}
               className={cn(
                 "absolute inset-0 transition-opacity duration-[1100ms] ease-out",
                 active ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -128,11 +171,11 @@ export function MoonHero({
             >
               {/* Backdrop: video when present (active only), otherwise image */}
               <div className="absolute inset-0 overflow-hidden">
-                {s.video && active ? (
+                {slideVideo && active ? (
                   <video
-                    key={`v-${s.id}`}
-                    src={s.video}
-                    poster={s.image}
+                    key={`v-${s.id}-${i}`}
+                    src={slideVideo}
+                    poster={slideImage}
                     autoPlay
                     muted
                     loop
@@ -143,7 +186,7 @@ export function MoonHero({
                   />
                 ) : (
                   <Image
-                    src={s.image}
+                    src={slideImage}
                     alt={isAr ? s.imageAlt.ar : s.imageAlt.en}
                     fill
                     priority={i === 0}
@@ -220,7 +263,7 @@ export function MoonHero({
               {active && (
                 <div className="relative z-10 h-full">
                   <div className="container h-full">
-                    {s.render(locale, i === 0 ? heroOverride : undefined)}
+                    {s.render(locale, override)}
                   </div>
                 </div>
               )}
@@ -235,12 +278,14 @@ export function MoonHero({
           <div className="container flex items-center justify-between">
             <div className="moon-pill px-3 py-1.5 text-[11px] moon-mono pointer-events-auto">
               <span className="text-white">{String(index + 1).padStart(2, "0")}</span>
-              <span className="text-white/40"> / {String(SLIDES.length).padStart(2, "0")}</span>
+              <span className="text-white/40">
+                {" "}/ {String(renderedSlides.length).padStart(2, "0")}
+              </span>
             </div>
             <div className="hidden md:flex items-center gap-1.5 pointer-events-auto">
-              {SLIDES.map((s, i) => (
+              {renderedSlides.map(({ template: s, override }, i) => (
                 <button
-                  key={s.id}
+                  key={`${s.id}-${i}`}
                   type="button"
                   onClick={() => go(i)}
                   className={cn(
@@ -252,7 +297,7 @@ export function MoonHero({
                   aria-label={`${isAr ? "الشريحة" : "Slide"} ${i + 1}`}
                 >
                   <Image
-                    src={s.image}
+                    src={override.imageUrl || s.image}
                     alt=""
                     fill
                     sizes="64px"
@@ -291,7 +336,7 @@ export function MoonHero({
 
         {/* Bottom dots */}
         <div className="absolute bottom-7 inset-x-0 z-20 flex items-center justify-center gap-2">
-          {SLIDES.map((_, i) => (
+          {renderedSlides.map((_, i) => (
             <button
               key={i}
               type="button"

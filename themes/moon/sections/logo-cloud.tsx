@@ -1,5 +1,7 @@
+import Image from "next/image";
 import { MoonSection } from "../ui/section";
 import type { PortfolioProject } from "@/types/database";
+import type { LandingLogoItem } from "@/lib/validators/settings";
 
 export function MoonLogoCloud({
   locale,
@@ -8,18 +10,28 @@ export function MoonLogoCloud({
 }: {
   locale: string;
   projects?: PortfolioProject[];
-  logos?: string[];
+  logos?: LandingLogoItem[];
 }) {
   const isAr = locale === "ar";
 
-  // Priority: admin → portfolio client_names → fillers
+  // Priority: admin (rich) → portfolio client_names → fillers
   const seen = new Set<string>();
-  const items: { key: string; label: string }[] = [];
-  for (const name of logos) {
-    const t = name.trim();
+  const items: {
+    key: string;
+    label: string;
+    image?: string | null;
+    description?: string | null;
+  }[] = [];
+  for (const entry of logos) {
+    const t = entry.name.trim();
     if (!t || seen.has(t.toLowerCase())) continue;
     seen.add(t.toLowerCase());
-    items.push({ key: `admin-${t}`, label: t });
+    items.push({
+      key: `admin-${t}`,
+      label: t,
+      image: entry.image_url,
+      description: isAr ? entry.description_ar : entry.description_en,
+    });
   }
   for (const p of projects) {
     const label = (p.client_name ?? (isAr ? p.title_ar : p.title_en) ?? "").trim();
@@ -47,10 +59,23 @@ export function MoonLogoCloud({
             <div
               key={`${it.key}-${i}`}
               className="moon-logo-chip flex items-center gap-3 whitespace-nowrap min-w-[8rem]"
+              title={it.description ?? undefined}
             >
-              <span className="grid place-items-center h-10 w-10 rounded-lg bg-white/[0.04] border border-white/10 text-white/85 font-semibold text-sm">
-                {it.label.slice(0, 1).toUpperCase()}
-              </span>
+              {it.image ? (
+                <span className="relative grid place-items-center h-10 w-10 rounded-lg bg-white/[0.04] border border-white/10 overflow-hidden">
+                  <Image
+                    src={it.image}
+                    alt={it.label}
+                    fill
+                    sizes="40px"
+                    className="object-contain p-1"
+                  />
+                </span>
+              ) : (
+                <span className="grid place-items-center h-10 w-10 rounded-lg bg-white/[0.04] border border-white/10 text-white/85 font-semibold text-sm">
+                  {it.label.slice(0, 1).toUpperCase()}
+                </span>
+              )}
               <span className="text-base md:text-lg font-semibold text-white/85">
                 {it.label}
               </span>

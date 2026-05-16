@@ -30,6 +30,7 @@ import {
   type LandingSettings,
 } from "@/lib/validators/settings";
 import { sendTelegramRaw } from "@/lib/telegram/send";
+import { uploadToBucket } from "@/lib/storage/upload";
 
 type Result = { success: true } | { success: false; error: string };
 
@@ -43,6 +44,31 @@ async function upsertSetting(key: string, value: unknown): Promise<Result> {
   revalidatePath("/admin/settings");
   revalidatePath("/", "layout");
   return { success: true };
+}
+
+/**
+ * Upload an image used by the site identity (logo, favicon) or by the
+ * landing page editor (hero slide backdrop, brand logo cloud). All site
+ * media share the `service-images` bucket with different prefixes so
+ * we don&apos;t need to provision new buckets / RLS rules.
+ */
+async function uploadAssetTo(prefix: string, formData: FormData) {
+  await requireAdmin();
+  const file = formData.get("file") as File | null;
+  if (!file) return { success: false as const, error: "No file" };
+  return uploadToBucket("service-images", file, prefix);
+}
+
+export async function uploadSiteAssetAction(formData: FormData) {
+  return uploadAssetTo("site/", formData);
+}
+
+export async function uploadLandingLogoAction(formData: FormData) {
+  return uploadAssetTo("landing/logos/", formData);
+}
+
+export async function uploadHeroSlideImageAction(formData: FormData) {
+  return uploadAssetTo("landing/hero/", formData);
 }
 
 export async function saveSiteSettingsAction(input: SiteSettings) {

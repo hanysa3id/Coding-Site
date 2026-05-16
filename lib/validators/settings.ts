@@ -52,6 +52,38 @@ export const landingStatSchema = z.object({
 });
 export type LandingStatItem = z.infer<typeof landingStatSchema>;
 
+// Logo cloud entry — name, optional image, optional bilingual description.
+// String values are auto-migrated to `{ name }` via the preprocess on `logos`.
+export const landingLogoSchema = z.object({
+  name: z.string().min(1),
+  image_url: z.string().nullable().optional().or(z.literal("")),
+  description_ar: z.string().nullable().optional(),
+  description_en: z.string().nullable().optional(),
+});
+export type LandingLogoItem = z.infer<typeof landingLogoSchema>;
+
+// Hero slide — title/subtitle/badge + dual CTAs + optional backdrop media.
+// Every field is optional; empty fields fall back to the theme default.
+export const landingHeroSlideSchema = z.object({
+  badge_ar: z.string().nullable().optional(),
+  badge_en: z.string().nullable().optional(),
+  title_ar: z.string().nullable().optional(),
+  title_en: z.string().nullable().optional(),
+  subtitle_ar: z.string().nullable().optional(),
+  subtitle_en: z.string().nullable().optional(),
+  primary_cta_label_ar: z.string().nullable().optional(),
+  primary_cta_label_en: z.string().nullable().optional(),
+  primary_cta_href: z.string().nullable().optional(),
+  secondary_cta_label_ar: z.string().nullable().optional(),
+  secondary_cta_label_en: z.string().nullable().optional(),
+  secondary_cta_href: z.string().nullable().optional(),
+  /** Background image (overrides theme default for this slide). */
+  image_url: z.string().nullable().optional().or(z.literal("")),
+  /** Optional looping muted video URL (mp4/webm). */
+  video_url: z.string().nullable().optional().or(z.literal("")),
+});
+export type LandingHeroSlide = z.infer<typeof landingHeroSlideSchema>;
+
 export const landingSettingsSchema = z.object({
   // Section visibility — keyed by canonical id. Missing key = visible.
   sections: z.record(z.string(), z.boolean()).default({}),
@@ -86,9 +118,24 @@ export const landingSettingsSchema = z.object({
     })
     .default({}),
 
-  // Logo cloud names. Empty = theme falls back to client_name from portfolio
-  // table + stylized fillers.
-  logos: z.array(z.string().min(1)).default([]),
+  // Logo cloud entries — each may have an uploaded image + bilingual
+  // description. Legacy data (array of strings) is auto-migrated to
+  // `{ name }` objects so existing settings keep working.
+  logos: z
+    .preprocess(
+      (v) => {
+        if (!Array.isArray(v)) return v;
+        return v.map((item) =>
+          typeof item === "string" ? { name: item } : item
+        );
+      },
+      z.array(landingLogoSchema)
+    )
+    .default([]),
+
+  // Multi-slide hero — when populated, themes that support a slider render
+  // these in order. Empty = fall back to the single `hero` block + theme defaults.
+  hero_slides: z.array(landingHeroSlideSchema).default([]),
 
   // FAQ entries. Empty = theme uses built-in defaults.
   faqs: z.array(landingFaqSchema).default([]),

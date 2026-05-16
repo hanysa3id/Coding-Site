@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { SkySection } from "../ui/section";
 import type { PortfolioProject } from "@/types/database";
+import type { LandingLogoItem } from "@/lib/validators/settings";
 
 // Marquee strip of client logos. Pulled from real portfolio projects when
 // available. Logos rendered grayscale; on hover, they restore to full color
@@ -13,18 +14,18 @@ export function LogoMarquee({
 }: {
   locale: string;
   projects: PortfolioProject[];
-  logos?: string[];
+  logos?: LandingLogoItem[];
 }) {
   const isAr = locale === "ar";
 
-  // Priority 1: admin-curated logos from /admin/landing (text-only, no images).
+  // Priority 1: admin-curated logos from /admin/landing (with optional image).
   const seen = new Set<string>();
   const items: { key: string; label: string; image: string | null }[] = [];
-  for (const name of logos) {
-    const label = name.trim();
+  for (const entry of logos) {
+    const label = entry.name.trim();
     if (!label || seen.has(label.toLowerCase())) continue;
     seen.add(label.toLowerCase());
-    items.push({ key: `admin-${label}`, label, image: null });
+    items.push({ key: `admin-${label}`, label, image: entry.image_url || null });
   }
 
   // Priority 2: real client names from the portfolio table.

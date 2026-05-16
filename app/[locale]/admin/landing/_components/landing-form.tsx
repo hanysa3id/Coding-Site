@@ -35,9 +35,16 @@ import {
   type LandingFaqItem,
   type LandingNavItem,
   type LandingStatItem,
+  type LandingLogoItem,
+  type LandingHeroSlide,
   type LandingSectionId,
 } from "@/lib/validators/settings";
-import { saveLandingSettingsAction } from "../../settings/actions";
+import {
+  saveLandingSettingsAction,
+  uploadLandingLogoAction,
+  uploadHeroSlideImageAction,
+} from "../../settings/actions";
+import { ImageUpload } from "@/components/admin/image-upload";
 import type { ThemeId } from "@/themes";
 import { cn } from "@/lib/utils";
 
@@ -223,14 +230,60 @@ export function LandingForm({
     toast.info(isAr ? "أعيد التعيين لآخر حالة محفوظة" : "Reset to last saved state");
   }
 
-  function resetTab(tab: "hero" | "nav" | "logos" | "faqs" | "stats" | "sections") {
+  function resetTab(
+    tab: "hero" | "slides" | "nav" | "logos" | "faqs" | "stats" | "sections"
+  ) {
     if (tab === "hero") update("hero", emptyState().hero);
+    if (tab === "slides") update("hero_slides", []);
     if (tab === "nav") update("nav", emptyState().nav);
     if (tab === "logos") update("logos", []);
     if (tab === "faqs") update("faqs", []);
     if (tab === "stats") update("stats", []);
     if (tab === "sections") update("sections", {});
     toast.success(isAr ? "تم إعادة تعيين هذا القسم" : "Section reset to defaults");
+  }
+
+  // ─── Hero slides helpers ──────────────────────────────────────────────────
+  const blankSlide = (): LandingHeroSlide => ({
+    badge_ar: "",
+    badge_en: "",
+    title_ar: "",
+    title_en: "",
+    subtitle_ar: "",
+    subtitle_en: "",
+    primary_cta_label_ar: "",
+    primary_cta_label_en: "",
+    primary_cta_href: "",
+    secondary_cta_label_ar: "",
+    secondary_cta_label_en: "",
+    secondary_cta_href: "",
+    image_url: "",
+    video_url: "",
+  });
+  function patchSlide(idx: number, patch: Partial<LandingHeroSlide>) {
+    const next = [...data.hero_slides];
+    next[idx] = { ...next[idx], ...patch };
+    update("hero_slides", next);
+  }
+  function moveSlide(idx: number, dir: -1 | 1) {
+    const next = [...data.hero_slides];
+    const target = idx + dir;
+    if (target < 0 || target >= next.length) return;
+    [next[idx], next[target]] = [next[target], next[idx]];
+    update("hero_slides", next);
+  }
+  function removeSlide(idx: number) {
+    update("hero_slides", data.hero_slides.filter((_, i) => i !== idx));
+  }
+
+  // ─── Logo helpers ─────────────────────────────────────────────────────────
+  function patchLogo(idx: number, patch: Partial<LandingLogoItem>) {
+    const next = [...data.logos];
+    next[idx] = { ...next[idx], ...patch };
+    update("logos", next);
+  }
+  function removeLogo(idx: number) {
+    update("logos", data.logos.filter((_, i) => i !== idx));
   }
 
   const dirty = JSON.stringify(data) !== JSON.stringify(initialParsed);
@@ -273,6 +326,7 @@ export function LandingForm({
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="sections">{isAr ? "الأقسام" : "Sections"}</TabsTrigger>
           <TabsTrigger value="hero">Hero</TabsTrigger>
+          <TabsTrigger value="slides">{isAr ? "الشرائح" : "Slides"}</TabsTrigger>
           <TabsTrigger value="nav">{isAr ? "شريط التنقل" : "Nav Bar"}</TabsTrigger>
           <TabsTrigger value="logos">{isAr ? "الشعارات" : "Logos"}</TabsTrigger>
           <TabsTrigger value="stats">{isAr ? "الإحصائيات" : "Stats"}</TabsTrigger>
@@ -482,6 +536,211 @@ export function LandingForm({
           </fieldset>
         </TabsContent>
 
+        {/* ─── HERO SLIDES (multi) ──────────────────────────── */}
+        <TabsContent value="slides" className="pt-6 space-y-5">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <InfoBox
+              isAr={isAr}
+              ar="شرائح متعددة للهيرو — تُعرض في الـ themes التي تدعم السلايدر (Moon ، Prism ، Sky). اترك القائمة فارغة لاستخدام تبويب Hero أعلاه فقط."
+              en="Multiple hero slides — rendered by themes that support a slider (Moon, Prism, Sky). Leave empty to fall back to the single Hero tab above."
+            />
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                onClick={() =>
+                  update("hero_slides", [...data.hero_slides, blankSlide()])
+                }
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {isAr ? "إضافة شريحة" : "Add slide"}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => resetTab("slides")}
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                {isAr ? "إعادة تعيين" : "Reset"}
+              </Button>
+            </div>
+          </div>
+
+          {data.hero_slides.length === 0 ? (
+            <EmptyState
+              isAr={isAr}
+              ar="لا توجد شرائح — اضغط (إضافة شريحة) لإنشاء أول شريحة."
+              en="No slides — click (Add slide) to create the first one."
+            />
+          ) : (
+            <div className="space-y-4">
+              {data.hero_slides.map((slide, i) => (
+                <div key={i} className="rounded-xl border bg-card p-5 space-y-4">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="font-mono">
+                        #{String(i + 1).padStart(2, "0")}
+                      </Badge>
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {slide.title_ar || slide.title_en || (isAr ? "شريحة بدون عنوان" : "Untitled slide")}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        disabled={i === 0}
+                        onClick={() => moveSlide(i, -1)}
+                        aria-label="Move up"
+                      >
+                        <ArrowUp className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        disabled={i === data.hero_slides.length - 1}
+                        onClick={() => moveSlide(i, 1)}
+                        aria-label="Move down"
+                      >
+                        <ArrowDown className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => removeSlide(i)}
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field
+                      label="Badge (AR)"
+                      dir="rtl"
+                      value={slide.badge_ar ?? ""}
+                      onChange={(v) => patchSlide(i, { badge_ar: v })}
+                    />
+                    <Field
+                      label="Badge (EN)"
+                      dir="ltr"
+                      value={slide.badge_en ?? ""}
+                      onChange={(v) => patchSlide(i, { badge_en: v })}
+                    />
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field
+                      label={isAr ? "العنوان (AR)" : "Title (AR)"}
+                      dir="rtl"
+                      value={slide.title_ar ?? ""}
+                      onChange={(v) => patchSlide(i, { title_ar: v })}
+                    />
+                    <Field
+                      label={isAr ? "العنوان (EN)" : "Title (EN)"}
+                      dir="ltr"
+                      value={slide.title_en ?? ""}
+                      onChange={(v) => patchSlide(i, { title_en: v })}
+                    />
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <TextareaField
+                      label={isAr ? "الوصف (AR)" : "Subtitle (AR)"}
+                      dir="rtl"
+                      value={slide.subtitle_ar ?? ""}
+                      onChange={(v) => patchSlide(i, { subtitle_ar: v })}
+                    />
+                    <TextareaField
+                      label={isAr ? "الوصف (EN)" : "Subtitle (EN)"}
+                      dir="ltr"
+                      value={slide.subtitle_en ?? ""}
+                      onChange={(v) => patchSlide(i, { subtitle_en: v })}
+                    />
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-3 pt-1">
+                    <Field
+                      label={isAr ? "نص الزر الأساسي (AR)" : "Primary CTA (AR)"}
+                      dir="rtl"
+                      value={slide.primary_cta_label_ar ?? ""}
+                      onChange={(v) => patchSlide(i, { primary_cta_label_ar: v })}
+                    />
+                    <Field
+                      label={isAr ? "نص الزر الأساسي (EN)" : "Primary CTA (EN)"}
+                      dir="ltr"
+                      value={slide.primary_cta_label_en ?? ""}
+                      onChange={(v) => patchSlide(i, { primary_cta_label_en: v })}
+                    />
+                    <Field
+                      label={isAr ? "رابط الزر الأساسي" : "Primary link"}
+                      dir="ltr"
+                      placeholder="/contact"
+                      value={slide.primary_cta_href ?? ""}
+                      onChange={(v) => patchSlide(i, { primary_cta_href: v })}
+                    />
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <Field
+                      label={isAr ? "نص الزر الثانوي (AR)" : "Secondary CTA (AR)"}
+                      dir="rtl"
+                      value={slide.secondary_cta_label_ar ?? ""}
+                      onChange={(v) => patchSlide(i, { secondary_cta_label_ar: v })}
+                    />
+                    <Field
+                      label={isAr ? "نص الزر الثانوي (EN)" : "Secondary CTA (EN)"}
+                      dir="ltr"
+                      value={slide.secondary_cta_label_en ?? ""}
+                      onChange={(v) => patchSlide(i, { secondary_cta_label_en: v })}
+                    />
+                    <Field
+                      label={isAr ? "رابط الزر الثانوي" : "Secondary link"}
+                      dir="ltr"
+                      placeholder="/services"
+                      value={slide.secondary_cta_href ?? ""}
+                      onChange={(v) => patchSlide(i, { secondary_cta_href: v })}
+                    />
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2 pt-1">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold">
+                        {isAr ? "صورة الخلفية" : "Background image"}
+                      </Label>
+                      <ImageUpload
+                        value={slide.image_url || null}
+                        onChange={(url) => patchSlide(i, { image_url: url ?? "" })}
+                        uploadAction={uploadHeroSlideImageAction}
+                        locale={locale}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold">
+                        {isAr ? "رابط فيديو (اختياري)" : "Video URL (optional)"}
+                      </Label>
+                      <Input
+                        type="url"
+                        dir="ltr"
+                        placeholder="https://.../loop.mp4"
+                        value={slide.video_url ?? ""}
+                        onChange={(e) => patchSlide(i, { video_url: e.target.value })}
+                      />
+                      <p className="text-[11px] text-muted-foreground">
+                        {isAr
+                          ? "MP4 صغير الحجم (< 5 ميجا). يُشغّل صامتاً ومتكرراً."
+                          : "Small MP4 (< 5MB). Plays muted + looped."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
         {/* ─── NAV BAR ──────────────────────────────────────── */}
         <TabsContent value="nav" className="pt-6 space-y-5">
           <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -635,44 +894,74 @@ export function LandingForm({
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => update("logos", [...data.logos, ""])}
+              onClick={() =>
+                update("logos", [...data.logos, { name: "" }])
+              }
             >
               <Plus className="h-3.5 w-3.5" />
-              {isAr ? "إضافة" : "Add"}
+              {isAr ? "إضافة شعار" : "Add logo"}
             </Button>
           </div>
           {data.logos.length === 0 ? (
             <EmptyState
               isAr={isAr}
-              ar="لا توجد شعارات مضافة — سيستخدم الـ theme الافتراضي."
-              en="No logos — theme will use defaults."
+              ar="لا توجد شعارات — سيستخدم الـ theme أسماء العملاء من معرض الأعمال."
+              en="No logos — theme will use client_name from portfolio + defaults."
             />
           ) : (
-            <div className="grid gap-2 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
               {data.logos.map((logo, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Input
-                    value={logo}
-                    onChange={(e) => {
-                      const next = [...data.logos];
-                      next[i] = e.target.value;
-                      update("logos", next);
-                    }}
-                    placeholder={isAr ? "اسم الشركة" : "Brand name"}
+                <div key={i} className="rounded-xl border bg-card p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="secondary" className="font-mono">
+                      #{String(i + 1).padStart(2, "0")}
+                    </Badge>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => removeLogo(i)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+
+                  <Field
+                    label={isAr ? "اسم العلامة" : "Brand name"}
+                    dir="ltr"
+                    value={logo.name}
+                    onChange={(v) => patchLogo(i, { name: v })}
+                    placeholder="Northwind"
                   />
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    onClick={() =>
-                      update(
-                        "logos",
-                        data.logos.filter((_, j) => j !== i)
-                      )
-                    }
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">
+                      {isAr ? "صورة الشعار" : "Logo image"}
+                    </Label>
+                    <ImageUpload
+                      value={logo.image_url || null}
+                      onChange={(url) => patchLogo(i, { image_url: url ?? "" })}
+                      uploadAction={uploadLandingLogoAction}
+                      locale={locale}
+                    />
+                  </div>
+
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <Field
+                      label={isAr ? "وصف (AR)" : "Description (AR)"}
+                      dir="rtl"
+                      value={logo.description_ar ?? ""}
+                      onChange={(v) => patchLogo(i, { description_ar: v })}
+                      placeholder={isAr ? "شريك تقني" : ""}
+                    />
+                    <Field
+                      label={isAr ? "وصف (EN)" : "Description (EN)"}
+                      dir="ltr"
+                      value={logo.description_en ?? ""}
+                      onChange={(v) => patchLogo(i, { description_en: v })}
+                      placeholder={!isAr ? "Tech partner" : ""}
+                    />
+                  </div>
                 </div>
               ))}
             </div>

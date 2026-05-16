@@ -17,16 +17,19 @@ const DEFAULT_NAMES = [
   "Polaris",
 ];
 
+type LogoEntry = { name: string; image_url?: string | null };
+
 export function AuroraLogoCloud({
   locale,
   names,
 }: {
   locale: string;
-  /** Admin-curated names override the defaults when non-empty. */
-  names?: string[];
+  /** Admin-curated logos override the defaults when non-empty. */
+  names?: LogoEntry[];
 }) {
   const isAr = locale === "ar";
-  const resolved = names && names.length > 0 ? names : DEFAULT_NAMES;
+  const resolved: string[] =
+    names && names.length > 0 ? names.map((n) => n.name) : DEFAULT_NAMES;
   // Duplicate the list so the marquee loops seamlessly.
   const doubled = [...resolved, ...resolved];
 

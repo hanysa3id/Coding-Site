@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import {
   ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
   Code2,
   Palette,
   Megaphone,
@@ -66,30 +68,118 @@ export function PrismHero({
     };
   }, []);
 
-  const h = landing?.hero;
-  const badge = (isAr ? h?.badge_ar : h?.badge_en)?.trim() ||
-    (isAr ? "استوديو رقمي شامل" : "Full-stack digital studio");
-  const titlePartA =
-    (isAr ? h?.title_ar : h?.title_en)?.trim() ||
-    (isAr ? "نحن نصمم، نبرمج، " : "We design, we code, ");
-  const titlePartB = isAr ? "ونرفع علامتك التجارية." : "we grow brands.";
-  const subtitle =
-    (isAr ? h?.subtitle_ar : h?.subtitle_en)?.trim() ||
-    (isAr
+  // Build the rendered slide list. Admin-curated `hero_slides` take priority;
+  // otherwise the legacy single `hero` block + theme defaults are used as the
+  // sole slide.
+  type Resolved = {
+    badge: string;
+    titleA: string;
+    titleB: string;
+    subtitle: string;
+    primaryLabel: string;
+    primaryHref: string;
+    secondaryLabel: string;
+    secondaryHref: string;
+    image: string;
+    video?: string;
+  };
+  const defaults: Resolved = {
+    badge: isAr ? "استوديو رقمي شامل" : "Full-stack digital studio",
+    titleA: isAr ? "نحن نصمم، نبرمج، " : "We design, we code, ",
+    titleB: isAr ? "ونرفع علامتك التجارية." : "we grow brands.",
+    subtitle: isAr
       ? "استوديو متكامل من المبرمجين والمصممين والمسوقين. من فكرة على ورق إلى منتج رقمي يحبه آلاف المستخدمين."
-      : "A full crew of engineers, designers, and marketers. From sketch to product loved by thousands of users.");
-  const primaryLabel =
-    (isAr ? h?.primary_cta_label_ar : h?.primary_cta_label_en)?.trim() ||
-    (isAr ? "ابدأ مشروعك" : "Start a project");
-  const primaryHref = h?.primary_cta_href?.trim() || "/contact";
-  const secondaryLabel =
-    (isAr ? h?.secondary_cta_label_ar : h?.secondary_cta_label_en)?.trim() ||
-    (isAr ? "شاهد أعمالنا" : "See our work");
-  const secondaryHref = h?.secondary_cta_href?.trim() || "/portfolio";
+      : "A full crew of engineers, designers, and marketers. From sketch to product loved by thousands of users.",
+    primaryLabel: isAr ? "ابدأ مشروعك" : "Start a project",
+    primaryHref: "/contact",
+    secondaryLabel: isAr ? "شاهد أعمالنا" : "See our work",
+    secondaryHref: "/portfolio",
+    image: HERO_POSTER,
+    video: HERO_VIDEO,
+  };
 
-  // Split the title into letter spans for the pop-in
-  const titleA = Array.from(titlePartA);
-  const titleB = Array.from(titlePartB);
+  const slides: Resolved[] = useMemo(() => {
+    const pick = (
+      ar: string | null | undefined,
+      en: string | null | undefined,
+      fb: string
+    ) => {
+      const v = (isAr ? ar : en)?.trim();
+      return v && v.length > 0 ? v : fb;
+    };
+    const adminSlides = landing?.hero_slides ?? [];
+    if (adminSlides.length > 0) {
+      return adminSlides.map((s) => {
+        const fullTitle = pick(s.title_ar, s.title_en, defaults.titleA + defaults.titleB);
+        const half = Math.ceil(fullTitle.length / 2);
+        return {
+          badge: pick(s.badge_ar, s.badge_en, defaults.badge),
+          // Split user title roughly in half so the second half receives the
+          // brand gradient. Themes that want a hard split can put a newline.
+          titleA: fullTitle.includes("\n")
+            ? fullTitle.split("\n")[0]
+            : fullTitle.slice(0, half),
+          titleB: fullTitle.includes("\n")
+            ? fullTitle.split("\n").slice(1).join(" ")
+            : fullTitle.slice(half),
+          subtitle: pick(s.subtitle_ar, s.subtitle_en, defaults.subtitle),
+          primaryLabel: pick(s.primary_cta_label_ar, s.primary_cta_label_en, defaults.primaryLabel),
+          primaryHref: s.primary_cta_href?.trim() || defaults.primaryHref,
+          secondaryLabel: pick(
+            s.secondary_cta_label_ar,
+            s.secondary_cta_label_en,
+            defaults.secondaryLabel
+          ),
+          secondaryHref: s.secondary_cta_href?.trim() || defaults.secondaryHref,
+          image: s.image_url?.trim() || defaults.image,
+          video: s.video_url?.trim() || undefined,
+        };
+      });
+    }
+    const h = landing?.hero;
+    return [
+      {
+        badge: pick(h?.badge_ar, h?.badge_en, defaults.badge),
+        titleA: pick(h?.title_ar, h?.title_en, defaults.titleA),
+        titleB: defaults.titleB,
+        subtitle: pick(h?.subtitle_ar, h?.subtitle_en, defaults.subtitle),
+        primaryLabel: pick(
+          h?.primary_cta_label_ar,
+          h?.primary_cta_label_en,
+          defaults.primaryLabel
+        ),
+        primaryHref: h?.primary_cta_href?.trim() || defaults.primaryHref,
+        secondaryLabel: pick(
+          h?.secondary_cta_label_ar,
+          h?.secondary_cta_label_en,
+          defaults.secondaryLabel
+        ),
+        secondaryHref: h?.secondary_cta_href?.trim() || defaults.secondaryHref,
+        image: defaults.image,
+        video: defaults.video,
+      },
+    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAr, landing]);
+
+  const [slideIndex, setSlideIndex] = useState(0);
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    const t = setInterval(() => setSlideIndex((i) => (i + 1) % slides.length), 8500);
+    return () => clearInterval(t);
+  }, [slides.length]);
+
+  const active = slides[slideIndex] ?? slides[0];
+  const titleA = Array.from(active.titleA);
+  const titleB = Array.from(active.titleB);
+  const badge = active.badge;
+  const subtitle = active.subtitle;
+  const primaryLabel = active.primaryLabel;
+  const primaryHref = active.primaryHref;
+  const secondaryLabel = active.secondaryLabel;
+  const secondaryHref = active.secondaryHref;
 
   return (
     <section
@@ -98,23 +188,35 @@ export function PrismHero({
       aria-roledescription="hero"
     >
       <div className="relative h-[760px] md:h-[860px] lg:h-[920px]">
-        {/* Background video */}
-        <video
-          src={HERO_VIDEO}
-          poster={HERO_POSTER}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden
-          className="absolute inset-0 h-full w-full object-cover scale-[1.06]"
-          onError={(e) => {
-            // graceful fallback to second video then poster
-            const v = e.currentTarget;
-            if (v.src !== HERO_VIDEO_FALLBACK) v.src = HERO_VIDEO_FALLBACK;
-          }}
-        />
+        {/* Background — video when the active slide has one, otherwise image. */}
+        {active.video ? (
+          <video
+            key={`v-${slideIndex}-${active.video}`}
+            src={active.video}
+            poster={active.image}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover scale-[1.06]"
+            onError={(e) => {
+              const v = e.currentTarget;
+              if (v.src !== HERO_VIDEO_FALLBACK) v.src = HERO_VIDEO_FALLBACK;
+            }}
+          />
+        ) : (
+          <Image
+            key={`img-${slideIndex}-${active.image}`}
+            src={active.image}
+            alt=""
+            fill
+            priority={slideIndex === 0}
+            sizes="100vw"
+            className="object-cover scale-[1.06]"
+          />
+        )}
 
         {/* Color washes */}
         <div
@@ -221,8 +323,8 @@ export function PrismHero({
                   ))}
                 </span>
                 <span className="sr-only">
-                  {titlePartA}
-                  {titlePartB}
+                  {active.titleA}
+                  {active.titleB}
                 </span>
               </h1>
 
@@ -302,6 +404,46 @@ export function PrismHero({
             </div>
           </div>
         </div>
+
+        {/* Slide controls — only shown when admin provided multiple slides */}
+        {slides.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() =>
+                setSlideIndex((i) => (i - 1 + slides.length) % slides.length)
+              }
+              aria-label={isAr ? "السابق" : "Previous"}
+              className="absolute start-4 md:start-8 top-1/2 -translate-y-1/2 z-20 grid place-items-center h-12 w-12 rounded-full bg-white/[0.08] border border-white/20 text-white hover:bg-white/[0.18] hover:border-cyan-300/60 backdrop-blur-md transition"
+            >
+              <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setSlideIndex((i) => (i + 1) % slides.length)}
+              aria-label={isAr ? "التالي" : "Next"}
+              className="absolute end-4 md:end-8 top-1/2 -translate-y-1/2 z-20 grid place-items-center h-12 w-12 rounded-full bg-white/[0.08] border border-white/20 text-white hover:bg-white/[0.18] hover:border-cyan-300/60 backdrop-blur-md transition"
+            >
+              <ChevronRight className="h-5 w-5 rtl:rotate-180" />
+            </button>
+            <div className="absolute bottom-7 inset-x-0 z-20 flex items-center justify-center gap-2">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setSlideIndex(i)}
+                  aria-label={`${isAr ? "الشريحة" : "Slide"} ${i + 1}`}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all",
+                    i === slideIndex
+                      ? "w-12 bg-gradient-to-r from-fuchsia-400 via-cyan-300 to-lime-300"
+                      : "w-2 bg-white/30 hover:bg-white/55"
+                  )}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Marquee strip pinned under hero */}
