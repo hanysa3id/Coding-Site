@@ -34,7 +34,7 @@
   color-scheme: dark;
 }
 
-/* Fixed page-level moon mesh (radial gradient + faint star pattern) */
+/* Fixed page-level moon mesh — slowly drifting cosmic gradient */
 .theme-moon .moon-mesh {
   position: fixed;
   inset: 0;
@@ -45,6 +45,106 @@
     radial-gradient(40rem 30rem at 100% 30%, rgba(45, 212, 191, 0.10), transparent 60%),
     radial-gradient(35rem 30rem at 50% 110%, rgba(96, 165, 250, 0.16), transparent 60%),
     var(--moon-bg);
+  background-size: 200% 200%, 200% 200%, 200% 200%, 100% 100%;
+  background-position: 20% 0%, 100% 30%, 50% 100%, 0 0;
+  animation: moon-mesh-drift 28s ease-in-out infinite alternate;
+}
+
+@keyframes moon-mesh-drift {
+  0%   { background-position: 0% 0%, 100% 30%, 50% 100%, 0 0; }
+  50%  { background-position: 80% 20%, 60% 60%, 20% 80%, 0 0; }
+  100% { background-position: 30% 60%, 20% 100%, 80% 30%, 0 0; }
+}
+
+/* Aurora ribbons — soft, slow */
+.theme-moon .moon-aurora {
+  position: absolute;
+  inset: -10% -10%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  filter: blur(60px) saturate(120%);
+  background:
+    conic-gradient(from 120deg at 30% 50%,
+      rgba(96, 165, 250, 0.40) 0deg,
+      rgba(129, 140, 248, 0.30) 80deg,
+      rgba(45, 212, 191, 0.30) 160deg,
+      transparent 220deg,
+      transparent 360deg);
+  animation: moon-aurora-spin 24s linear infinite;
+  mix-blend-mode: screen;
+}
+.theme-moon .moon-aurora.is-soft {
+  opacity: 0.30;
+  animation-duration: 38s;
+  animation-direction: reverse;
+}
+@keyframes moon-aurora-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Floating particles layer */
+.theme-moon .moon-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.theme-moon .moon-particles span {
+  position: absolute;
+  bottom: -20px;
+  width: 3px;
+  height: 3px;
+  border-radius: 9999px;
+  background: rgba(186, 230, 253, 0.85);
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.6);
+  animation: moon-rise linear infinite;
+}
+.theme-moon .moon-particles span:nth-child(odd) {
+  background: rgba(167, 243, 208, 0.7);
+  box-shadow: 0 0 8px rgba(45, 212, 191, 0.5);
+}
+@keyframes moon-rise {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(-110vh) translateX(40px); opacity: 0; }
+}
+
+/* Subtle animated grid overlay */
+.theme-moon .moon-grid-anim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(96, 165, 250, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96, 165, 250, 0.08) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(70% 60% at 50% 50%, black, transparent 90%);
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 50%, black, transparent 90%);
+  animation: moon-grid-pan 30s linear infinite;
+}
+@keyframes moon-grid-pan {
+  to { background-position: 60px 60px; }
+}
+
+/* Scanline / shimmer for video overlays */
+.theme-moon .moon-scan::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(255,255,255,0.025) 0px,
+      rgba(255,255,255,0.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  mix-blend-mode: overlay;
+  opacity: 0.45;
 }
 
 /* Static starfield — pure CSS, tiny + scattered + twinkling */
@@ -598,7 +698,11 @@
   .theme-moon .moon-beam,
   .theme-moon .moon-caret,
   .theme-moon .moon-num-pop,
-  .theme-moon .moon-pulse {
+  .theme-moon .moon-pulse,
+  .theme-moon .moon-mesh,
+  .theme-moon .moon-aurora,
+  .theme-moon .moon-particles span,
+  .theme-moon .moon-grid-anim {
     animation: none !important;
   }
 }

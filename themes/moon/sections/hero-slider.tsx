@@ -39,10 +39,41 @@ type HeroOverride = {
 type Slide = {
   id: string;
   image: string;
+  /** Optional looping background video — auto-played only when the slide is active. */
+  video?: string;
+  /** Visual motion preset for the non-image overlay layers. */
+  motion?: "aurora" | "particles" | "grid" | "aurora-particles";
   imageAlt: { ar: string; en: string };
-  accent: string; // tailwind gradient (for accent ring + badge)
+  accent: string;
   render: (locale: string, override?: HeroOverride) => React.ReactNode;
 };
+
+/** Tiny floating-particles layer — 18 dots with randomized speed/position. */
+function ParticleField() {
+  const dots = Array.from({ length: 18 });
+  return (
+    <div className="moon-particles" aria-hidden>
+      {dots.map((_, i) => {
+        const left = (i * 53) % 100;
+        const dur = 12 + ((i * 7) % 16); // 12..28s
+        const delay = (i * 1.3) % 10;
+        const size = 2 + (i % 3);
+        return (
+          <span
+            key={i}
+            style={{
+              left: `${left}%`,
+              width: `${size}px`,
+              height: `${size}px`,
+              animationDuration: `${dur}s`,
+              animationDelay: `-${delay}s`,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
 
 export function MoonHero({
   locale,
@@ -95,20 +126,47 @@ export function MoonHero({
               )}
               aria-hidden={!active}
             >
-              {/* Backdrop image */}
-              <div className="absolute inset-0">
-                <Image
-                  src={s.image}
-                  alt={isAr ? s.imageAlt.ar : s.imageAlt.en}
-                  fill
-                  priority={i === 0}
-                  sizes="100vw"
-                  className={cn(
-                    "object-cover transition-transform duration-[8000ms] ease-out",
-                    active ? "scale-105" : "scale-100"
-                  )}
-                />
+              {/* Backdrop: video when present (active only), otherwise image */}
+              <div className="absolute inset-0 overflow-hidden">
+                {s.video && active ? (
+                  <video
+                    key={`v-${s.id}`}
+                    src={s.video}
+                    poster={s.image}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    aria-hidden
+                    className="absolute inset-0 h-full w-full object-cover scale-[1.06]"
+                  />
+                ) : (
+                  <Image
+                    src={s.image}
+                    alt={isAr ? s.imageAlt.ar : s.imageAlt.en}
+                    fill
+                    priority={i === 0}
+                    sizes="100vw"
+                    className={cn(
+                      "object-cover transition-transform duration-[12000ms] ease-out",
+                      active ? "scale-110" : "scale-100"
+                    )}
+                  />
+                )}
               </div>
+
+              {/* Animated overlay layers per slide */}
+              {active && (s.motion === "aurora" || s.motion === "aurora-particles") && (
+                <>
+                  <span className="moon-aurora" aria-hidden />
+                  <span className="moon-aurora is-soft" aria-hidden />
+                </>
+              )}
+              {active && s.motion === "grid" && <span className="moon-grid-anim" aria-hidden />}
+              {active && (s.motion === "particles" || s.motion === "aurora-particles") && (
+                <ParticleField />
+              )}
 
               {/* Cool-tone color wash + readability gradients */}
               <div
@@ -329,11 +387,14 @@ function SlideContent({
 }
 
 const SLIDES: Slide[] = [
-  // ─── SLIDE 1 — Cinematic launch ────────────────────────────────────────────
+  // ─── SLIDE 1 — Cinematic launch (looping starfield video) ──────────────────
   {
     id: "moon-cinematic",
     image:
       "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=2400&q=80",
+    video:
+      "https://cdn.pixabay.com/video/2019/10/05/27514-365890423_large.mp4",
+    motion: "aurora-particles",
     imageAlt: { ar: "سماء ليلية بالنجوم", en: "Starry night sky" },
     accent: "from-sky-400 to-indigo-500",
     render: (locale, override) => {
@@ -412,11 +473,12 @@ const SLIDES: Slide[] = [
     },
   },
 
-  // ─── SLIDE 2 — Performance dashboard ───────────────────────────────────────
+  // ─── SLIDE 2 — Performance dashboard (animated grid overlay) ───────────────
   {
     id: "moon-performance",
     image:
       "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=2400&q=80",
+    motion: "grid",
     imageAlt: { ar: "كود برمجي على شاشة", en: "Source code on a screen" },
     accent: "from-teal-400 to-sky-500",
     render: (locale) => {
@@ -491,11 +553,14 @@ const SLIDES: Slide[] = [
     },
   },
 
-  // ─── SLIDE 3 — Code craft ──────────────────────────────────────────────────
+  // ─── SLIDE 3 — Code craft (live code-rain video) ───────────────────────────
   {
     id: "moon-craft",
     image:
       "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=2400&q=80",
+    video:
+      "https://cdn.pixabay.com/video/2017/12/14/13402-247446677_large.mp4",
+    motion: "grid",
     imageAlt: { ar: "محرر كود مظلم", en: "Dark code editor" },
     accent: "from-indigo-400 to-fuchsia-500",
     render: (locale) => {
@@ -579,11 +644,12 @@ const SLIDES: Slide[] = [
     },
   },
 
-  // ─── SLIDE 4 — Trust / testimonial ─────────────────────────────────────────
+  // ─── SLIDE 4 — Trust / testimonial (soft aurora) ───────────────────────────
   {
     id: "moon-trust",
     image:
       "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=2400&q=80",
+    motion: "aurora",
     imageAlt: { ar: "فريق يعمل معاً", en: "Team working together" },
     accent: "from-emerald-400 to-teal-500",
     render: (locale) => {
@@ -647,11 +713,12 @@ const SLIDES: Slide[] = [
     },
   },
 
-  // ─── SLIDE 5 — Process steps ───────────────────────────────────────────────
+  // ─── SLIDE 5 — Process steps (rising particles) ────────────────────────────
   {
     id: "moon-process",
     image:
       "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=2400&q=80",
+    motion: "particles",
     imageAlt: { ar: "تخطيط مشروع على لوحة", en: "Project planning on a board" },
     accent: "from-sky-400 to-purple-500",
     render: (locale) => {
@@ -701,11 +768,14 @@ const SLIDES: Slide[] = [
     },
   },
 
-  // ─── SLIDE 6 — Big stats showcase ──────────────────────────────────────────
+  // ─── SLIDE 6 — Big stats showcase (earth-from-space loop) ──────────────────
   {
     id: "moon-stats",
     image:
       "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=2400&q=80",
+    video:
+      "https://cdn.pixabay.com/video/2020/02/24/32604-394753636_large.mp4",
+    motion: "aurora-particles",
     imageAlt: { ar: "قمر مكتمل في الفضاء", en: "Full moon in space" },
     accent: "from-indigo-400 to-fuchsia-500",
     render: (locale) => {
