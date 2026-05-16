@@ -60,7 +60,7 @@ export function ServiceForm({ initial, categories, locale }: Props) {
       slug: "",
       name_ar: "",
       name_en: "",
-      category_id: categories[0]?.id ?? "",
+      category_id: categories[0]?.id ?? null,
       currency: "EGP",
       sort_order: 0,
       is_visible: true,
@@ -153,14 +153,17 @@ export function ServiceForm({ initial, categories, locale }: Props) {
           <div className="space-y-2">
             <Label>{isAr ? "القسم" : "Category"}</Label>
             <Select
-              value={categoryId}
-              onValueChange={(v) => setValue("category_id", v)}
+              value={categoryId ?? "__none__"}
+              onValueChange={(v) => setValue("category_id", v === "__none__" ? null : v)}
               disabled={isPending}
             >
               <SelectTrigger>
                 <SelectValue placeholder={isAr ? "اختر قسمًا" : "Select a category"} />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="__none__">
+                  {isAr ? "— بدون قسم —" : "— Uncategorized —"}
+                </SelectItem>
                 {categories.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {isAr ? c.name_ar : c.name_en}

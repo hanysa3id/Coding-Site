@@ -22,9 +22,10 @@ export default async function AdminCategoriesPage() {
     supabase.from("services").select("category_id, is_visible"),
   ]);
 
-  // Build service-count map per category
+  // Build service-count map per category (skip orphaned services with null category_id)
   const serviceCountMap = new Map<string, { total: number; visible: number }>();
-  for (const s of (services as { category_id: string; is_visible: boolean }[] | null) ?? []) {
+  for (const s of (services as { category_id: string | null; is_visible: boolean }[] | null) ?? []) {
+    if (!s.category_id) continue;
     const cur = serviceCountMap.get(s.category_id) ?? { total: 0, visible: 0 };
     cur.total += 1;
     if (s.is_visible) cur.visible += 1;

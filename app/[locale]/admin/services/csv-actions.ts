@@ -101,7 +101,7 @@ export async function exportServicesAction(): Promise<ExportResult> {
 
   const csvRows = ((services as Service[]) ?? []).map((s) => ({
     slug: s.slug,
-    category_slug: catSlugById.get(s.category_id) ?? "",
+    category_slug: s.category_id ? (catSlugById.get(s.category_id) ?? "") : "",
     name_ar: s.name_ar,
     name_en: s.name_en,
     short_description_ar: s.short_description_ar,
@@ -251,14 +251,20 @@ export async function importServicesAction(csv: string): Promise<ImportResult> {
       continue;
     }
 
-    const categoryId = catSlugToId.get(row.category_slug);
-    if (!categoryId) {
-      result.errors.push({
-        row: rowNum,
-        message: `category_slug "${row.category_slug}" not found — create the category first`,
-      });
-      result.skipped++;
-      continue;
+    // Empty category_slug → uncategorized (category_id = null) is allowed.
+    // Non-empty but unknown slug → error.
+    let categoryId: string | null = null;
+    if (row.category_slug && row.category_slug.trim()) {
+      const found = catSlugToId.get(row.category_slug);
+      if (!found) {
+        result.errors.push({
+          row: rowNum,
+          message: `category_slug "${row.category_slug}" not found — create the category first or leave the column empty`,
+        });
+        result.skipped++;
+        continue;
+      }
+      categoryId = found;
     }
 
     const timelineAr = parseJson<TimelineStep[]>(row.timeline_ar) ?? [];

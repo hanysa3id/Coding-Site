@@ -58,7 +58,12 @@ export default async function ServicesPage({
   }
 
   const servicesByCat = new Map<string, Service[]>();
+  const uncategorized: Service[] = [];
   for (const s of services) {
+    if (!s.category_id) {
+      uncategorized.push(s);
+      continue;
+    }
     const arr = servicesByCat.get(s.category_id) ?? [];
     arr.push(s);
     servicesByCat.set(s.category_id, arr);
@@ -222,6 +227,27 @@ export default async function ServicesPage({
                 </section>
               );
             })}
+
+            {/* Uncategorized services (orphaned when their category was deleted) */}
+            {uncategorized.length > 0 && (
+              <section className="scroll-mt-20">
+                <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-muted-foreground/20">
+                  <div>
+                    <h2 className="text-2xl md:text-3xl font-bold">
+                      {isAr ? "خدمات أخرى" : "Other services"}
+                    </h2>
+                  </div>
+                  <Badge variant="secondary" className="ms-auto">
+                    {uncategorized.length} {isAr ? "خدمة" : "services"}
+                  </Badge>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                  {uncategorized.map((s) => (
+                    <ServiceCardMini key={s.id} service={s} locale={locale} />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </>
       )}

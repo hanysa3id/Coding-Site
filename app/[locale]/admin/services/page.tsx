@@ -172,7 +172,7 @@ export default async function AdminServicesPage({
           ) : (
             <ul className="divide-y">
               {filtered.map((s) => {
-                const cat = catMap.get(s.category_id);
+                const cat = s.category_id ? catMap.get(s.category_id) : undefined;
                 return (
                   <li
                     key={s.id}
@@ -206,8 +206,12 @@ export default async function AdminServicesPage({
                         )}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                        {cat && (
+                        {cat ? (
                           <span>{isAr ? cat.name_ar : cat.name_en}</span>
+                        ) : (
+                          <span className="rounded border border-dashed border-amber-400 px-1.5 text-amber-600">
+                            {isAr ? "بدون قسم" : "Uncategorized"}
+                          </span>
                         )}
                         {s.estimated_price_min && (
                           <>

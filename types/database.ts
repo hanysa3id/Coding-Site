@@ -66,7 +66,7 @@ export type Category = {
 
 export type Service = {
   id: string;
-  category_id: string;
+  category_id: string | null;
   slug: string;
   name_ar: string;
   name_en: string;

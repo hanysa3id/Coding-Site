@@ -17,7 +17,7 @@ export type CategoryInput = z.infer<typeof categorySchema>;
 
 export const serviceSchema = z.object({
   id: z.string().uuid().optional(),
-  category_id: z.string().uuid(),
+  category_id: z.string().uuid().nullable(),
   slug: z.string().min(2).regex(/^[a-z0-9\-]+$/),
   name_ar: z.string().min(1),
   name_en: z.string().min(1),
