@@ -19,7 +19,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ImageUpload } from "@/components/admin/image-upload";
-import { serviceSchema, type ServiceInput } from "@/lib/validators/admin";
+import { TagInput } from "@/components/admin/tag-input";
+import { TimelineEditor } from "@/components/admin/timeline-editor";
+import { MediaGalleryEditor } from "@/components/admin/media-gallery-editor";
+import {
+  serviceExtendedSchema,
+  type ServiceExtendedInput,
+} from "@/lib/validators/service";
 import type { Service, Category } from "@/types/database";
 import {
   createServiceAction,
@@ -30,7 +36,7 @@ import {
 import { Trash2 } from "lucide-react";
 
 type Props = {
-  initial?: Service;
+  initial?: Partial<ServiceExtendedInput> & { id?: string };
   categories: Category[];
   locale: string;
 };
@@ -47,38 +53,42 @@ export function ServiceForm({ initial, categories, locale }: Props) {
     setValue,
     watch,
     formState: { errors },
-  } = useForm<ServiceInput>({
-    resolver: zodResolver(serviceSchema),
-    defaultValues: initial
-      ? (initial as ServiceInput)
-      : {
-          slug: "",
-          name_ar: "",
-          name_en: "",
-          category_id: categories[0]?.id ?? "",
-          currency: "EGP",
-          sort_order: 0,
-          is_visible: true,
-          is_featured: false,
-        },
+  } = useForm<ServiceExtendedInput>({
+    resolver: zodResolver(serviceExtendedSchema),
+    defaultValues: {
+      slug: "",
+      name_ar: "",
+      name_en: "",
+      category_id: categories[0]?.id ?? "",
+      currency: "EGP",
+      sort_order: 0,
+      is_visible: true,
+      is_featured: false,
+      features_ar: [],
+      features_en: [],
+      deliverables_ar: [],
+      deliverables_en: [],
+      timeline_ar: [],
+      timeline_en: [],
+      gallery: [],
+      ...initial,
+    },
   });
 
   const visible = watch("is_visible");
   const featured = watch("is_featured");
   const categoryId = watch("category_id");
-  const coverImage = watch("cover_image");
 
-  function onSubmit(data: ServiceInput) {
+  function onSubmit(data: ServiceExtendedInput) {
     startTransition(async () => {
-      const action = initial?.id
-        ? updateServiceAction({ ...data, id: initial.id })
-        : createServiceAction(data);
-      const result = await action;
+      const result = initial?.id
+        ? await updateServiceAction({ ...data, id: initial.id })
+        : await createServiceAction(data);
       if (!result.success) {
         toast.error(result.error);
         return;
       }
-      toast.success(initial ? (isAr ? "تم التحديث" : "Updated") : (isAr ? "تم الإنشاء" : "Created"));
+      toast.success(initial ? (isAr ? "تم التحديث" : "Updated") : isAr ? "تم الإنشاء" : "Created");
       router.push(`/${locale}/admin/services`);
       router.refresh();
     });
@@ -88,7 +98,7 @@ export function ServiceForm({ initial, categories, locale }: Props) {
     if (!initial?.id) return;
     if (!confirm(isAr ? "متأكد من الحذف؟" : "Confirm delete?")) return;
     startTransition(async () => {
-      const result = await deleteServiceAction(initial.id);
+      const result = await deleteServiceAction(initial.id!);
       if (!result.success) {
         toast.error(result.error);
         return;
@@ -102,30 +112,37 @@ export function ServiceForm({ initial, categories, locale }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Tabs defaultValue="basic">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="basic">{isAr ? "أساسي" : "Basic"}</TabsTrigger>
-          <TabsTrigger value="content">{isAr ? "المحتوى" : "Content"}</TabsTrigger>
+          <TabsTrigger value="content">{isAr ? "تفاصيل الخدمة" : "Service details"}</TabsTrigger>
+          <TabsTrigger value="timeline">{isAr ? "الجدول الزمني" : "Timeline"}</TabsTrigger>
           <TabsTrigger value="pricing">{isAr ? "السعر والمدة" : "Pricing"}</TabsTrigger>
+          <TabsTrigger value="media">{isAr ? "الوسائط" : "Media"}</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
         </TabsList>
 
+        {/* ───────────────────────── BASIC ───────────────────────── */}
         <TabsContent value="basic" className="space-y-4 pt-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="name_ar">{isAr ? "الاسم بالعربية" : "Name (AR)"}</Label>
-              <Input id="name_ar" {...register("name_ar")} dir="rtl" disabled={isPending} />
-              {errors.name_ar && <p className="text-sm text-destructive">{errors.name_ar.message}</p>}
+              <Label>{isAr ? "اسم الخدمة (AR)" : "Service name (AR)"}</Label>
+              <Input {...register("name_ar")} dir="rtl" disabled={isPending} />
+              {errors.name_ar && (
+                <p className="text-sm text-destructive">{errors.name_ar.message}</p>
+              )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="name_en">{isAr ? "الاسم بالإنجليزية" : "Name (EN)"}</Label>
-              <Input id="name_en" {...register("name_en")} dir="ltr" disabled={isPending} />
-              {errors.name_en && <p className="text-sm text-destructive">{errors.name_en.message}</p>}
+              <Label>{isAr ? "اسم الخدمة (EN)" : "Service name (EN)"}</Label>
+              <Input {...register("name_en")} dir="ltr" disabled={isPending} />
+              {errors.name_en && (
+                <p className="text-sm text-destructive">{errors.name_en.message}</p>
+              )}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="slug">Slug</Label>
-            <Input id="slug" {...register("slug")} dir="ltr" placeholder="website-development" disabled={isPending} />
+            <Label>Slug</Label>
+            <Input {...register("slug")} dir="ltr" placeholder="website-development" disabled={isPending} />
             {errors.slug && <p className="text-sm text-destructive">{errors.slug.message}</p>}
           </div>
 
@@ -152,27 +169,38 @@ export function ServiceForm({ initial, categories, locale }: Props) {
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label>{isAr ? "صورة الغلاف" : "Cover image"}</Label>
-            <Controller
-              control={control}
-              name="cover_image"
-              render={({ field }) => (
-                <ImageUpload
-                  value={field.value ?? null}
-                  onChange={(url) => field.onChange(url)}
-                  uploadAction={uploadServiceImage}
-                  locale={locale}
-                />
-              )}
-            />
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>{isAr ? "وصف مختصر (AR)" : "Short description (AR)"}</Label>
+              <Textarea
+                {...register("short_description_ar")}
+                dir="rtl"
+                rows={3}
+                disabled={isPending}
+                placeholder={isAr ? "يظهر في بطاقات الخدمة والملخصات" : "Shows on service cards and summaries"}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{isAr ? "وصف مختصر (EN)" : "Short description (EN)"}</Label>
+              <Textarea {...register("short_description_en")} dir="ltr" rows={3} disabled={isPending} />
+            </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="sort_order">{isAr ? "ترتيب" : "Sort order"}</Label>
+              <Label>{isAr ? "وصف تفصيلي (AR)" : "Full description (AR)"}</Label>
+              <Textarea {...register("full_description_ar")} dir="rtl" rows={8} disabled={isPending} />
+            </div>
+            <div className="space-y-2">
+              <Label>{isAr ? "وصف تفصيلي (EN)" : "Full description (EN)"}</Label>
+              <Textarea {...register("full_description_en")} dir="ltr" rows={8} disabled={isPending} />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3 pt-2 border-t">
+            <div className="space-y-2">
+              <Label>{isAr ? "ترتيب العرض" : "Sort order"}</Label>
               <Input
-                id="sort_order"
                 type="number"
                 {...register("sort_order", { valueAsNumber: true })}
                 disabled={isPending}
@@ -184,40 +212,144 @@ export function ServiceForm({ initial, categories, locale }: Props) {
             </div>
             <div className="flex items-center gap-3 pt-6">
               <Switch checked={featured} onCheckedChange={(v) => setValue("is_featured", v)} />
-              <Label>{isAr ? "مميز" : "Featured"}</Label>
+              <Label>{isAr ? "مميزة" : "Featured"}</Label>
             </div>
           </div>
         </TabsContent>
 
-        <TabsContent value="content" className="space-y-4 pt-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label>{isAr ? "وصف قصير (AR)" : "Short description (AR)"}</Label>
-              <Textarea {...register("short_description_ar")} dir="rtl" rows={3} />
+        {/* ─────────────────── DETAILS (features + deliverables) ─────────────────── */}
+        <TabsContent value="content" className="space-y-6 pt-4">
+          <section className="space-y-3">
+            <Label className="text-base font-semibold">
+              {isAr ? "مميزات الخدمة" : "Service features"}
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              {isAr
+                ? "اكتب كل ميزة ثم اضغط Enter أو فاصلة"
+                : "Type each feature and press Enter or comma"}
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Controller
+                control={control}
+                name="features_ar"
+                render={({ field }) => (
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">{isAr ? "بالعربية" : "Arabic"}</Label>
+                    <TagInput
+                      value={field.value ?? []}
+                      onChange={field.onChange}
+                      dir="rtl"
+                      placeholder={isAr ? "ميزة..." : "Feature..."}
+                    />
+                  </div>
+                )}
+              />
+              <Controller
+                control={control}
+                name="features_en"
+                render={({ field }) => (
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">{isAr ? "بالإنجليزية" : "English"}</Label>
+                    <TagInput
+                      value={field.value ?? []}
+                      onChange={field.onChange}
+                      dir="ltr"
+                      placeholder="Feature..."
+                    />
+                  </div>
+                )}
+              />
             </div>
-            <div className="space-y-2">
-              <Label>{isAr ? "وصف قصير (EN)" : "Short description (EN)"}</Label>
-              <Textarea {...register("short_description_en")} dir="ltr" rows={3} />
-            </div>
-          </div>
+          </section>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label>{isAr ? "وصف كامل (AR)" : "Full description (AR)"}</Label>
-              <Textarea {...register("full_description_ar")} dir="rtl" rows={8} />
+          <section className="space-y-3 pt-4 border-t">
+            <Label className="text-base font-semibold">
+              {isAr ? "ما الذي سيحصل عليه العميل" : "What the customer will receive"}
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              {isAr
+                ? "اذكر بنود التسليم الواضحة (مثل: كود المشروع، 3 جلسات تدريب، دومين، استضافة سنة)"
+                : "List concrete deliverables (e.g. source code, 3 training sessions, domain, 1 year hosting)"}
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Controller
+                control={control}
+                name="deliverables_ar"
+                render={({ field }) => (
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">{isAr ? "بالعربية" : "Arabic"}</Label>
+                    <TagInput
+                      value={field.value ?? []}
+                      onChange={field.onChange}
+                      dir="rtl"
+                      placeholder={isAr ? "بند..." : "Item..."}
+                    />
+                  </div>
+                )}
+              />
+              <Controller
+                control={control}
+                name="deliverables_en"
+                render={({ field }) => (
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">{isAr ? "بالإنجليزية" : "English"}</Label>
+                    <TagInput
+                      value={field.value ?? []}
+                      onChange={field.onChange}
+                      dir="ltr"
+                      placeholder="Item..."
+                    />
+                  </div>
+                )}
+              />
             </div>
-            <div className="space-y-2">
-              <Label>{isAr ? "وصف كامل (EN)" : "Full description (EN)"}</Label>
-              <Textarea {...register("full_description_en")} dir="ltr" rows={8} />
-            </div>
-          </div>
+          </section>
+        </TabsContent>
 
-          <div className="space-y-2">
-            <Label htmlFor="video_url">{isAr ? "رابط فيديو (اختياري)" : "Video URL (optional)"}</Label>
-            <Input id="video_url" {...register("video_url")} dir="ltr" placeholder="https://youtube.com/..." />
+        {/* ───────────────────────── TIMELINE ───────────────────────── */}
+        <TabsContent value="timeline" className="space-y-6 pt-4">
+          <p className="text-sm text-muted-foreground">
+            {isAr
+              ? "مراحل تنفيذ الخدمة كمرجع للعميل قبل الطلب — مثل: تحليل، تصميم، تطوير، اختبار، تسليم"
+              : "Execution stages shown to customers before they order — e.g. Analysis, Design, Development, Testing, Delivery"}
+          </p>
+          <div className="space-y-3">
+            <Label className="text-base font-semibold">
+              {isAr ? "الجدول الزمني (AR)" : "Timeline (AR)"}
+            </Label>
+            <Controller
+              control={control}
+              name="timeline_ar"
+              render={({ field }) => (
+                <TimelineEditor
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  locale="ar"
+                  dir="rtl"
+                />
+              )}
+            />
+          </div>
+          <div className="space-y-3 pt-4 border-t">
+            <Label className="text-base font-semibold">
+              {isAr ? "الجدول الزمني (EN)" : "Timeline (EN)"}
+            </Label>
+            <Controller
+              control={control}
+              name="timeline_en"
+              render={({ field }) => (
+                <TimelineEditor
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  locale="en"
+                  dir="ltr"
+                />
+              )}
+            />
           </div>
         </TabsContent>
 
+        {/* ───────────────────────── PRICING ───────────────────────── */}
         <TabsContent value="pricing" className="space-y-4 pt-4">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
@@ -260,6 +392,91 @@ export function ServiceForm({ initial, categories, locale }: Props) {
           </div>
         </TabsContent>
 
+        {/* ───────────────────────── MEDIA ───────────────────────── */}
+        <TabsContent value="media" className="space-y-6 pt-4">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">
+                {isAr ? "أيقونة الخدمة (مصغّرة)" : "Service thumbnail (icon-size)"}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {isAr
+                  ? "صورة صغيرة 64x64 تقريباً، تُعرض بجانب اسم الخدمة في القوائم"
+                  : "Small ~64x64 image shown beside the service name in lists"}
+              </p>
+              <Controller
+                control={control}
+                name="thumbnail_url"
+                render={({ field }) => (
+                  <ImageUpload
+                    value={field.value ?? null}
+                    onChange={(url) => field.onChange(url ?? "")}
+                    uploadAction={uploadServiceImage}
+                    locale={locale}
+                  />
+                )}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">
+                {isAr ? "صورة الغلاف" : "Cover image"}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {isAr
+                  ? "صورة كبيرة (16:9) لأعلى صفحة الخدمة"
+                  : "Large 16:9 hero image for the service page"}
+              </p>
+              <Controller
+                control={control}
+                name="cover_image"
+                render={({ field }) => (
+                  <ImageUpload
+                    value={field.value ?? null}
+                    onChange={(url) => field.onChange(url ?? "")}
+                    uploadAction={uploadServiceImage}
+                    locale={locale}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-4 border-t">
+            <Label className="text-base font-semibold">
+              {isAr ? "معرض الصور والفيديوهات" : "Image & video gallery"}
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              {isAr
+                ? "ارفع صور متعددة أو ألصق روابط YouTube / Vimeo"
+                : "Upload images or paste YouTube/Vimeo URLs"}
+            </p>
+            <Controller
+              control={control}
+              name="gallery"
+              render={({ field }) => (
+                <MediaGalleryEditor
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  uploadAction={uploadServiceImage}
+                  locale={locale}
+                />
+              )}
+            />
+          </div>
+
+          <div className="space-y-2 pt-4 border-t">
+            <Label>{isAr ? "رابط فيديو ميزة (اختياري)" : "Featured video URL (optional)"}</Label>
+            <Input {...register("video_url")} dir="ltr" placeholder="https://youtube.com/..." />
+            <p className="text-xs text-muted-foreground">
+              {isAr
+                ? "فيديو رئيسي يُعرض بارزاً في صفحة الخدمة"
+                : "A primary video featured prominently on the service page"}
+            </p>
+          </div>
+        </TabsContent>
+
+        {/* ───────────────────────── SEO ───────────────────────── */}
         <TabsContent value="seo" className="space-y-4 pt-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
@@ -283,7 +500,7 @@ export function ServiceForm({ initial, categories, locale }: Props) {
           </div>
           <div className="space-y-2">
             <Label>Meta Keywords</Label>
-            <Input {...register("seo_keywords")} placeholder="keyword1, keyword2, ..." />
+            <Input {...register("seo_keywords")} dir="ltr" placeholder="keyword1, keyword2" />
           </div>
         </TabsContent>
       </Tabs>
@@ -305,7 +522,7 @@ export function ServiceForm({ initial, categories, locale }: Props) {
             {isAr ? "إلغاء" : "Cancel"}
           </Button>
           <Button type="submit" disabled={isPending}>
-            {isPending ? (isAr ? "جارٍ الحفظ..." : "Saving...") : (isAr ? "حفظ" : "Save")}
+            {isPending ? (isAr ? "جارٍ الحفظ..." : "Saving...") : isAr ? "حفظ" : "Save"}
           </Button>
         </div>
       </div>

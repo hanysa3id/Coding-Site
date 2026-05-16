@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth/guards";
+import { uploadToBucket } from "@/lib/storage/upload";
 import {
   createOrderSchema,
   sendMessageSchema,
@@ -14,17 +15,43 @@ import { revalidatePath } from "next/cache";
 import { createNotification, notifyAdmins } from "@/lib/notifications/create";
 import { sendEmail, orderCreatedEmail } from "@/lib/email/resend";
 import { getLocale } from "next-intl/server";
+import type { OrderAttachment } from "@/types/database";
+
+const MAX_ATTACHMENT_MB = 25;
+const MAX_ATTACHMENTS = 10;
 
 type Result = { success: true } | { success: false; error: string };
 type ResultWith<T> = ({ success: true } & T) | { success: false; error: string };
 
 export async function createOrderAction(
-  input: CreateOrderInput
+  formData: FormData
 ): Promise<ResultWith<{ orderId: string; orderNumber: string }>> {
   const profile = await requireUser();
+
+  const input: CreateOrderInput = {
+    service_id: String(formData.get("service_id") ?? ""),
+    customer_message: String(formData.get("customer_message") ?? ""),
+  };
   const parsed = createOrderSchema.safeParse(input);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  // Collect attached files (general "files[]" and the optional voice note)
+  const files = formData.getAll("files").filter((v): v is File => v instanceof File && v.size > 0);
+  const voice = formData.get("voice");
+  const voiceFile = voice instanceof File && voice.size > 0 ? voice : null;
+
+  if (files.length > MAX_ATTACHMENTS) {
+    return { success: false, error: `Too many files (max ${MAX_ATTACHMENTS})` };
+  }
+  for (const f of files) {
+    if (f.size > MAX_ATTACHMENT_MB * 1024 * 1024) {
+      return { success: false, error: `File "${f.name}" exceeds ${MAX_ATTACHMENT_MB}MB` };
+    }
+  }
+  if (voiceFile && voiceFile.size > MAX_ATTACHMENT_MB * 1024 * 1024) {
+    return { success: false, error: `Voice note exceeds ${MAX_ATTACHMENT_MB}MB` };
   }
 
   const supabase = await createClient();
@@ -54,6 +81,33 @@ export async function createOrderAction(
 
   if (error || !order) {
     return { success: false, error: error?.message ?? "Failed to create order" };
+  }
+
+  // Upload attachments (files + voice note) under order-attachments/<order_id>/
+  const attachments: OrderAttachment[] = [];
+  const allToUpload: Array<{ file: File; kind: "file" | "audio" }> = [
+    ...files.map((file) => ({ file, kind: "file" as const })),
+    ...(voiceFile ? [{ file: voiceFile, kind: "audio" as const }] : []),
+  ];
+  for (const { file, kind } of allToUpload) {
+    const upload = await uploadToBucket("order-attachments", file, `${order.id}/`);
+    if (upload.success) {
+      attachments.push({
+        url: upload.url,
+        name: file.name,
+        mime: file.type || (kind === "audio" ? "audio/webm" : "application/octet-stream"),
+        size: file.size,
+        kind,
+      });
+    } else {
+      console.error("[createOrder] attachment upload failed:", upload.error);
+    }
+  }
+  if (attachments.length > 0) {
+    await supabase
+      .from("orders")
+      .update({ customer_attachments: attachments })
+      .eq("id", order.id);
   }
 
   // Fire-and-forget notifications

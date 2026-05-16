@@ -79,7 +79,14 @@ export type Service = {
   currency: string;
   estimated_duration_days: number | null;
   cover_image: string | null;
+  thumbnail_url: string | null;
   video_url: string | null;
+  features_ar: string[];
+  features_en: string[];
+  deliverables_ar: string[];
+  deliverables_en: string[];
+  timeline_ar: TimelineStep[];
+  timeline_en: TimelineStep[];
   seo_title_ar: string | null;
   seo_title_en: string | null;
   seo_description_ar: string | null;
@@ -90,6 +97,15 @@ export type Service = {
   is_featured: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type ServiceGalleryMedia = {
+  id: string;
+  service_id: string;
+  image_url: string;
+  alt_text: string | null;
+  sort_order: number;
+  media_type: "image" | "video";
 };
 
 export type ServiceGalleryItem = {
@@ -156,6 +172,15 @@ export type PortfolioGalleryItem = {
   media_type: "image" | "video";
 };
 
+export type OrderAttachment = {
+  url: string;
+  name: string;
+  mime: string;
+  size: number;
+  /** "file" for general uploads, "audio" for recorded voice notes */
+  kind: "file" | "audio";
+};
+
 export type Order = {
   id: string;
   order_number: string;
@@ -168,6 +193,7 @@ export type Order = {
   estimated_duration_days: number | null;
   final_duration_days: number | null;
   customer_message: string | null;
+  customer_attachments: OrderAttachment[];
   admin_notes: string | null;
   sales_id: string | null;
   assigned_staff_id: string | null;

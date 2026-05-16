@@ -15,6 +15,7 @@ import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { MessageThread } from "@/components/orders/message-thread";
 import { MilestonesList } from "@/components/orders/milestones-list";
 import { DeliverablesList } from "@/components/orders/deliverables-list";
+import { CustomerAttachmentsDisplay } from "@/components/orders/customer-attachments-display";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
 import { getWhatsappNumber } from "@/lib/settings/get";
 import { Link } from "@/i18n/routing";
@@ -170,16 +171,24 @@ export default async function CustomerOrderDetailPage({
         </Card>
       )}
 
-      {/* Customer message */}
-      {order.customer_message && (
+      {/* Customer message + attachments */}
+      {(order.customer_message || (order.customer_attachments ?? []).length > 0) && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              {isAr ? "رسالتك الأصلية" : "Your original message"}
+              {isAr ? "رسالتك ومرفقاتك" : "Your message & attachments"}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm whitespace-pre-line">{order.customer_message}</p>
+          <CardContent className="space-y-4">
+            {order.customer_message && (
+              <p className="text-sm whitespace-pre-line">{order.customer_message}</p>
+            )}
+            {(order.customer_attachments ?? []).length > 0 && (
+              <CustomerAttachmentsDisplay
+                attachments={order.customer_attachments ?? []}
+                locale={locale}
+              />
+            )}
           </CardContent>
         </Card>
       )}

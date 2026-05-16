@@ -1,11 +1,10 @@
 import Image from "next/image";
-import { setRequestLocale, getTranslations, getLocale } from "next-intl/server";
-import { Link } from "@/i18n/routing";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { listVisibleCategories, listVisibleServices } from "@/lib/queries/services";
-import { formatCurrency } from "@/lib/utils";
-import { Clock } from "lucide-react";
+import { ServiceCardMini } from "@/components/public/service-card-mini";
+import { FolderTree, ChevronDown } from "lucide-react";
+import type { Category, Service } from "@/types/database";
 import type { Metadata } from "next";
 
 export async function generateMetadata({
@@ -16,9 +15,10 @@ export async function generateMetadata({
   const { locale } = await params;
   return {
     title: locale === "ar" ? "الخدمات" : "Services",
-    description: locale === "ar"
-      ? "تصفح خدمات البرمجة والتصميم"
-      : "Browse our programming and design services",
+    description:
+      locale === "ar"
+        ? "تصفح خدمات البرمجة والتصميم"
+        : "Browse our programming and design services",
   };
 }
 
@@ -37,95 +37,161 @@ export default async function ServicesPage({
     listVisibleCategories(),
   ]);
 
-  // Group services by category (only root categories, but show all services under them)
-  const rootCats = categories.filter((c) => !c.parent_id);
-  const byCategory = new Map<string, typeof services>();
-  for (const s of services) {
-    const arr = byCategory.get(s.category_id) ?? [];
-    arr.push(s);
-    byCategory.set(s.category_id, arr);
+  // Build a parent → children map
+  const childrenOf = new Map<string | null, Category[]>();
+  for (const c of categories) {
+    const key = c.parent_id ?? null;
+    const arr = childrenOf.get(key) ?? [];
+    arr.push(c);
+    childrenOf.set(key, arr);
   }
+
+  // Index services by category id
+  const servicesByCat = new Map<string, Service[]>();
+  for (const s of services) {
+    const arr = servicesByCat.get(s.category_id) ?? [];
+    arr.push(s);
+    servicesByCat.set(s.category_id, arr);
+  }
+
+  // Recursive helper: collect all services under a category (direct + descendants)
+  function allServicesUnder(catId: string): Service[] {
+    const direct = servicesByCat.get(catId) ?? [];
+    const subs = childrenOf.get(catId) ?? [];
+    return [...direct, ...subs.flatMap((c) => allServicesUnder(c.id))];
+  }
+
+  const rootCats = (childrenOf.get(null) ?? []).filter(
+    (c) => allServicesUnder(c.id).length > 0
+  );
+
+  // Featured services across all categories (shown at top)
+  const featured = services.filter((s) => s.is_featured).slice(0, 6);
 
   return (
     <div className="container py-12">
       <header className="mb-12 text-center">
-        <h1 className="text-4xl font-bold">{tc("services")}</h1>
+        <h1 className="text-4xl md:text-5xl font-bold">{tc("services")}</h1>
         <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
           {isAr
-            ? "تصفح خدماتنا واختر ما يناسب احتياجاتك"
-            : "Browse our services and pick what fits your needs"}
+            ? "تصفح كل خدماتنا منظّمة حسب القسم — اضغط على أي خدمة لمعرفة التفاصيل"
+            : "Browse all our services organized by category — click any service for details"}
         </p>
       </header>
 
       {services.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">
-          {isAr ? "لا توجد خدمات معروضة حالياً" : "No services available right now"}
+          {isAr ? "لا توجد خدمات معروضة حالياً" : "No services available yet"}
         </p>
       ) : (
-        <div className="space-y-12">
-          {rootCats.map((cat) => {
-            const subCats = categories.filter((c) => c.parent_id === cat.id);
-            const directServices = byCategory.get(cat.id) ?? [];
-            const allCatIds = [cat.id, ...subCats.map((s) => s.id)];
-            const allServices = allCatIds.flatMap((id) => byCategory.get(id) ?? []);
-            if (allServices.length === 0) return null;
-
-            return (
-              <section key={cat.id}>
-                <h2 className="text-2xl font-bold mb-6">
+        <>
+          {/* Quick anchors to main categories */}
+          {rootCats.length > 1 && (
+            <nav className="mb-12 flex flex-wrap justify-center gap-2">
+              {rootCats.map((cat) => (
+                <a
+                  key={cat.id}
+                  href={`#cat-${cat.slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border bg-card px-4 py-1.5 text-sm font-medium hover:bg-muted transition"
+                >
+                  <FolderTree className="h-3.5 w-3.5" />
                   {isAr ? cat.name_ar : cat.name_en}
-                </h2>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {allServices.map((s) => (
-                    <Link key={s.id} href={`/services/${s.slug}`} className="block">
-                      <Card className="h-full transition hover:shadow-md overflow-hidden">
-                        {s.cover_image && (
-                          <div className="relative h-48 w-full">
-                            <Image
-                              src={s.cover_image}
-                              alt={isAr ? s.name_ar : s.name_en}
-                              fill
-                              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
-                        <CardHeader>
-                          <CardTitle className="text-lg">
-                            {isAr ? s.name_ar : s.name_en}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          <p className="text-sm text-muted-foreground line-clamp-3">
-                            {isAr ? s.short_description_ar : s.short_description_en}
-                          </p>
-                          <div className="flex items-center justify-between text-sm">
-                            {s.estimated_price_min && (
-                              <span className="font-medium text-primary">
-                                {isAr ? "من " : "From "}
-                                {formatCurrency(
-                                  s.estimated_price_min,
-                                  s.currency,
-                                  isAr ? "ar-EG" : "en-US"
-                                )}
-                              </span>
-                            )}
-                            {s.estimated_duration_days && (
-                              <span className="inline-flex items-center gap-1 text-muted-foreground">
-                                <Clock className="h-3 w-3" />
-                                {s.estimated_duration_days} {isAr ? "يوم" : "days"}
-                              </span>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            );
-          })}
-        </div>
+                  <span className="text-xs text-muted-foreground">
+                    ({allServicesUnder(cat.id).length})
+                  </span>
+                </a>
+              ))}
+            </nav>
+          )}
+
+          {/* Featured services strip */}
+          {featured.length > 0 && (
+            <section className="mb-14">
+              <h2 className="text-xl font-bold mb-4 inline-flex items-center gap-2">
+                ⭐ {isAr ? "الخدمات المميزة" : "Featured services"}
+              </h2>
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {featured.map((s) => (
+                  <ServiceCardMini key={s.id} service={s} locale={locale} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Hierarchy: main category → sub-category → services */}
+          <div className="space-y-16">
+            {rootCats.map((rootCat) => {
+              const subs = childrenOf.get(rootCat.id) ?? [];
+              const directServices = servicesByCat.get(rootCat.id) ?? [];
+
+              return (
+                <section key={rootCat.id} id={`cat-${rootCat.slug}`} className="scroll-mt-20">
+                  {/* Main category header */}
+                  <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-primary/20">
+                    {rootCat.image_url && (
+                      <div className="relative h-14 w-14 shrink-0 rounded-lg overflow-hidden bg-muted">
+                        <Image
+                          src={rootCat.image_url}
+                          alt=""
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
+                    <div>
+                      <h2 className="text-2xl md:text-3xl font-bold">
+                        {isAr ? rootCat.name_ar : rootCat.name_en}
+                      </h2>
+                      {(isAr ? rootCat.description_ar : rootCat.description_en) && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {isAr ? rootCat.description_ar : rootCat.description_en}
+                        </p>
+                      )}
+                    </div>
+                    <Badge variant="secondary" className="ms-auto">
+                      {allServicesUnder(rootCat.id).length}{" "}
+                      {isAr ? "خدمة" : "services"}
+                    </Badge>
+                  </div>
+
+                  {/* Direct services (no sub-category) */}
+                  {directServices.length > 0 && (
+                    <div className="mb-8 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                      {directServices.map((s) => (
+                        <ServiceCardMini key={s.id} service={s} locale={locale} />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Sub-categories with their services */}
+                  {subs.map((sub) => {
+                    const subServices = servicesByCat.get(sub.id) ?? [];
+                    if (subServices.length === 0) return null;
+                    return (
+                      <div key={sub.id} className="mb-8">
+                        <div className="flex items-center gap-2 mb-3 ps-2 border-s-4 border-primary/40">
+                          <h3 className="text-lg font-semibold inline-flex items-center gap-2">
+                            <ChevronDown className="h-4 w-4 text-primary" />
+                            {isAr ? sub.name_ar : sub.name_en}
+                          </h3>
+                          <span className="text-xs text-muted-foreground">
+                            ({subServices.length})
+                          </span>
+                        </div>
+                        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 ps-6">
+                          {subServices.map((s) => (
+                            <ServiceCardMini key={s.id} service={s} locale={locale} />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </section>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );

@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { MessageThread } from "@/components/orders/message-thread";
+import { CustomerAttachmentsDisplay } from "@/components/orders/customer-attachments-display";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
 import { formatCurrency, formatDate, formatDateTime } from "@/lib/utils";
 import { sendStaffMessageAction } from "../actions";
@@ -255,13 +256,19 @@ export default async function AdminOrderDetailPage({
           <Card>
             <CardHeader>
               <CardTitle className="text-base">
-                {isAr ? "رسالة العميل" : "Customer message"}
+                {isAr ? "رسالة العميل ومرفقاته" : "Customer message & attachments"}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <p className="text-sm whitespace-pre-line">
                 {order.customer_message ?? "—"}
               </p>
+              {(order.customer_attachments ?? []).length > 0 && (
+                <CustomerAttachmentsDisplay
+                  attachments={order.customer_attachments ?? []}
+                  locale={locale}
+                />
+              )}
             </CardContent>
           </Card>
           <Card>

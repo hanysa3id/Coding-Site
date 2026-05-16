@@ -1,4 +1,5 @@
-import { setRequestLocale, getTranslations } from "next-intl/server";
+import Image from "next/image";
+import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { getServiceBySlug } from "@/lib/queries/services";
 import { createClient } from "@/lib/supabase/server";
@@ -8,12 +9,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
-import { Clock, ArrowRight, Star } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { VideoEmbed } from "@/components/portfolio/video-embed";
+import { Clock, ArrowRight, Star, CheckCircle2, Gift, Sparkles } from "lucide-react";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import { JsonLd, serviceSchema } from "@/components/seo/json-ld";
 import { getWhatsappNumber } from "@/lib/settings/get";
 import type { Metadata } from "next";
-import type { ServiceStage, Review, PortfolioProject } from "@/types/database";
+import type {
+  Review,
+  PortfolioProject,
+  ServiceGalleryMedia,
+  TimelineStep,
+} from "@/types/database";
 
 export async function generateMetadata({
   params,
@@ -25,14 +32,18 @@ export async function generateMetadata({
   if (!service) return {};
   const isAr = locale === "ar";
   return {
-    title: (isAr ? service.seo_title_ar : service.seo_title_en) ?? (isAr ? service.name_ar : service.name_en),
+    title:
+      (isAr ? service.seo_title_ar : service.seo_title_en) ??
+      (isAr ? service.name_ar : service.name_en),
     description:
       (isAr ? service.seo_description_ar : service.seo_description_en) ??
       (isAr ? service.short_description_ar : service.short_description_en) ??
       undefined,
     keywords: service.seo_keywords ?? undefined,
     openGraph: {
+      title: isAr ? service.name_ar : service.name_en,
       images: service.cover_image ? [service.cover_image] : [],
+      type: "website",
     },
   };
 }
@@ -45,39 +56,47 @@ export default async function ServiceDetailPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const isAr = locale === "ar";
-  const t = await getTranslations("home");
 
   const service = await getServiceBySlug(slug);
   if (!service) notFound();
 
   const supabase = await createClient();
-  const [{ data: stages }, { data: reviews }, { data: portfolioLinks }] = await Promise.all([
-    supabase
-      .from("service_stages")
-      .select("*")
-      .eq("service_id", service.id)
-      .order("sort_order", { ascending: true }),
-    supabase
-      .from("reviews")
-      .select("*")
-      .eq("service_id", service.id)
-      .eq("is_visible", true)
-      .order("created_at", { ascending: false })
-      .limit(6),
-    supabase
-      .from("portfolio_services")
-      .select("portfolio_id, portfolio_projects(*)")
-      .eq("service_id", service.id),
-  ]);
+  const [{ data: gallery }, { data: reviews }, { data: portfolioLinks }, waNumber] =
+    await Promise.all([
+      supabase
+        .from("service_gallery")
+        .select("*")
+        .eq("service_id", service.id)
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("reviews")
+        .select("*")
+        .eq("service_id", service.id)
+        .eq("is_visible", true)
+        .order("created_at", { ascending: false })
+        .limit(6),
+      supabase
+        .from("portfolio_services")
+        .select("portfolio_id, portfolio_projects(*)")
+        .eq("service_id", service.id),
+      getWhatsappNumber(),
+    ]);
 
-  const portfolioProjects = ((portfolioLinks ?? []) as unknown as { portfolio_projects: PortfolioProject | null }[])
+  const galleryItems = (gallery as ServiceGalleryMedia[]) ?? [];
+  const portfolioProjects = (
+    (portfolioLinks ?? []) as unknown as { portfolio_projects: PortfolioProject | null }[]
+  )
     .map((l) => l.portfolio_projects)
     .filter((p): p is PortfolioProject => !!p && p.is_visible);
 
-  const avgRating =
-    (reviews as Review[] | null)?.length
-      ? (reviews as Review[]).reduce((a, r) => a + r.rating, 0) / (reviews as Review[]).length
-      : null;
+  const reviewsList = (reviews as Review[] | null) ?? [];
+  const avgRating = reviewsList.length
+    ? reviewsList.reduce((a, r) => a + r.rating, 0) / reviewsList.length
+    : null;
+
+  const features = isAr ? service.features_ar : service.features_en;
+  const deliverables = isAr ? service.deliverables_ar : service.deliverables_en;
+  const timeline = isAr ? service.timeline_ar : service.timeline_en;
 
   const priceLabel = (() => {
     if (!service.estimated_price_min) return null;
@@ -92,60 +111,89 @@ export default async function ServiceDetailPage({
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const schema = serviceSchema({
     name: isAr ? service.name_ar : service.name_en,
-    description: (isAr ? service.short_description_ar : service.short_description_en) ?? undefined,
+    description:
+      (isAr ? service.short_description_ar : service.short_description_en) ?? undefined,
     image: service.cover_image,
     url: `${siteUrl}/${locale}/services/${service.slug}`,
     priceMin: service.estimated_price_min,
     priceMax: service.estimated_price_max,
     currency: service.currency,
     ratingValue: avgRating ?? undefined,
-    ratingCount: (reviews as Review[] | null)?.length,
+    ratingCount: reviewsList.length,
   });
 
   return (
     <article className="container py-12">
       <JsonLd data={schema} />
+
       {/* Hero */}
-      <header className="grid gap-8 md:grid-cols-2 mb-12">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
+      <header className="grid gap-8 md:grid-cols-5 mb-12 items-start">
+        <div className="md:col-span-3 space-y-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            {service.is_featured && (
+              <Badge className="gap-1">
+                <Sparkles className="h-3 w-3" />
+                {isAr ? "خدمة مميزة" : "Featured"}
+              </Badge>
+            )}
             {avgRating !== null && (
               <Badge variant="success" className="gap-1">
                 <Star className="h-3 w-3" />
-                {avgRating.toFixed(1)} ({(reviews ?? []).length})
+                {avgRating.toFixed(1)} ({reviewsList.length})
               </Badge>
             )}
           </div>
-          <h1 className="text-4xl font-bold">{isAr ? service.name_ar : service.name_en}</h1>
-          <p className="text-lg text-muted-foreground">
-            {isAr ? service.short_description_ar : service.short_description_en}
-          </p>
-          <div className="flex flex-wrap items-center gap-4 text-sm">
+
+          <h1 className="text-4xl md:text-5xl font-bold inline-flex items-start gap-3">
+            {service.thumbnail_url && (
+              <span className="relative h-12 w-12 shrink-0 rounded-lg overflow-hidden border bg-muted">
+                <Image
+                  src={service.thumbnail_url}
+                  alt=""
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                />
+              </span>
+            )}
+            <span>{isAr ? service.name_ar : service.name_en}</span>
+          </h1>
+
+          {(isAr ? service.short_description_ar : service.short_description_en) && (
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              {isAr ? service.short_description_ar : service.short_description_en}
+            </p>
+          )}
+
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm pt-2">
             {priceLabel && (
               <div>
-                <span className="text-muted-foreground">{isAr ? "السعر التقديري:" : "Estimated price:"}</span>{" "}
-                <span className="font-semibold text-primary">{priceLabel}</span>
+                <span className="text-muted-foreground">
+                  {isAr ? "السعر التقديري:" : "Est. price:"}
+                </span>{" "}
+                <span className="font-bold text-primary text-base">{priceLabel}</span>
               </div>
             )}
             {service.estimated_duration_days && (
-              <div className="inline-flex items-center gap-1">
+              <div className="inline-flex items-center gap-1.5">
                 <Clock className="h-4 w-4 text-muted-foreground" />
-                <span>
+                <span className="font-medium">
                   {service.estimated_duration_days} {isAr ? "يوم" : "days"}
                 </span>
               </div>
             )}
           </div>
+
           <div className="flex flex-wrap gap-3 pt-4">
             <Button asChild size="lg">
               <Link href={`/orders/new?service=${service.id}`}>
-                {isAr ? "اطلب الخدمة" : "Order this service"}
+                {isAr ? "اطلب الخدمة الآن" : "Order this service"}
                 <ArrowRight className="h-4 w-4 rtl:rotate-180" />
               </Link>
             </Button>
             <WhatsAppButton
               variant="hero"
-              phoneNumber={await getWhatsappNumber()}
+              phoneNumber={waNumber}
               context={{
                 type: "service",
                 serviceName: isAr ? service.name_ar : service.name_en,
@@ -155,12 +203,19 @@ export default async function ServiceDetailPage({
             />
           </div>
         </div>
-        <div>
+
+        <div className="md:col-span-2">
           {service.cover_image ? (
-            <div
-              className="aspect-video rounded-lg bg-cover bg-center shadow-md"
-              style={{ backgroundImage: `url(${service.cover_image})` }}
-            />
+            <div className="relative aspect-video rounded-lg overflow-hidden shadow-md bg-muted">
+              <Image
+                src={service.cover_image}
+                alt={isAr ? service.name_ar : service.name_en}
+                fill
+                sizes="(max-width: 768px) 100vw, 40vw"
+                className="object-cover"
+                priority
+              />
+            </div>
           ) : (
             <div className="aspect-video rounded-lg bg-muted" />
           )}
@@ -173,40 +228,134 @@ export default async function ServiceDetailPage({
           <h2 className="text-2xl font-bold mb-4">
             {isAr ? "تفاصيل الخدمة" : "Service details"}
           </h2>
-          <p className="whitespace-pre-line text-muted-foreground leading-relaxed">
+          <p className="whitespace-pre-line text-muted-foreground leading-relaxed text-base">
             {isAr ? service.full_description_ar : service.full_description_en}
           </p>
         </section>
       )}
 
-      {/* Stages */}
-      {(stages as ServiceStage[] | null)?.length ? (
-        <>
-          <Separator className="my-12" />
-          <section>
-            <h2 className="text-2xl font-bold mb-6">
-              {isAr ? "مراحل التنفيذ" : "Implementation stages"}
-            </h2>
-            <ol className="grid gap-4 md:grid-cols-2">
-              {(stages as ServiceStage[]).map((stage, i) => (
-                <li key={stage.id} className="flex gap-4 rounded-lg border p-4">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
-                    {i + 1}
-                  </span>
-                  <div>
-                    <h3 className="font-semibold">
-                      {isAr ? stage.title_ar : stage.title_en}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {isAr ? stage.description_ar : stage.description_en}
-                    </p>
+      {/* Featured video */}
+      {service.video_url && (
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold mb-4">
+            {isAr ? "فيديو الخدمة" : "Service video"}
+          </h2>
+          <div className="rounded-lg overflow-hidden">
+            <VideoEmbed url={service.video_url} title={isAr ? service.name_ar : service.name_en} />
+          </div>
+        </section>
+      )}
+
+      {/* Features + Deliverables side by side */}
+      {(features.length > 0 || deliverables.length > 0) && (
+        <section className="grid gap-6 md:grid-cols-2 mb-12">
+          {features.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="inline-flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  {isAr ? "مميزات الخدمة" : "Service features"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2.5">
+                  {features.map((f, i) => (
+                    <li key={i} className="flex gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {deliverables.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="inline-flex items-center gap-2">
+                  <Gift className="h-5 w-5 text-green-600" />
+                  {isAr ? "ما الذي ستحصل عليه" : "What you'll get"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2.5">
+                  {deliverables.map((d, i) => (
+                    <li key={i} className="flex gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+                      <span>{d}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+        </section>
+      )}
+
+      {/* Timeline */}
+      {timeline.length > 0 && (
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold mb-6">
+            {isAr ? "مراحل تنفيذ الخدمة" : "Implementation timeline"}
+          </h2>
+          <ol className="relative border-s-2 border-primary/30 space-y-6 ms-2">
+            {timeline.map((step: TimelineStep, idx) => (
+              <li key={idx} className="ms-6">
+                <span className="absolute flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full -start-4 ring-4 ring-background text-sm font-bold">
+                  {idx + 1}
+                </span>
+                <div className="rounded-md border bg-card p-4">
+                  <div className="flex items-baseline justify-between gap-3 flex-wrap mb-1">
+                    <h3 className="font-semibold text-lg">{step.title}</h3>
+                    {step.date && (
+                      <time className="text-xs text-muted-foreground">
+                        {formatDate(step.date, isAr ? "ar-EG" : "en-US")}
+                      </time>
+                    )}
                   </div>
-                </li>
-              ))}
-            </ol>
-          </section>
-        </>
-      ) : null}
+                  {step.description && (
+                    <p className="text-sm text-muted-foreground whitespace-pre-line">
+                      {step.description}
+                    </p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {/* Gallery */}
+      {galleryItems.length > 0 && (
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold mb-6">
+            {isAr ? "معرض الصور والفيديوهات" : "Image & video gallery"}
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            {galleryItems.map((item) => (
+              <div key={item.id}>
+                {item.media_type === "video" ? (
+                  <VideoEmbed url={item.image_url} title={item.alt_text ?? undefined} />
+                ) : (
+                  <div className="relative aspect-video rounded-lg overflow-hidden bg-muted border">
+                    <Image
+                      src={item.image_url}
+                      alt={item.alt_text ?? ""}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                {item.alt_text && (
+                  <p className="text-xs text-muted-foreground mt-1 px-1">{item.alt_text}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Portfolio examples */}
       {portfolioProjects.length > 0 && (
@@ -219,12 +368,17 @@ export default async function ServiceDetailPage({
             <div className="grid gap-6 md:grid-cols-3">
               {portfolioProjects.map((p) => (
                 <Link key={p.id} href={`/portfolio/${p.slug}`}>
-                  <Card className="h-full transition hover:shadow-md">
+                  <Card className="h-full overflow-hidden transition hover:shadow-md hover:border-primary/50">
                     {p.cover_image && (
-                      <div
-                        className="h-40 rounded-t-lg bg-cover bg-center"
-                        style={{ backgroundImage: `url(${p.cover_image})` }}
-                      />
+                      <div className="relative aspect-video">
+                        <Image
+                          src={p.cover_image}
+                          alt={isAr ? p.title_ar : p.title_en}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover"
+                        />
+                      </div>
                     )}
                     <CardHeader>
                       <CardTitle className="text-base">
@@ -240,7 +394,7 @@ export default async function ServiceDetailPage({
       )}
 
       {/* Reviews */}
-      {(reviews as Review[] | null)?.length ? (
+      {reviewsList.length > 0 && (
         <>
           <Separator className="my-12" />
           <section>
@@ -248,7 +402,7 @@ export default async function ServiceDetailPage({
               {isAr ? "آراء العملاء" : "Customer reviews"}
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
-              {(reviews as Review[]).map((r) => (
+              {reviewsList.map((r) => (
                 <Card key={r.id}>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex">
@@ -274,7 +428,37 @@ export default async function ServiceDetailPage({
             </div>
           </section>
         </>
-      ) : null}
+      )}
+
+      {/* Bottom CTA */}
+      <Separator className="my-12" />
+      <section className="text-center space-y-4 py-8">
+        <h2 className="text-2xl font-bold">
+          {isAr ? "هل أنت مستعد للبدء؟" : "Ready to get started?"}
+        </h2>
+        <p className="text-muted-foreground">
+          {isAr
+            ? "اطلب الخدمة الآن أو تواصل معنا للاستفسار"
+            : "Order now or contact us with any questions"}
+        </p>
+        <div className="flex flex-wrap gap-3 justify-center pt-2">
+          <Button asChild size="lg">
+            <Link href={`/orders/new?service=${service.id}`}>
+              {isAr ? "اطلب الخدمة الآن" : "Order this service"}
+            </Link>
+          </Button>
+          <WhatsAppButton
+            variant="hero"
+            phoneNumber={waNumber}
+            context={{
+              type: "service",
+              serviceName: isAr ? service.name_ar : service.name_en,
+              estimatedPrice: priceLabel ?? undefined,
+            }}
+            label={isAr ? "استفسار عبر واتس آب" : "Inquire via WhatsApp"}
+          />
+        </div>
+      </section>
     </article>
   );
 }

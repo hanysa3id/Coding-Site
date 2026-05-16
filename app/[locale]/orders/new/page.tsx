@@ -75,6 +75,7 @@ export default async function NewOrderPage({
             serviceId={s.id}
             customerName={profile.full_name ?? ""}
             customerWhatsapp={profile.whatsapp_number ?? profile.phone ?? ""}
+            locale={locale}
           />
         </CardContent>
       </Card>
