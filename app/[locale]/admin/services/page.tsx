@@ -6,6 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/routing";
 import { Plus, Pencil } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { CsvPanel } from "@/components/admin/csv-panel";
+import {
+  exportServicesAction,
+  importServicesAction,
+  templateServicesAction,
+} from "./csv-actions";
 import type { Service, Category } from "@/types/database";
 
 export default async function AdminServicesPage() {
@@ -38,6 +44,15 @@ export default async function AdminServicesPage() {
           </Link>
         </Button>
       </div>
+
+      <CsvPanel
+        resourceAr="الخدمات"
+        resourceEn="services"
+        locale={locale}
+        exportAction={exportServicesAction}
+        templateAction={templateServicesAction}
+        importAction={importServicesAction}
+      />
 
       <Card>
         <CardContent className="p-0">

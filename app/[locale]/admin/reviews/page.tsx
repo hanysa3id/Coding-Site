@@ -2,8 +2,13 @@ import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
-import { formatDateTime } from "@/lib/utils";
 import { ReviewRow } from "./review-row";
+import { CsvPanel } from "@/components/admin/csv-panel";
+import {
+  exportReviewsAction,
+  importReviewsAction,
+  templateReviewsAction,
+} from "./csv-actions";
 import type { Review, Service, Profile } from "@/types/database";
 
 type FullReview = Review & {
@@ -45,6 +50,15 @@ export default async function AdminReviewsPage() {
           </p>
         </div>
       </header>
+
+      <CsvPanel
+        resourceAr="التقييمات"
+        resourceEn="reviews"
+        locale={locale}
+        exportAction={exportReviewsAction}
+        templateAction={templateReviewsAction}
+        importAction={importReviewsAction}
+      />
 
       {reviews.length === 0 ? (
         <Card>

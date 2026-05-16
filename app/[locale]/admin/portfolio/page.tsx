@@ -5,6 +5,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/routing";
 import { Plus, Pencil } from "lucide-react";
+import { CsvPanel } from "@/components/admin/csv-panel";
+import {
+  exportPortfolioAction,
+  importPortfolioAction,
+  templatePortfolioAction,
+} from "./csv-actions";
 import type { PortfolioProject } from "@/types/database";
 
 export default async function AdminPortfolioPage() {
@@ -33,6 +39,15 @@ export default async function AdminPortfolioPage() {
           </Link>
         </Button>
       </div>
+
+      <CsvPanel
+        resourceAr="معرض الأعمال"
+        resourceEn="portfolio"
+        locale={locale}
+        exportAction={exportPortfolioAction}
+        templateAction={templatePortfolioAction}
+        importAction={importPortfolioAction}
+      />
 
       <Card>
         <CardContent className="p-0">

@@ -6,6 +6,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { CsvPanel } from "@/components/admin/csv-panel";
+import {
+  exportBlogAction,
+  importBlogAction,
+  templateBlogAction,
+} from "./csv-actions";
 import type { BlogPost } from "@/types/database";
 
 export default async function AdminBlogPage() {
@@ -33,6 +39,15 @@ export default async function AdminBlogPage() {
           </Link>
         </Button>
       </div>
+
+      <CsvPanel
+        resourceAr="المدونة"
+        resourceEn="blog"
+        locale={locale}
+        exportAction={exportBlogAction}
+        templateAction={templateBlogAction}
+        importAction={importBlogAction}
+      />
 
       <Card>
         <CardContent className="p-0">
