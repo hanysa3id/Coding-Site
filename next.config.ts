@@ -51,8 +51,12 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           {
+            // `(self)` lets the site itself request these permissions
+            // (browser still prompts the user), while blocking third-party
+            // iframes. `microphone=(self)` is required for the voice-note
+            // recorder on the order request form.
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
+            value: "camera=(self), microphone=(self), geolocation=()",
           },
         ],
       },

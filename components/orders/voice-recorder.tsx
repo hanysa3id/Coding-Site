@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Mic, Square, Trash2, Play, Pause } from "lucide-react";
+import { Mic, Square, Trash2, Play, Pause, AlertTriangle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -17,6 +17,7 @@ type Props = {
 };
 
 type State = "idle" | "recording" | "recorded";
+type PermissionState = "unknown" | "prompt" | "granted" | "denied" | "unsupported";
 
 const SUPPORTED_MIME_TYPES = ["audio/webm", "audio/ogg", "audio/mp4"];
 
@@ -31,6 +32,7 @@ export function VoiceRecorder({
   const [state, setState] = useState<State>(value ? "recorded" : "idle");
   const [elapsed, setElapsed] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [permission, setPermission] = useState<PermissionState>("unknown");
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
@@ -38,6 +40,43 @@ export function VoiceRecorder({
   const timerRef = useRef<number | null>(null);
   const audioUrlRef = useRef<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Detect current permission state up-front so we can show a helpful hint
+  // before the user clicks "Start recording" — saves them a confusing prompt
+  // if they previously denied access.
+  useEffect(() => {
+    let cancelled = false;
+    async function probe() {
+      if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+        if (!cancelled) setPermission("unsupported");
+        return;
+      }
+      // Safari < 16 doesn't support navigator.permissions.query for microphone.
+      // Best-effort: try, fall back to "unknown" so user can still click.
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const perm = await (navigator.permissions as any)?.query?.({
+          name: "microphone" as PermissionName,
+        });
+        if (!perm) {
+          if (!cancelled) setPermission("unknown");
+          return;
+        }
+        if (!cancelled) {
+          setPermission(perm.state as PermissionState);
+        }
+        perm.onchange = () => {
+          if (!cancelled) setPermission(perm.state as PermissionState);
+        };
+      } catch {
+        if (!cancelled) setPermission("unknown");
+      }
+    }
+    probe();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Build playback URL whenever the blob changes
   useEffect(() => {
@@ -70,15 +109,37 @@ export function VoiceRecorder({
   }
 
   async function startRecording() {
-    if (!navigator.mediaDevices?.getUserMedia) {
+    if (typeof window === "undefined" || !navigator.mediaDevices?.getUserMedia) {
       toast.error(
         isAr ? "متصفحك لا يدعم تسجيل الصوت" : "Your browser doesn't support audio recording"
       );
+      setPermission("unsupported");
       return;
     }
+
+    // Some browsers only expose getUserMedia on https or localhost.
+    if (
+      typeof window !== "undefined" &&
+      window.location.protocol !== "https:" &&
+      window.location.hostname !== "localhost" &&
+      window.location.hostname !== "127.0.0.1"
+    ) {
+      toast.error(
+        isAr
+          ? "تسجيل الصوت يحتاج اتصال HTTPS. لن يعمل على HTTP."
+          : "Voice recording requires HTTPS. It won't work on plain HTTP."
+      );
+      return;
+    }
+
     try {
+      // This call triggers the browser's native permission prompt the first
+      // time. On subsequent loads it either resolves immediately (granted)
+      // or rejects with NotAllowedError (denied — user must change browser
+      // settings manually).
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
+      setPermission("granted");
       const mimeType = pickMimeType();
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       chunksRef.current = [];
@@ -112,16 +173,44 @@ export function VoiceRecorder({
         });
       }, 1000);
     } catch (err) {
-      const msg = (err as Error).message ?? "";
-      if (msg.toLowerCase().includes("permission") || msg.toLowerCase().includes("denied")) {
+      const e = err as DOMException;
+      const name = e?.name ?? "";
+
+      // Map the common DOMException names to friendly Arabic + English text.
+      if (name === "NotAllowedError" || name === "PermissionDeniedError") {
+        // User actively denied OR the site never had permission. Either way
+        // the next call won't prompt again unless the user resets it.
+        setPermission("denied");
         toast.error(
           isAr
-            ? "صلاحية الميكروفون مرفوضة. فعّلها من إعدادات المتصفح."
-            : "Microphone permission denied. Enable it in browser settings."
+            ? "تم رفض إذن الميكروفون. افتح إعدادات الموقع في المتصفح وامنح صلاحية الميكروفون ثم حاول مرة أخرى."
+            : "Microphone access denied. Open browser site settings, allow microphone access, then try again."
+        );
+      } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+        toast.error(
+          isAr
+            ? "لا يوجد ميكروفون متصل بجهازك"
+            : "No microphone connected to your device"
+        );
+      } else if (name === "NotReadableError" || name === "TrackStartError") {
+        toast.error(
+          isAr
+            ? "تعذّر استخدام الميكروفون — قد يكون مستخدماً بواسطة تطبيق آخر"
+            : "Could not access the microphone — it may be used by another application"
+        );
+      } else if (name === "SecurityError") {
+        // Most likely Permissions-Policy is blocking, or HTTP without
+        // localhost — both server-config issues.
+        toast.error(
+          isAr
+            ? "المتصفح حجب الميكروفون لأسباب أمنية. تأكد أن الموقع يعمل عبر HTTPS."
+            : "Browser blocked microphone for security reasons. Make sure the site runs over HTTPS."
         );
       } else {
         toast.error(
-          isAr ? `تعذّر بدء التسجيل: ${msg}` : `Failed to start recording: ${msg}`
+          isAr
+            ? `تعذّر بدء التسجيل: ${e?.message ?? name}`
+            : `Failed to start recording: ${e?.message ?? name}`
         );
       }
     }
@@ -235,12 +324,74 @@ export function VoiceRecorder({
         />
       )}
 
-      {state === "idle" && (
-        <p className="text-xs text-muted-foreground">
-          {isAr
-            ? "اضغط الزر للسماح بالميكروفون ثم سجل ملاحظة صوتية (حد أقصى ٥ دقائق)"
-            : "Click the button to allow microphone access and record a voice note (max 5 minutes)"}
+      {state === "idle" && permission !== "denied" && permission !== "unsupported" && (
+        <p className="text-xs text-muted-foreground inline-flex items-start gap-1.5">
+          <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+          <span>
+            {isAr
+              ? "اضغط الزر — سيطلب المتصفح إذنك لاستخدام الميكروفون. اضغط ‹سماح› ثم سيبدأ التسجيل (حد أقصى ٥ دقائق)."
+              : "Click the button — your browser will ask for microphone permission. Click ‘Allow’ and recording will start (max 5 minutes)."}
+          </span>
         </p>
+      )}
+
+      {/* Loud, helpful banner when permission was previously denied */}
+      {permission === "denied" && state === "idle" && (
+        <div className="rounded-md border border-amber-300 bg-amber-50 dark:bg-amber-950/20 p-3 space-y-2">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-semibold text-amber-900 dark:text-amber-200">
+                {isAr
+                  ? "إذن الميكروفون مرفوض حالياً"
+                  : "Microphone is currently blocked"}
+              </p>
+              <p className="text-amber-800 dark:text-amber-300 text-xs mt-1">
+                {isAr
+                  ? "اتبع هذه الخطوات لتفعيله ثم اضغط الزر مرة أخرى:"
+                  : "Follow these steps to enable it, then click the button again:"}
+              </p>
+            </div>
+          </div>
+          <ol className="text-xs text-amber-800 dark:text-amber-300 list-decimal ps-7 space-y-0.5">
+            <li>
+              {isAr
+                ? "اضغط على أيقونة القفل 🔒 (أو ⓘ) بجانب رابط الموقع في شريط العنوان"
+                : "Click the lock 🔒 (or ⓘ) icon beside the site URL in the address bar"}
+            </li>
+            <li>
+              {isAr
+                ? "اختر «الميكروفون» (Microphone)"
+                : "Find “Microphone” in the permissions list"}
+            </li>
+            <li>
+              {isAr
+                ? "غيّر الإعداد إلى «السماح» (Allow)"
+                : "Switch it to “Allow”"}
+            </li>
+            <li>
+              {isAr
+                ? "أعد تحميل الصفحة ثم اضغط زر بدء التسجيل"
+                : "Reload the page and click Start again"}
+            </li>
+          </ol>
+          <p className="text-xs text-amber-700 dark:text-amber-400 ps-7 italic">
+            {isAr
+              ? "بدلاً من ذلك: استخدم زر «استفسار عبر واتس آب» وأرسل ملاحظتك الصوتية مباشرة هناك."
+              : "Alternatively: use the WhatsApp button and send a voice note there."}
+          </p>
+        </div>
+      )}
+
+      {permission === "unsupported" && state === "idle" && (
+        <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800 inline-flex items-start gap-1.5">
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+          <span>
+            {isAr
+              ? "متصفحك لا يدعم تسجيل الصوت. جرّب Chrome، Edge، أو Safari الحديث."
+              : "Your browser doesn't support audio recording. Try a recent Chrome, Edge, or Safari."}
+          </span>
+        </div>
       )}
     </div>
   );
