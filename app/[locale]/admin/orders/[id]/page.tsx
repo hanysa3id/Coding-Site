@@ -17,8 +17,9 @@ import { CustomerAttachmentsDisplay } from "@/components/orders/customer-attachm
 import { PaymentStatusCard } from "@/components/orders/payment-status-card";
 import { PaymentHistoryList } from "@/components/orders/payment-history-list";
 import { summarizePayments } from "@/lib/orders/payment-summary";
+import { signStorageUrls } from "@/lib/storage/sign-url";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
-import type { Payment } from "@/types/database";
+import type { Payment, OrderAttachment } from "@/types/database";
 import { formatCurrency, formatDate, formatDateTime } from "@/lib/utils";
 import { sendStaffMessageAction } from "../actions";
 import { NegotiationPanel } from "./_components/negotiation-panel";
@@ -49,6 +50,15 @@ export default async function AdminOrderDetailPage({
     listOrderPayments(id),
     listStaffProfiles(),
   ]);
+
+  // Sign the customer-uploaded attachment URLs (briefs / voice notes attached
+  // to the original request) so the admin can play / download them.
+  const customerAttachments: OrderAttachment[] = await (async () => {
+    const raw = order.customer_attachments ?? [];
+    if (raw.length === 0) return [];
+    const signed = await signStorageUrls(raw.map((a) => a.url));
+    return raw.map((a, i) => ({ ...a, url: signed[i] }));
+  })();
 
   const finalAmount = order.final_price ?? order.estimated_price;
 
@@ -267,9 +277,9 @@ export default async function AdminOrderDetailPage({
               <p className="text-sm whitespace-pre-line">
                 {order.customer_message ?? "—"}
               </p>
-              {(order.customer_attachments ?? []).length > 0 && (
+              {customerAttachments.length > 0 && (
                 <CustomerAttachmentsDisplay
-                  attachments={order.customer_attachments ?? []}
+                  attachments={customerAttachments}
                   locale={locale}
                 />
               )}

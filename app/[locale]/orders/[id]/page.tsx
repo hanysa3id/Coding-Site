@@ -19,8 +19,9 @@ import { CustomerAttachmentsDisplay } from "@/components/orders/customer-attachm
 import { PaymentStatusCard } from "@/components/orders/payment-status-card";
 import { PaymentHistoryList } from "@/components/orders/payment-history-list";
 import { summarizePayments } from "@/lib/orders/payment-summary";
+import { signStorageUrls } from "@/lib/storage/sign-url";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
-import type { Payment } from "@/types/database";
+import type { Payment, OrderAttachment } from "@/types/database";
 import { getWhatsappNumber } from "@/lib/settings/get";
 import { Link } from "@/i18n/routing";
 import { CheckCircle, XCircle, CreditCard, Star, MessageSquare } from "lucide-react";
@@ -47,6 +48,15 @@ export default async function CustomerOrderDetailPage({
     listOrderDeliverables(id),
     listOrderPayments(id),
   ]);
+
+  // Sign the customer-uploaded attachment URLs so the inline <audio src>
+  // and download links work whether the storage bucket is public or private.
+  const customerAttachments: OrderAttachment[] = await (async () => {
+    const raw = order.customer_attachments ?? [];
+    if (raw.length === 0) return [];
+    const signed = await signStorageUrls(raw.map((a) => a.url));
+    return raw.map((a, i) => ({ ...a, url: signed[i] }));
+  })();
 
   const canApprove = order.status === "awaiting_customer_approval";
   const canPay = order.status === "awaiting_payment";
@@ -166,7 +176,7 @@ export default async function CustomerOrderDetailPage({
       )}
 
       {/* Customer message + attachments */}
-      {(order.customer_message || (order.customer_attachments ?? []).length > 0) && (
+      {(order.customer_message || customerAttachments.length > 0) && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
@@ -177,9 +187,9 @@ export default async function CustomerOrderDetailPage({
             {order.customer_message && (
               <p className="text-sm whitespace-pre-line">{order.customer_message}</p>
             )}
-            {(order.customer_attachments ?? []).length > 0 && (
+            {customerAttachments.length > 0 && (
               <CustomerAttachmentsDisplay
-                attachments={order.customer_attachments ?? []}
+                attachments={customerAttachments}
                 locale={locale}
               />
             )}

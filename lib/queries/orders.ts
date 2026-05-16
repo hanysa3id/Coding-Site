@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { signStorageUrls } from "@/lib/storage/sign-url";
 import type { Order, OrderStatus, Service, Profile } from "@/types/database";
 
 export type OrderWithService = Order & {
@@ -78,7 +79,8 @@ export async function listOrderMessages(orderId: string) {
     .select("*, sender:profiles(id, full_name, role, avatar_url)")
     .eq("order_id", orderId)
     .order("created_at", { ascending: true });
-  return (data as unknown as Array<{
+
+  const rows = (data as unknown as Array<{
     id: string;
     order_id: string;
     sender_id: string;
@@ -92,6 +94,21 @@ export async function listOrderMessages(orderId: string) {
     created_at: string;
     sender: { id: string; full_name: string | null; role: string; avatar_url: string | null } | null;
   }>) ?? [];
+
+  // Replace stored URLs with short-lived signed URLs so <audio src=...> works
+  // regardless of whether the storage bucket is public or private.
+  const indexedUrls: { msgIdx: number; url: string }[] = [];
+  rows.forEach((m, i) => {
+    if (m.attachment_url) indexedUrls.push({ msgIdx: i, url: m.attachment_url });
+  });
+  if (indexedUrls.length > 0) {
+    const signed = await signStorageUrls(indexedUrls.map((x) => x.url));
+    indexedUrls.forEach(({ msgIdx }, i) => {
+      rows[msgIdx].attachment_url = signed[i];
+    });
+  }
+
+  return rows;
 }
 
 export async function listOrderMilestones(orderId: string) {
