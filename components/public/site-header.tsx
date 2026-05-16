@@ -2,7 +2,8 @@ import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { getTranslations, getLocale } from "next-intl/server";
 import { getCurrentProfile } from "@/lib/auth/guards";
-import { getSiteSettings } from "@/lib/settings/get";
+import { getSiteSettings, getLandingSettings } from "@/lib/settings/get";
+import { resolveNav } from "@/lib/landing/helpers";
 import { LocaleSwitcher } from "@/components/shared/locale-switcher";
 import { UserMenu } from "@/components/shared/user-menu";
 import { NotificationsBell } from "@/components/shared/notifications-bell";
@@ -12,10 +13,21 @@ import { Button } from "@/components/ui/button";
 export async function SiteHeader() {
   const tc = await getTranslations("common");
   const locale = await getLocale();
-  const [profile, site] = await Promise.all([getCurrentProfile(), getSiteSettings()]);
+  const [profile, site, landing] = await Promise.all([
+    getCurrentProfile(),
+    getSiteSettings(),
+    getLandingSettings().catch(() => null),
+  ]);
 
   const isAr = locale === "ar";
   const siteName = site ? (isAr ? site.name_ar : site.name_en) : tc("siteName");
+  const navItems = resolveNav(landing, locale, {
+    services: tc("services"),
+    portfolio: tc("portfolio"),
+    blog: tc("blog"),
+    about: tc("about"),
+    contact: tc("contact"),
+  });
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
@@ -42,21 +54,11 @@ export async function SiteHeader() {
         </div>
 
         <nav className="hidden md:flex items-center gap-6">
-          <Link href="/services" className="text-sm hover:text-primary">
-            {tc("services")}
-          </Link>
-          <Link href="/portfolio" className="text-sm hover:text-primary">
-            {tc("portfolio")}
-          </Link>
-          <Link href="/blog" className="text-sm hover:text-primary">
-            {tc("blog")}
-          </Link>
-          <Link href="/about" className="text-sm hover:text-primary">
-            {tc("about")}
-          </Link>
-          <Link href="/contact" className="text-sm hover:text-primary">
-            {tc("contact")}
-          </Link>
+          {navItems.map((item) => (
+            <Link key={item.href} href={item.href} className="text-sm hover:text-primary">
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="flex items-center gap-2 md:gap-3">

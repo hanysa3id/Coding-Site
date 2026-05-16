@@ -145,7 +145,14 @@ export async function HomePage({
       {show("portfolio") && <PortfolioShowcase locale={locale} projects={projects} />}
       {show("cta") && <CtaBand locale={locale} whatsappNumber={waNumber} />}
       {show("testimonials") && <SkyTestimonials locale={locale} reviews={reviews} />}
-      {show("team") && <TeamStats locale={locale} team={team} about={about} />}
+      {show("team") && (
+        <TeamStats
+          locale={locale}
+          team={team}
+          about={about}
+          customStats={landing?.stats ?? []}
+        />
+      )}
       {show("blog") && <BlogStrip locale={locale} posts={posts} />}
       {show("faq") && <SkyFaq locale={locale} faqs={landing?.faqs ?? []} />}
       {show("cta") && <CtaBand locale={locale} whatsappNumber={waNumber} />}

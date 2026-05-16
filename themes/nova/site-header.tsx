@@ -2,7 +2,8 @@ import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { getTranslations, getLocale } from "next-intl/server";
 import { getCurrentProfile } from "@/lib/auth/guards";
-import { getSiteSettings } from "@/lib/settings/get";
+import { getSiteSettings, getLandingSettings } from "@/lib/settings/get";
+import { resolveNav } from "@/lib/landing/helpers";
 import { LocaleSwitcher } from "@/components/shared/locale-switcher";
 import { UserMenu } from "@/components/shared/user-menu";
 import { NotificationsBell } from "@/components/shared/notifications-bell";
@@ -13,10 +14,21 @@ import { Github } from "lucide-react";
 export async function SiteHeader() {
   const tc = await getTranslations("common");
   const locale = await getLocale();
-  const [profile, site] = await Promise.all([getCurrentProfile(), getSiteSettings()]);
+  const [profile, site, landing] = await Promise.all([
+    getCurrentProfile(),
+    getSiteSettings(),
+    getLandingSettings().catch(() => null),
+  ]);
 
   const isAr = locale === "ar";
   const siteName = site ? (isAr ? site.name_ar : site.name_en) : tc("siteName");
+  const navItems = resolveNav(landing, locale, {
+    services: tc("services"),
+    portfolio: tc("portfolio"),
+    blog: tc("blog"),
+    about: tc("about"),
+    contact: tc("contact"),
+  });
 
   return (
     <header
@@ -53,11 +65,11 @@ export async function SiteHeader() {
         </div>
 
         <nav className="hidden md:flex items-center gap-1">
-          <NavLink href="/services">{tc("services")}</NavLink>
-          <NavLink href="/portfolio">{tc("portfolio")}</NavLink>
-          <NavLink href="/blog">{tc("blog")}</NavLink>
-          <NavLink href="/about">{tc("about")}</NavLink>
-          <NavLink href="/contact">{tc("contact")}</NavLink>
+          {navItems.map((item) => (
+            <NavLink key={item.href} href={item.href}>
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
 
         <div className="flex items-center gap-2">

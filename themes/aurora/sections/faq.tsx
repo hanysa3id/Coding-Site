@@ -1,6 +1,7 @@
 import { Section } from "../ui/section";
 import { SectionHeading } from "../ui/section-heading";
 import { Plus } from "lucide-react";
+import type { LandingFaqItem } from "@/lib/validators/settings";
 
 type Faq = {
   qAr: string;
@@ -9,7 +10,7 @@ type Faq = {
   aEn: string;
 };
 
-const FAQS: Faq[] = [
+const DEFAULT_FAQS: Faq[] = [
   {
     qAr: "كم مدة تنفيذ المشروع عادةً؟",
     qEn: "How long does a typical project take?",
@@ -48,8 +49,18 @@ const FAQS: Faq[] = [
   },
 ];
 
-export function AuroraFaq({ locale }: { locale: string }) {
+export function AuroraFaq({
+  locale,
+  faqs = [],
+}: {
+  locale: string;
+  faqs?: LandingFaqItem[];
+}) {
   const isAr = locale === "ar";
+  const items: Faq[] =
+    faqs.length > 0
+      ? faqs.map((f) => ({ qAr: f.q_ar, qEn: f.q_en, aAr: f.a_ar, aEn: f.a_en }))
+      : DEFAULT_FAQS;
 
   return (
     <Section>
@@ -60,7 +71,7 @@ export function AuroraFaq({ locale }: { locale: string }) {
       />
 
       <div className="mt-12 max-w-3xl mx-auto space-y-3">
-        {FAQS.map((f, i) => (
+        {items.map((f, i) => (
           <details
             key={i}
             className="aurora-glass rounded-2xl group open:shadow-lg transition-shadow"

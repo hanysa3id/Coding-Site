@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -19,23 +19,32 @@ import {
   RotateCcw,
   ExternalLink,
   Info,
+  ArrowUp,
+  ArrowDown,
+  Sparkles,
+  Layers,
+  BarChart3,
+  HelpCircle,
+  Globe,
+  Image as ImageIcon,
+  Megaphone,
 } from "lucide-react";
 import {
   landingSettingsSchema,
   type LandingSettings,
   type LandingFaqItem,
   type LandingNavItem,
+  type LandingStatItem,
   type LandingSectionId,
 } from "@/lib/validators/settings";
 import { saveLandingSettingsAction } from "../../settings/actions";
 import type { ThemeId } from "@/themes";
+import { cn } from "@/lib/utils";
 
-// ─── Canonical sections + which themes use which ────────────────────────────
-// This tells the admin which theme(s) actually render the section. Sections
-// the active theme does not have show a "not in this theme" hint so users
-// don't toggle and wonder why nothing changes.
+// ─── Canonical sections (single source of truth) ────────────────────────────
 const SECTIONS: {
   id: LandingSectionId;
+  icon: React.ComponentType<{ className?: string }>;
   ar: string;
   en: string;
   description_ar: string;
@@ -44,14 +53,16 @@ const SECTIONS: {
 }[] = [
   {
     id: "hero",
+    icon: Sparkles,
     ar: "البطل (Hero)",
     en: "Hero",
-    description_ar: "القسم الأول الذي يراه الزائر — العنوان والـ CTAs.",
+    description_ar: "أول قسم يراه الزائر — العنوان والـ CTAs.",
     description_en: "First-screen — headline + primary CTAs.",
     themes: ["classic", "aurora", "nova", "sky"],
   },
   {
     id: "logo_cloud",
+    icon: Layers,
     ar: "شعارات العملاء",
     en: "Logo cloud",
     description_ar: "شريط متحرك بأسماء/شعارات الشركات.",
@@ -60,6 +71,7 @@ const SECTIONS: {
   },
   {
     id: "features",
+    icon: Layers,
     ar: "المميزات / Bento",
     en: "Features / Bento",
     description_ar: "بطاقات تشرح ما الذي يميزك.",
@@ -68,6 +80,7 @@ const SECTIONS: {
   },
   {
     id: "stats",
+    icon: BarChart3,
     ar: "الإحصائيات",
     en: "Stats",
     description_ar: "أرقام بارزة (مشاريع، عملاء، سنوات).",
@@ -76,6 +89,7 @@ const SECTIONS: {
   },
   {
     id: "services",
+    icon: Layers,
     ar: "الخدمات",
     en: "Services",
     description_ar: "قائمة الخدمات المعروضة (تُسحب من DB).",
@@ -84,6 +98,7 @@ const SECTIONS: {
   },
   {
     id: "process",
+    icon: Layers,
     ar: "خطوات العمل",
     en: "Process steps",
     description_ar: "كيف نعمل — 4 مراحل من البداية للتسليم.",
@@ -92,6 +107,7 @@ const SECTIONS: {
   },
   {
     id: "portfolio",
+    icon: ImageIcon,
     ar: "معرض الأعمال",
     en: "Portfolio",
     description_ar: "آخر المشاريع المنجزة (من DB).",
@@ -100,6 +116,7 @@ const SECTIONS: {
   },
   {
     id: "testimonials",
+    icon: HelpCircle,
     ar: "آراء العملاء",
     en: "Testimonials",
     description_ar: "شهادات العملاء (من الـ reviews أو بديل).",
@@ -108,6 +125,7 @@ const SECTIONS: {
   },
   {
     id: "pricing",
+    icon: BarChart3,
     ar: "الأسعار",
     en: "Pricing",
     description_ar: "ثلاث باقات بأسعار شفافة.",
@@ -116,6 +134,7 @@ const SECTIONS: {
   },
   {
     id: "team",
+    icon: Layers,
     ar: "فريق العمل + الرسالة/الرؤية",
     en: "Team + Mission/Vision",
     description_ar: "أعضاء الفريق + رسالة الشركة + إحصائيات.",
@@ -124,6 +143,7 @@ const SECTIONS: {
   },
   {
     id: "blog",
+    icon: Layers,
     ar: "آخر المقالات",
     en: "Blog",
     description_ar: "آخر 3 مقالات منشورة من المدونة.",
@@ -132,6 +152,7 @@ const SECTIONS: {
   },
   {
     id: "faq",
+    icon: HelpCircle,
     ar: "الأسئلة الشائعة",
     en: "FAQ",
     description_ar: "قسم الأسئلة الشائعة بـ accordion.",
@@ -140,6 +161,7 @@ const SECTIONS: {
   },
   {
     id: "newsletter",
+    icon: Megaphone,
     ar: "النشرة البريدية",
     en: "Newsletter",
     description_ar: "نموذج اشتراك في النشرة الأسبوعية.",
@@ -148,11 +170,12 @@ const SECTIONS: {
   },
   {
     id: "cta",
+    icon: Megaphone,
     ar: "دعوة للعمل",
     en: "Final CTA",
     description_ar: "قسم تحفيز أخير لبدء مشروع.",
     description_en: "Final conversion strip before footer.",
-    themes: ["aurora", "nova", "sky"],
+    themes: ["classic", "aurora", "nova", "sky"],
   },
 ];
 
@@ -172,11 +195,11 @@ export function LandingForm({
   const isAr = locale === "ar";
   const [isPending, startTransition] = useTransition();
 
-  const initialParsed: LandingSettings = (() => {
+  const initialParsed: LandingSettings = useMemo(() => {
     if (!initial) return emptyState();
     const parsed = landingSettingsSchema.safeParse(initial);
     return parsed.success ? parsed.data : emptyState();
-  })();
+  }, [initial]);
 
   const [data, setData] = useState<LandingSettings>(initialParsed);
 
@@ -195,39 +218,99 @@ export function LandingForm({
     });
   }
 
-  function onReset() {
+  function onResetAll() {
     setData(initialParsed);
-    toast.info(isAr ? "أعيد التعيين للحالة المحفوظة" : "Reset to saved state");
+    toast.info(isAr ? "أعيد التعيين لآخر حالة محفوظة" : "Reset to last saved state");
   }
+
+  function resetTab(tab: "hero" | "nav" | "logos" | "faqs" | "stats" | "sections") {
+    if (tab === "hero") update("hero", emptyState().hero);
+    if (tab === "nav") update("nav", emptyState().nav);
+    if (tab === "logos") update("logos", []);
+    if (tab === "faqs") update("faqs", []);
+    if (tab === "stats") update("stats", []);
+    if (tab === "sections") update("sections", {});
+    toast.success(isAr ? "تم إعادة تعيين هذا القسم" : "Section reset to defaults");
+  }
+
+  const dirty = JSON.stringify(data) !== JSON.stringify(initialParsed);
+  const visibleCount = SECTIONS.filter(
+    (s) => s.themes.includes(themeId) && data.sections[s.id] !== false
+  ).length;
+  const themeSectionCount = SECTIONS.filter((s) => s.themes.includes(themeId)).length;
 
   return (
     <div className="space-y-6">
+      {/* Top summary strip */}
+      <div className="grid gap-3 md:grid-cols-4">
+        <SummaryChip
+          icon={Sparkles}
+          label={isAr ? "الـ Theme" : "Theme"}
+          value={themeId}
+          accent="violet"
+        />
+        <SummaryChip
+          icon={Eye}
+          label={isAr ? "أقسام مرئية" : "Visible sections"}
+          value={`${visibleCount}/${themeSectionCount}`}
+          accent="emerald"
+        />
+        <SummaryChip
+          icon={Globe}
+          label={isAr ? "روابط مخصصة" : "Custom nav items"}
+          value={String(data.nav.custom_items.length)}
+          accent="sky"
+        />
+        <SummaryChip
+          icon={HelpCircle}
+          label="FAQ + Stats"
+          value={`${data.faqs.length} · ${data.stats.length}`}
+          accent="amber"
+        />
+      </div>
+
       <Tabs defaultValue="sections">
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="sections">{isAr ? "الأقسام" : "Sections"}</TabsTrigger>
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="nav">{isAr ? "شريط التنقل" : "Nav Bar"}</TabsTrigger>
           <TabsTrigger value="logos">{isAr ? "الشعارات" : "Logos"}</TabsTrigger>
+          <TabsTrigger value="stats">{isAr ? "الإحصائيات" : "Stats"}</TabsTrigger>
           <TabsTrigger value="faqs">FAQ</TabsTrigger>
         </TabsList>
 
         {/* ─── SECTIONS ─────────────────────────────────────── */}
-        <TabsContent value="sections" className="pt-6 space-y-3">
-          <p className="text-sm text-muted-foreground">
-            {isAr
-              ? "أظهر أو أخفِ أي قسم من الصفحة الرئيسية. الأقسام غير الموجودة في Theme الحالي يُشار إليها."
-              : "Show or hide any section of the homepage. Sections not present in the active theme are flagged."}
-          </p>
+        <TabsContent value="sections" className="pt-6 space-y-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <InfoBox
+              isAr={isAr}
+              ar="رتّب وتحكم في إظهار أي قسم من الصفحة الرئيسية. السهمان يغيّران الأولوية البصرية في الـ themes التي تدعم الترتيب."
+              en="Toggle visibility and reorder homepage sections. Up/down arrows reorder where the theme supports it."
+            />
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => resetTab("sections")}
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              {isAr ? "إعادة تعيين" : "Reset"}
+            </Button>
+          </div>
+
           <div className="grid gap-2">
             {SECTIONS.map((s) => {
               const inTheme = s.themes.includes(themeId);
               const visible = data.sections[s.id] !== false;
+              const Icon = s.icon;
               return (
                 <div
                   key={s.id}
-                  className={`flex items-start gap-3 rounded-lg border p-3 ${
-                    inTheme ? "" : "opacity-60"
-                  }`}
+                  className={cn(
+                    "flex items-start gap-3 rounded-lg border p-3 transition-colors",
+                    inTheme ? "" : "opacity-50",
+                    visible && inTheme && "bg-muted/20"
+                  )}
                 >
                   <Switch
                     checked={visible}
@@ -236,6 +319,16 @@ export function LandingForm({
                     }
                     disabled={!inTheme}
                   />
+                  <span
+                    className={cn(
+                      "grid place-items-center h-9 w-9 shrink-0 rounded-lg border",
+                      inTheme
+                        ? "bg-gradient-to-br from-violet-100 to-sky-100 border-violet-200 text-violet-700"
+                        : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       {visible ? (
@@ -244,6 +337,9 @@ export function LandingForm({
                         <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
                       )}
                       <Label className="font-medium">{isAr ? s.ar : s.en}</Label>
+                      <code className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                        {s.id}
+                      </code>
                       {!inTheme && (
                         <Badge variant="outline" className="text-[10px]">
                           {isAr ? "غير موجود في هذا الـ theme" : "not in this theme"}
@@ -252,6 +348,17 @@ export function LandingForm({
                     </div>
                     <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                       {isAr ? s.description_ar : s.description_en}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/70 mt-1.5">
+                      {isAr ? "متاح في: " : "Available in: "}
+                      {s.themes.map((t, i) => (
+                        <span key={t}>
+                          {i > 0 && ", "}
+                          <span className={t === themeId ? "font-semibold text-foreground" : ""}>
+                            {t}
+                          </span>
+                        </span>
+                      ))}
                     </p>
                   </div>
                 </div>
@@ -262,20 +369,26 @@ export function LandingForm({
 
         {/* ─── HERO ─────────────────────────────────────────── */}
         <TabsContent value="hero" className="pt-6 space-y-5">
-          <InfoBox
-            isAr={isAr}
-            ar="عدّل عنوان البطل والـ CTAs. الحقول الفارغة ترجع للنص الافتراضي في الـ Theme."
-            en="Edit hero headline and CTAs. Empty fields fall back to the theme defaults."
-          />
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <InfoBox
+              isAr={isAr}
+              ar="عدّل عنوان البطل والـ CTAs. الحقول الفارغة ترجع للنص الافتراضي في الـ Theme."
+              en="Edit hero copy. Empty fields fall back to the theme defaults."
+            />
+            <Button type="button" size="sm" variant="ghost" onClick={() => resetTab("hero")}>
+              <RotateCcw className="h-3.5 w-3.5" />
+              {isAr ? "إعادة تعيين" : "Reset"}
+            </Button>
+          </div>
           <div className="grid gap-4 md:grid-cols-2">
             <Field
-              label={isAr ? "Badge (AR)" : "Badge (AR)"}
+              label="Badge (AR)"
               dir="rtl"
               value={data.hero.badge_ar ?? ""}
               onChange={(v) => update("hero", { ...data.hero, badge_ar: v })}
             />
             <Field
-              label={isAr ? "Badge (EN)" : "Badge (EN)"}
+              label="Badge (EN)"
               dir="ltr"
               value={data.hero.badge_en ?? ""}
               onChange={(v) => update("hero", { ...data.hero, badge_en: v })}
@@ -310,7 +423,6 @@ export function LandingForm({
             />
           </div>
 
-          {/* Primary CTA */}
           <fieldset className="rounded-lg border p-4 space-y-3">
             <legend className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {isAr ? "الزر الأساسي" : "Primary CTA"}
@@ -338,7 +450,6 @@ export function LandingForm({
             </div>
           </fieldset>
 
-          {/* Secondary CTA */}
           <fieldset className="rounded-lg border p-4 space-y-3">
             <legend className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {isAr ? "الزر الثانوي" : "Secondary CTA"}
@@ -373,11 +484,17 @@ export function LandingForm({
 
         {/* ─── NAV BAR ──────────────────────────────────────── */}
         <TabsContent value="nav" className="pt-6 space-y-5">
-          <InfoBox
-            isAr={isAr}
-            ar="تحكم في عناصر القائمة العلوية. يمكنك إخفاء أي رابط افتراضي وإضافة بنود مخصصة."
-            en="Control the top nav items. Hide any default link or add your own."
-          />
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <InfoBox
+              isAr={isAr}
+              ar="تحكم في عناصر القائمة العلوية. يمكنك إخفاء أي رابط افتراضي وإضافة بنود مخصصة بترتيب اختياري."
+              en="Control the top nav. Hide any default link or add reorderable custom items."
+            />
+            <Button type="button" size="sm" variant="ghost" onClick={() => resetTab("nav")}>
+              <RotateCcw className="h-3.5 w-3.5" />
+              {isAr ? "إعادة تعيين" : "Reset"}
+            </Button>
+          </div>
           <div className="space-y-2">
             <Label className="font-semibold">
               {isAr ? "الروابط الافتراضية" : "Default links"}
@@ -385,18 +502,23 @@ export function LandingForm({
             <div className="grid gap-2">
               {(
                 [
-                  { key: "show_services", ar: "الخدمات", en: "Services" },
-                  { key: "show_portfolio", ar: "أعمالنا", en: "Portfolio" },
-                  { key: "show_blog", ar: "المدونة", en: "Blog" },
-                  { key: "show_about", ar: "من نحن", en: "About" },
-                  { key: "show_contact", ar: "اتصل بنا", en: "Contact" },
+                  { key: "show_services", ar: "الخدمات", en: "Services", href: "/services" },
+                  { key: "show_portfolio", ar: "أعمالنا", en: "Portfolio", href: "/portfolio" },
+                  { key: "show_blog", ar: "المدونة", en: "Blog", href: "/blog" },
+                  { key: "show_about", ar: "من نحن", en: "About", href: "/about" },
+                  { key: "show_contact", ar: "اتصل بنا", en: "Contact", href: "/contact" },
                 ] as const
               ).map((n) => (
                 <div
                   key={n.key}
                   className="flex items-center justify-between rounded-lg border p-3"
                 >
-                  <Label className="text-sm">{isAr ? n.ar : n.en}</Label>
+                  <div className="flex items-center gap-3">
+                    <Label className="text-sm cursor-pointer">{isAr ? n.ar : n.en}</Label>
+                    <code className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                      {n.href}
+                    </code>
+                  </div>
                   <Switch
                     checked={data.nav[n.key]}
                     onCheckedChange={(v) => update("nav", { ...data.nav, [n.key]: v })}
@@ -409,7 +531,7 @@ export function LandingForm({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="font-semibold">
-                {isAr ? "بنود مخصصة" : "Custom items"}
+                {isAr ? "بنود مخصصة" : "Custom items"} ({data.nav.custom_items.length})
               </Label>
               <Button
                 type="button"
@@ -430,33 +552,29 @@ export function LandingForm({
               </Button>
             </div>
             {data.nav.custom_items.length === 0 ? (
-              <p className="text-sm text-muted-foreground border rounded-lg p-4">
-                {isAr ? "لا توجد بنود مخصصة بعد" : "No custom items yet"}
-              </p>
+              <EmptyState
+                isAr={isAr}
+                ar="لا توجد بنود مخصصة بعد"
+                en="No custom items yet"
+              />
             ) : (
-              <div className="space-y-2">
-                {data.nav.custom_items.map((item, i) => (
-                  <div key={i} className="rounded-lg border p-3 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs font-semibold text-muted-foreground">
-                        #{i + 1}
-                      </span>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="ms-auto h-7 w-7"
-                        onClick={() =>
-                          update("nav", {
-                            ...data.nav,
-                            custom_items: data.nav.custom_items.filter((_, j) => j !== i),
-                          })
-                        }
-                      >
-                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
-                    </div>
+              <ReorderList
+                count={data.nav.custom_items.length}
+                onMove={(from, to) => {
+                  const next = [...data.nav.custom_items];
+                  const [moved] = next.splice(from, 1);
+                  next.splice(to, 0, moved);
+                  update("nav", { ...data.nav, custom_items: next });
+                }}
+                onRemove={(i) =>
+                  update("nav", {
+                    ...data.nav,
+                    custom_items: data.nav.custom_items.filter((_, j) => j !== i),
+                  })
+                }
+                renderItem={(i) => {
+                  const item = data.nav.custom_items[i];
+                  return (
                     <div className="grid gap-2 md:grid-cols-3">
                       <Input
                         placeholder={isAr ? "النص (AR)" : "Label (AR)"}
@@ -489,20 +607,26 @@ export function LandingForm({
                         }}
                       />
                     </div>
-                  </div>
-                ))}
-              </div>
+                  );
+                }}
+              />
             )}
           </div>
         </TabsContent>
 
         {/* ─── LOGO CLOUD ───────────────────────────────────── */}
         <TabsContent value="logos" className="pt-6 space-y-4">
-          <InfoBox
-            isAr={isAr}
-            ar="أسماء الشركات/العلامات التي تعمل معك. إن تركت القائمة فارغة، يستخدم الـ Theme أسماء العملاء من جدول معرض الأعمال + أسماء افتراضية."
-            en="Brand names you have worked with. If empty, the theme falls back to client_name from the portfolio table + stylized fillers."
-          />
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <InfoBox
+              isAr={isAr}
+              ar="أسماء الشركات/العلامات التي تعمل معك. إن تركت القائمة فارغة، يستخدم الـ Theme أسماء العملاء من جدول معرض الأعمال."
+              en="Brand names you've worked with. If empty, the theme uses client_name from portfolio + stylized fillers."
+            />
+            <Button type="button" size="sm" variant="ghost" onClick={() => resetTab("logos")}>
+              <RotateCcw className="h-3.5 w-3.5" />
+              {isAr ? "إعادة تعيين" : "Reset"}
+            </Button>
+          </div>
           <div className="flex items-center justify-between">
             <Label className="font-semibold">
               {isAr ? "الشعارات" : "Logos"} ({data.logos.length})
@@ -518,11 +642,11 @@ export function LandingForm({
             </Button>
           </div>
           {data.logos.length === 0 ? (
-            <p className="text-sm text-muted-foreground border rounded-lg p-4">
-              {isAr
-                ? "لا توجد شعارات مضافة — سيستخدم الـ theme أسماء افتراضية."
-                : "No logos added — theme will use defaults."}
-            </p>
+            <EmptyState
+              isAr={isAr}
+              ar="لا توجد شعارات مضافة — سيستخدم الـ theme الافتراضي."
+              en="No logos — theme will use defaults."
+            />
           ) : (
             <div className="grid gap-2 md:grid-cols-2">
               {data.logos.map((logo, i) => (
@@ -555,13 +679,107 @@ export function LandingForm({
           )}
         </TabsContent>
 
+        {/* ─── STATS ────────────────────────────────────────── */}
+        <TabsContent value="stats" className="pt-6 space-y-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <InfoBox
+              isAr={isAr}
+              ar="الأرقام الكبيرة التي تظهر في شريط الإحصائيات. أمثلة: 100+ مشروع، 98% رضا، 7 سنوات."
+              en="Big numbers shown in the stats strip. Examples: 100+ projects, 98% satisfaction, 7 years."
+            />
+            <Button type="button" size="sm" variant="ghost" onClick={() => resetTab("stats")}>
+              <RotateCcw className="h-3.5 w-3.5" />
+              {isAr ? "إعادة تعيين" : "Reset"}
+            </Button>
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="font-semibold">
+              {isAr ? "الإحصائيات" : "Stats"} ({data.stats.length})
+            </Label>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                update("stats", [
+                  ...data.stats,
+                  { value: "", label_ar: "", label_en: "" } as LandingStatItem,
+                ])
+              }
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {isAr ? "إضافة" : "Add"}
+            </Button>
+          </div>
+          {data.stats.length === 0 ? (
+            <EmptyState
+              isAr={isAr}
+              ar="لا توجد إحصائيات مضافة — سيستخدم الـ theme الإحصائيات من إعدادات «من نحن» أو القيم الافتراضية."
+              en="No stats — theme uses About Settings stats or defaults."
+            />
+          ) : (
+            <ReorderList
+              count={data.stats.length}
+              onMove={(from, to) => {
+                const next = [...data.stats];
+                const [moved] = next.splice(from, 1);
+                next.splice(to, 0, moved);
+                update("stats", next);
+              }}
+              onRemove={(i) => update("stats", data.stats.filter((_, j) => j !== i))}
+              renderItem={(i) => {
+                const s = data.stats[i];
+                return (
+                  <div className="grid gap-2 md:grid-cols-3">
+                    <Input
+                      placeholder="100+"
+                      value={s.value}
+                      onChange={(e) => {
+                        const next = [...data.stats];
+                        next[i] = { ...s, value: e.target.value };
+                        update("stats", next);
+                      }}
+                    />
+                    <Input
+                      placeholder={isAr ? "التسمية (AR)" : "Label (AR)"}
+                      dir="rtl"
+                      value={s.label_ar}
+                      onChange={(e) => {
+                        const next = [...data.stats];
+                        next[i] = { ...s, label_ar: e.target.value };
+                        update("stats", next);
+                      }}
+                    />
+                    <Input
+                      placeholder={isAr ? "التسمية (EN)" : "Label (EN)"}
+                      dir="ltr"
+                      value={s.label_en}
+                      onChange={(e) => {
+                        const next = [...data.stats];
+                        next[i] = { ...s, label_en: e.target.value };
+                        update("stats", next);
+                      }}
+                    />
+                  </div>
+                );
+              }}
+            />
+          )}
+        </TabsContent>
+
         {/* ─── FAQ ─────────────────────────────────────────── */}
         <TabsContent value="faqs" className="pt-6 space-y-4">
-          <InfoBox
-            isAr={isAr}
-            ar="الأسئلة الشائعة في الصفحة الرئيسية. إن تركت فارغة، يستخدم الـ theme قائمة افتراضية."
-            en="FAQs shown on the homepage. If empty, the theme uses its built-in default list."
-          />
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <InfoBox
+              isAr={isAr}
+              ar="الأسئلة الشائعة في الصفحة الرئيسية. ترتيبها قابل للتعديل، إن تركت فارغة يستخدم الـ theme القائمة الافتراضية."
+              en="FAQs on the homepage. Reorderable. If empty, theme uses defaults."
+            />
+            <Button type="button" size="sm" variant="ghost" onClick={() => resetTab("faqs")}>
+              <RotateCcw className="h-3.5 w-3.5" />
+              {isAr ? "إعادة تعيين" : "Reset"}
+            </Button>
+          </div>
           <div className="flex items-center justify-between">
             <Label className="font-semibold">FAQ ({data.faqs.length})</Label>
             <Button
@@ -580,83 +798,81 @@ export function LandingForm({
             </Button>
           </div>
           {data.faqs.length === 0 ? (
-            <p className="text-sm text-muted-foreground border rounded-lg p-4">
-              {isAr ? "لا توجد أسئلة بعد — سيستخدم الـ theme القائمة الافتراضية." : "No FAQs yet — theme will use defaults."}
-            </p>
+            <EmptyState
+              isAr={isAr}
+              ar="لا توجد أسئلة بعد — سيستخدم الـ theme القائمة الافتراضية."
+              en="No FAQs — theme uses its built-in list."
+            />
           ) : (
-            <div className="space-y-3">
-              {data.faqs.map((f, i) => (
-                <div key={i} className="rounded-lg border p-3 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-muted-foreground">
-                      Q #{i + 1}
-                    </span>
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      className="h-7 w-7"
-                      onClick={() =>
-                        update("faqs", data.faqs.filter((_, j) => j !== i))
-                      }
-                    >
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                    </Button>
-                  </div>
-                  <div className="grid gap-2 md:grid-cols-2">
-                    <Input
-                      placeholder={isAr ? "السؤال (AR)" : "Question (AR)"}
-                      dir="rtl"
-                      value={f.q_ar}
-                      onChange={(e) => {
-                        const next = [...data.faqs];
-                        next[i] = { ...f, q_ar: e.target.value };
-                        update("faqs", next);
-                      }}
-                    />
-                    <Input
-                      placeholder={isAr ? "السؤال (EN)" : "Question (EN)"}
-                      dir="ltr"
-                      value={f.q_en}
-                      onChange={(e) => {
-                        const next = [...data.faqs];
-                        next[i] = { ...f, q_en: e.target.value };
-                        update("faqs", next);
-                      }}
-                    />
-                  </div>
-                  <div className="grid gap-2 md:grid-cols-2">
-                    <Textarea
-                      placeholder={isAr ? "الإجابة (AR)" : "Answer (AR)"}
-                      dir="rtl"
-                      rows={3}
-                      value={f.a_ar}
-                      onChange={(e) => {
-                        const next = [...data.faqs];
-                        next[i] = { ...f, a_ar: e.target.value };
-                        update("faqs", next);
-                      }}
-                    />
-                    <Textarea
-                      placeholder={isAr ? "الإجابة (EN)" : "Answer (EN)"}
-                      dir="ltr"
-                      rows={3}
-                      value={f.a_en}
-                      onChange={(e) => {
-                        const next = [...data.faqs];
-                        next[i] = { ...f, a_en: e.target.value };
-                        update("faqs", next);
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ReorderList
+              count={data.faqs.length}
+              onMove={(from, to) => {
+                const next = [...data.faqs];
+                const [moved] = next.splice(from, 1);
+                next.splice(to, 0, moved);
+                update("faqs", next);
+              }}
+              onRemove={(i) => update("faqs", data.faqs.filter((_, j) => j !== i))}
+              renderItem={(i) => {
+                const f = data.faqs[i];
+                return (
+                  <>
+                    <div className="grid gap-2 md:grid-cols-2">
+                      <Input
+                        placeholder={isAr ? "السؤال (AR)" : "Question (AR)"}
+                        dir="rtl"
+                        value={f.q_ar}
+                        onChange={(e) => {
+                          const next = [...data.faqs];
+                          next[i] = { ...f, q_ar: e.target.value };
+                          update("faqs", next);
+                        }}
+                      />
+                      <Input
+                        placeholder={isAr ? "السؤال (EN)" : "Question (EN)"}
+                        dir="ltr"
+                        value={f.q_en}
+                        onChange={(e) => {
+                          const next = [...data.faqs];
+                          next[i] = { ...f, q_en: e.target.value };
+                          update("faqs", next);
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-2 md:grid-cols-2 mt-2">
+                      <Textarea
+                        placeholder={isAr ? "الإجابة (AR)" : "Answer (AR)"}
+                        dir="rtl"
+                        rows={3}
+                        value={f.a_ar}
+                        onChange={(e) => {
+                          const next = [...data.faqs];
+                          next[i] = { ...f, a_ar: e.target.value };
+                          update("faqs", next);
+                        }}
+                      />
+                      <Textarea
+                        placeholder={isAr ? "الإجابة (EN)" : "Answer (EN)"}
+                        dir="ltr"
+                        rows={3}
+                        value={f.a_en}
+                        onChange={(e) => {
+                          const next = [...data.faqs];
+                          next[i] = { ...f, a_en: e.target.value };
+                          update("faqs", next);
+                        }}
+                      />
+                    </div>
+                  </>
+                );
+              }}
+            />
           )}
         </TabsContent>
       </Tabs>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t">
+      {/* Action bar */}
+      <div className="sticky bottom-0 -mx-6 -mb-6 mt-6 px-6 py-3 border-t bg-card/95 backdrop-blur z-10 flex flex-wrap items-center justify-between gap-3">
         <a
           href="/"
           target="_blank"
@@ -664,14 +880,19 @@ export function LandingForm({
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
           <ExternalLink className="h-3.5 w-3.5" />
-          {isAr ? "افتح الموقع العام" : "Open public site"}
+          {isAr ? "عاين الموقع العام" : "Preview public site"}
         </a>
         <div className="flex items-center gap-2">
-          <Button type="button" variant="ghost" onClick={onReset} disabled={isPending}>
+          {dirty && (
+            <Badge variant="secondary" className="text-[10px]">
+              {isAr ? "تغييرات غير محفوظة" : "unsaved changes"}
+            </Badge>
+          )}
+          <Button type="button" variant="ghost" onClick={onResetAll} disabled={isPending || !dirty}>
             <RotateCcw className="h-3.5 w-3.5" />
-            {isAr ? "تراجع" : "Reset"}
+            {isAr ? "تراجع عن الكل" : "Reset all"}
           </Button>
-          <Button type="button" onClick={onSave} disabled={isPending}>
+          <Button type="button" onClick={onSave} disabled={isPending || !dirty}>
             <Save className="h-4 w-4" />
             {isPending ? (isAr ? "جارٍ الحفظ..." : "Saving...") : isAr ? "حفظ التغييرات" : "Save changes"}
           </Button>
@@ -681,7 +902,104 @@ export function LandingForm({
   );
 }
 
-// ─── Small helpers ───────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function SummaryChip({
+  icon: Icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  accent: "violet" | "emerald" | "sky" | "amber";
+}) {
+  const accentClasses: Record<typeof accent, string> = {
+    violet: "from-violet-100 to-violet-200 text-violet-700 border-violet-200",
+    emerald: "from-emerald-100 to-emerald-200 text-emerald-700 border-emerald-200",
+    sky: "from-sky-100 to-sky-200 text-sky-700 border-sky-200",
+    amber: "from-amber-100 to-amber-200 text-amber-700 border-amber-200",
+  };
+  return (
+    <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
+      <span
+        className={cn(
+          "grid place-items-center h-9 w-9 rounded-lg bg-gradient-to-br border",
+          accentClasses[accent]
+        )}
+      >
+        <Icon className="h-4 w-4" />
+      </span>
+      <div className="min-w-0">
+        <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
+        <p className="text-base font-semibold capitalize truncate">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function ReorderList({
+  count,
+  onMove,
+  onRemove,
+  renderItem,
+}: {
+  count: number;
+  onMove: (from: number, to: number) => void;
+  onRemove: (i: number) => void;
+  renderItem: (i: number) => React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="rounded-lg border p-3 space-y-2">
+          <div className="flex items-center gap-1">
+            <GripVertical className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-semibold text-muted-foreground">#{i + 1}</span>
+            <div className="ms-auto flex items-center gap-0.5">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                disabled={i === 0}
+                onClick={() => onMove(i, i - 1)}
+                aria-label="Move up"
+              >
+                <ArrowUp className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                disabled={i === count - 1}
+                onClick={() => onMove(i, i + 1)}
+                aria-label="Move down"
+              >
+                <ArrowDown className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                onClick={() => onRemove(i)}
+                aria-label="Remove"
+              >
+                <Trash2 className="h-3.5 w-3.5 text-destructive" />
+              </Button>
+            </div>
+          </div>
+          {renderItem(i)}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function Field({
   label,
@@ -730,11 +1048,17 @@ function TextareaField({
 
 function InfoBox({ isAr, ar, en }: { isAr: boolean; ar: string; en: string }) {
   return (
-    <div className="flex items-start gap-2.5 rounded-lg bg-muted/30 border p-3">
+    <div className="flex items-start gap-2.5 rounded-lg bg-muted/30 border p-3 flex-1 min-w-0">
       <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-      <p className="text-xs text-muted-foreground leading-relaxed">
-        {isAr ? ar : en}
-      </p>
+      <p className="text-xs text-muted-foreground leading-relaxed">{isAr ? ar : en}</p>
     </div>
+  );
+}
+
+function EmptyState({ isAr, ar, en }: { isAr: boolean; ar: string; en: string }) {
+  return (
+    <p className="text-sm text-muted-foreground border rounded-lg p-4 text-center">
+      {isAr ? ar : en}
+    </p>
   );
 }

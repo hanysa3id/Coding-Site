@@ -19,14 +19,16 @@ const DEFAULT_NAMES = [
 
 export function AuroraLogoCloud({
   locale,
-  names = DEFAULT_NAMES,
+  names,
 }: {
   locale: string;
+  /** Admin-curated names override the defaults when non-empty. */
   names?: string[];
 }) {
   const isAr = locale === "ar";
+  const resolved = names && names.length > 0 ? names : DEFAULT_NAMES;
   // Duplicate the list so the marquee loops seamlessly.
-  const doubled = [...names, ...names];
+  const doubled = [...resolved, ...resolved];
 
   return (
     <Section size="sm" bordered band>

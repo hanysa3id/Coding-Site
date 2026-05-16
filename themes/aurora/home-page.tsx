@@ -104,11 +104,15 @@ export async function HomePage({
         />
       )}
 
-      {show("logo_cloud") && <AuroraLogoCloud locale={locale} />}
+      {show("logo_cloud") && (
+        <AuroraLogoCloud locale={locale} names={landing?.logos ?? []} />
+      )}
 
       {show("features") && <AuroraBentoFeatures locale={locale} />}
 
-      {show("stats") && <AuroraStatsBand locale={locale} />}
+      {show("stats") && (
+        <AuroraStatsBand locale={locale} customStats={landing?.stats ?? []} />
+      )}
 
       {show("services") && <AuroraServicesGrid locale={locale} services={services} />}
 
@@ -122,7 +126,7 @@ export async function HomePage({
 
       {show("blog") && <AuroraBlogHighlight locale={locale} posts={posts} />}
 
-      {show("faq") && <AuroraFaq locale={locale} />}
+      {show("faq") && <AuroraFaq locale={locale} faqs={landing?.faqs ?? []} />}
 
       {show("newsletter") && <AuroraNewsletter locale={locale} />}
 

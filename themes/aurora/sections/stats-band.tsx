@@ -1,15 +1,28 @@
 import { Eyebrow } from "../ui/eyebrow";
 import { Section } from "../ui/section";
+import type { LandingStatItem } from "@/lib/validators/settings";
 
 // A horizontal band of large statistics — visually striking, low text density.
-export function AuroraStatsBand({ locale }: { locale: string }) {
+// Accepts admin-curated stats; falls back to a sensible default set.
+export function AuroraStatsBand({
+  locale,
+  customStats = [],
+}: {
+  locale: string;
+  customStats?: LandingStatItem[];
+}) {
   const isAr = locale === "ar";
-  const stats = [
-    { value: "100+", label: isAr ? "مشروع منجز" : "Projects shipped" },
-    { value: "7", label: isAr ? "سنوات خبرة" : "Years of experience" },
-    { value: "98%", label: isAr ? "رضا العملاء" : "Customer satisfaction" },
-    { value: "24/7", label: isAr ? "دعم متواصل" : "Always-on support" },
+  const defaults = [
+    { value: "100+", label_ar: "مشروع منجز", label_en: "Projects shipped" },
+    { value: "7", label_ar: "سنوات خبرة", label_en: "Years of experience" },
+    { value: "98%", label_ar: "رضا العملاء", label_en: "Customer satisfaction" },
+    { value: "24/7", label_ar: "دعم متواصل", label_en: "Always-on support" },
   ];
+  const source = customStats.length > 0 ? customStats : defaults;
+  const stats = source.slice(0, 4).map((s) => ({
+    value: s.value,
+    label: isAr ? s.label_ar : s.label_en,
+  }));
 
   return (
     <Section size="sm" bordered band>

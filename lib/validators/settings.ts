@@ -45,6 +45,13 @@ export const landingFaqSchema = z.object({
 });
 export type LandingFaqItem = z.infer<typeof landingFaqSchema>;
 
+export const landingStatSchema = z.object({
+  value: z.string().min(1),       // e.g. "100+", "98%", "7"
+  label_ar: z.string().min(1),
+  label_en: z.string().min(1),
+});
+export type LandingStatItem = z.infer<typeof landingStatSchema>;
+
 export const landingSettingsSchema = z.object({
   // Section visibility — keyed by canonical id. Missing key = visible.
   sections: z.record(z.string(), z.boolean()).default({}),
@@ -85,6 +92,10 @@ export const landingSettingsSchema = z.object({
 
   // FAQ entries. Empty = theme uses built-in defaults.
   faqs: z.array(landingFaqSchema).default([]),
+
+  // Stats — the big numbers shown in the stats strip. Empty = theme uses
+  // either AboutSettings.stats (Sky) or its own defaults.
+  stats: z.array(landingStatSchema).default([]),
 });
 export type LandingSettings = z.infer<typeof landingSettingsSchema>;
 

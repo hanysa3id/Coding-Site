@@ -2,6 +2,7 @@ import Image from "next/image";
 import { SkySection, SkySectionHeading } from "../ui/section";
 import { Target, Eye, Users } from "lucide-react";
 import type { TeamMember, AboutSettings } from "@/types/database";
+import type { LandingStatItem } from "@/lib/validators/settings";
 
 const FALLBACK_STATS = [
   { value: "100+", label_ar: "مشروع منجز", label_en: "Projects shipped" },
@@ -19,13 +20,23 @@ export function TeamStats({
   locale,
   team,
   about,
+  customStats = [],
 }: {
   locale: string;
   team: TeamMember[];
   about: AboutSettings | null;
+  /** Admin-curated stats override AboutSettings.stats which overrides fallback. */
+  customStats?: LandingStatItem[];
 }) {
   const isAr = locale === "ar";
-  const stats = (about?.stats?.length ? about.stats : FALLBACK_STATS).slice(0, 4);
+  // Priority: admin landing settings > AboutSettings > default
+  const statSource =
+    customStats.length > 0
+      ? customStats
+      : about?.stats?.length
+      ? about.stats
+      : FALLBACK_STATS;
+  const stats = statSource.slice(0, 4);
   const missionAr = about?.mission_ar || FALLBACK_MISSION_AR;
   const missionEn = about?.mission_en || FALLBACK_MISSION_EN;
   const visionAr = about?.vision_ar || FALLBACK_VISION_AR;
