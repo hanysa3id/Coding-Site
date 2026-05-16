@@ -30,7 +30,21 @@ export type PaymentMethod =
 
 export type PaymentStatus = "pending" | "paid" | "refunded" | "failed";
 
-export type PostStatus = "draft" | "published";
+export type PostStatus = "draft" | "scheduled" | "published";
+
+export type BlogMediaItem = {
+  type: "image" | "video";
+  url: string;
+  caption_ar?: string;
+  caption_en?: string;
+};
+
+export type BlogFaq = {
+  question_ar: string;
+  question_en: string;
+  answer_ar: string;
+  answer_en: string;
+};
 
 // ============================================================================
 // Row types (the shape returned by SELECT)
@@ -352,7 +366,15 @@ export type BlogPost = {
   seo_title_en: string | null;
   seo_description_ar: string | null;
   seo_description_en: string | null;
+  seo_keywords_ar: string | null;
+  seo_keywords_en: string | null;
+  scheduled_at: string | null;
   published_at: string | null;
+  is_featured: boolean;
+  reading_time_minutes: number | null;
+  tags: string[];
+  media: BlogMediaItem[];
+  faqs: BlogFaq[];
   created_at: string;
   updated_at: string;
 };
@@ -360,8 +382,13 @@ export type BlogPost = {
 export type BlogCategory = {
   id: string;
   slug: string;
+  parent_id: string | null;
   name_ar: string;
   name_en: string;
+  description_ar: string | null;
+  description_en: string | null;
+  image_url: string | null;
+  is_visible: boolean;
   sort_order: number;
   created_at: string;
 };

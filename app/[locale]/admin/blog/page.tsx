@@ -86,12 +86,23 @@ export default async function AdminBlogPage({
                         <Badge variant={p.status === "published" ? "success" : "secondary"}>
                           {p.status === "published"
                             ? isAr ? "منشور" : "Published"
+                            : p.status === "scheduled"
+                            ? isAr ? "⏰ مجدول" : "⏰ Scheduled"
                             : isAr ? "مسودة" : "Draft"}
                         </Badge>
+                        {p.is_featured && (
+                          <Badge variant="outline" className="border-amber-500 text-amber-600">
+                            ★ {isAr ? "مميز" : "Featured"}
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         <code className="text-xs">{p.slug}</code>
-                        {p.published_at && (
+                        {p.status === "scheduled" && p.scheduled_at && (
+                          <> · {isAr ? "ينشر " : "publishes "}
+                            {formatDate(p.scheduled_at, isAr ? "ar-EG" : "en-US")}</>
+                        )}
+                        {p.published_at && p.status === "published" && (
                           <> · {formatDate(p.published_at, isAr ? "ar-EG" : "en-US")}</>
                         )}
                       </p>

@@ -58,6 +58,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/admin/services", labelAr: "الخدمات", labelEn: "Services", icon: Briefcase, roles: ["admin"] },
       { href: "/admin/portfolio", labelAr: "معرض الأعمال", labelEn: "Portfolio", icon: ImageIcon, roles: ["admin"] },
       { href: "/admin/blog", labelAr: "المدونة", labelEn: "Blog", icon: FileText, roles: ["admin"] },
+      { href: "/admin/blog/categories", labelAr: "أقسام المدونة", labelEn: "Blog Categories", icon: FolderTree, roles: ["admin"] },
       { href: "/admin/pages", labelAr: "الصفحات", labelEn: "Pages", icon: FileEdit, roles: ["admin"] },
     ],
   },
