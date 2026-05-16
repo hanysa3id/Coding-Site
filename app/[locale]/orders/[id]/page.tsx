@@ -16,7 +16,11 @@ import { MessageThread } from "@/components/orders/message-thread";
 import { MilestonesList } from "@/components/orders/milestones-list";
 import { DeliverablesList } from "@/components/orders/deliverables-list";
 import { CustomerAttachmentsDisplay } from "@/components/orders/customer-attachments-display";
+import { PaymentStatusCard } from "@/components/orders/payment-status-card";
+import { PaymentHistoryList } from "@/components/orders/payment-history-list";
+import { summarizePayments } from "@/lib/orders/payment-summary";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
+import type { Payment } from "@/types/database";
 import { getWhatsappNumber } from "@/lib/settings/get";
 import { Link } from "@/i18n/routing";
 import { CheckCircle, XCircle, CreditCard, Star, MessageSquare } from "lucide-react";
@@ -80,8 +84,8 @@ export default async function CustomerOrderDetailPage({
         />
       </header>
 
-      {/* Order summary */}
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* Order summary cards */}
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">
@@ -116,24 +120,22 @@ export default async function CustomerOrderDetailPage({
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">
-              {isAr ? "حالة الدفع" : "Payment status"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">
-              {payments.some((p) => p.status === "paid")
-                ? isAr ? "مدفوع" : "Paid"
-                : isAr ? "غير مدفوع" : "Unpaid"}
-            </p>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Actions */}
-      {(canApprove || canPay || canCancel || canReview) && (
+      {/* Payment status (rich card) */}
+      <PaymentStatusCard
+        summary={summarizePayments(order, (payments as Payment[]) ?? [])}
+        currency={order.currency}
+        locale={locale}
+        orderId={order.id}
+        orderStatus={order.status}
+      />
+
+      {/* Payment history */}
+      <PaymentHistoryList payments={(payments as Payment[]) ?? []} locale={locale} />
+
+      {/* Actions — payment button lives in PaymentStatusCard above */}
+      {(canApprove || canCancel || canReview) && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{isAr ? "الإجراءات المتاحة" : "Available actions"}</CardTitle>
@@ -144,14 +146,6 @@ export default async function CustomerOrderDetailPage({
                 <CheckCircle className="h-4 w-4" />
                 {isAr ? "تأكيد التعاقد" : "Confirm contract"}
               </OrderActionsClient>
-            )}
-            {canPay && (
-              <Button asChild>
-                <Link href={`/orders/${order.id}/pay`}>
-                  <CreditCard className="h-4 w-4" />
-                  {isAr ? "ادفع الآن" : "Pay now"}
-                </Link>
-              </Button>
             )}
             {canReview && (
               <Button asChild variant="outline">

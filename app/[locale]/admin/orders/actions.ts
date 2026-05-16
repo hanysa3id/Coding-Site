@@ -14,7 +14,11 @@ import {
 import { canTransitionTo, ORDER_STATUS_LABELS } from "@/lib/orders/status";
 import { revalidatePath } from "next/cache";
 import { createNotification } from "@/lib/notifications/create";
-import { sendEmail, orderStatusChangedEmail } from "@/lib/email/resend";
+import {
+  sendEmail,
+  orderStatusChangedEmail,
+  deliverableUploadedEmail,
+} from "@/lib/email/resend";
 import { getLocale } from "next-intl/server";
 
 type Result = { success: true } | { success: false; error: string };
@@ -217,6 +221,31 @@ export async function sendStaffMessageAction(formData: FormData): Promise<Result
   });
   if (error) return { success: false, error: error.message };
 
+  // Notify the customer of the new message
+  const { data: orderInfo } = await supabase
+    .from("orders")
+    .select("customer_id, order_number")
+    .eq("id", order_id)
+    .single();
+  if (orderInfo) {
+    const locale = (await getLocale()) as "ar" | "en";
+    const isAr = locale === "ar";
+    const preview = attachmentMeta.kind === "audio"
+      ? (isAr ? "🎙️ ملاحظة صوتية جديدة" : "🎙️ New voice note")
+      : content
+        ? content.slice(0, 80)
+        : (isAr ? "رسالة جديدة" : "New message");
+    createNotification({
+      user_id: orderInfo.customer_id,
+      title: isAr
+        ? `💬 رسالة جديدة على ${orderInfo.order_number}`
+        : `💬 New message on ${orderInfo.order_number}`,
+      body: preview,
+      type: "new_message",
+      link: `/orders/${order_id}`,
+    }).catch(() => {});
+  }
+
   revalidatePath(`/admin/orders/${order_id}`);
   revalidatePath(`/orders/${order_id}`);
   return { success: true };
@@ -240,15 +269,47 @@ export async function upsertMilestoneAction(input: MilestoneInput): Promise<Resu
   };
   if (parsed.data.status === "done") payload.completed_at = new Date().toISOString();
 
+  let wasNewlyCompleted = false;
   if (parsed.data.id) {
+    // Detect "in_progress|pending → done" transition for notification
+    const { data: prev } = await supabase
+      .from("order_milestones")
+      .select("status")
+      .eq("id", parsed.data.id)
+      .single();
+    wasNewlyCompleted = parsed.data.status === "done" && prev?.status !== "done";
     const { error } = await supabase
       .from("order_milestones")
       .update(payload)
       .eq("id", parsed.data.id);
     if (error) return { success: false, error: error.message };
   } else {
+    wasNewlyCompleted = parsed.data.status === "done";
     const { error } = await supabase.from("order_milestones").insert(payload);
     if (error) return { success: false, error: error.message };
+  }
+
+  // Customer notification when a milestone is marked complete
+  if (wasNewlyCompleted) {
+    const { data: orderInfo } = await supabase
+      .from("orders")
+      .select("customer_id, order_number")
+      .eq("id", parsed.data.order_id)
+      .single();
+    if (orderInfo) {
+      const locale = (await getLocale()) as "ar" | "en";
+      const isAr = locale === "ar";
+      const title = isAr ? parsed.data.title_ar : parsed.data.title_en ?? parsed.data.title_ar;
+      createNotification({
+        user_id: orderInfo.customer_id,
+        title: isAr
+          ? `✅ مرحلة اكتملت — ${orderInfo.order_number}`
+          : `✅ Milestone completed — ${orderInfo.order_number}`,
+        body: title,
+        type: "milestone_done",
+        link: `/orders/${parsed.data.order_id}`,
+      }).catch(() => {});
+    }
   }
 
   revalidatePath(`/admin/orders/${parsed.data.order_id}`);
@@ -292,6 +353,44 @@ export async function uploadDeliverableAction(formData: FormData) {
     uploaded_by: profile.id,
   });
   if (error) return { success: false as const, error: error.message };
+
+  // Notify the customer (in-app + email) that a new deliverable is available
+  const { data: orderInfo } = await supabase
+    .from("orders")
+    .select(
+      "order_number, customer_id, customer:profiles!orders_customer_id_fkey(email, full_name, locale)"
+    )
+    .eq("id", orderId)
+    .single();
+  if (orderInfo) {
+    const cust = (orderInfo as unknown as {
+      customer: { email: string | null; full_name: string | null; locale: string | null } | null;
+    }).customer;
+    const locale = (cust?.locale === "en" ? "en" : "ar") as "ar" | "en";
+    const isAr = locale === "ar";
+
+    createNotification({
+      user_id: orderInfo.customer_id as string,
+      title: isAr
+        ? `📎 ملف جديد على ${orderInfo.order_number}`
+        : `📎 New file on ${orderInfo.order_number}`,
+      body: file.name,
+      type: "deliverable_uploaded",
+      link: `/orders/${orderId}`,
+    }).catch(() => {});
+
+    if (cust?.email) {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+      const tmpl = deliverableUploadedEmail({
+        customerName: cust.full_name ?? cust.email,
+        orderNumber: orderInfo.order_number as string,
+        fileName: file.name,
+        locale,
+        orderUrl: `${siteUrl}/${locale}/orders/${orderId}`,
+      });
+      sendEmail({ ...tmpl, to: cust.email }).catch(() => {});
+    }
+  }
 
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath(`/orders/${orderId}`);

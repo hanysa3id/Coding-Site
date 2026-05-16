@@ -14,7 +14,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { MessageThread } from "@/components/orders/message-thread";
 import { CustomerAttachmentsDisplay } from "@/components/orders/customer-attachments-display";
+import { PaymentStatusCard } from "@/components/orders/payment-status-card";
+import { PaymentHistoryList } from "@/components/orders/payment-history-list";
+import { summarizePayments } from "@/lib/orders/payment-summary";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
+import type { Payment } from "@/types/database";
 import { formatCurrency, formatDate, formatDateTime } from "@/lib/utils";
 import { sendStaffMessageAction } from "../actions";
 import { NegotiationPanel } from "./_components/negotiation-panel";
@@ -271,33 +275,20 @@ export default async function AdminOrderDetailPage({
               )}
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                {isAr ? "المدفوعات" : "Payments"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {payments.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {isAr ? "لا توجد مدفوعات" : "No payments"}
-                </p>
-              ) : (
-                <ul className="space-y-2 text-sm">
-                  {payments.map((p) => (
-                    <li key={p.id} className="flex justify-between gap-2">
-                      <span>
-                        {formatCurrency(p.amount, p.currency, isAr ? "ar-EG" : "en-US")} · {p.method}
-                      </span>
-                      <span className="text-muted-foreground">
-                        {p.status} · {formatDateTime(p.created_at, isAr ? "ar-EG" : "en-US")}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
+          {/* Payment status + history */}
+          <PaymentStatusCard
+            summary={summarizePayments(order, (payments as Payment[]) ?? [])}
+            currency={order.currency}
+            locale={locale}
+            orderId={order.id}
+            orderStatus={order.status}
+            showPayButton={false}
+          />
+          <PaymentHistoryList
+            payments={(payments as Payment[]) ?? []}
+            locale={locale}
+            showAdminDetails
+          />
           <Card>
             <CardHeader>
               <CardTitle className="text-base">{isAr ? "التواريخ" : "Timeline"}</CardTitle>

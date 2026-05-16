@@ -268,7 +268,38 @@ export async function sendCustomerMessageAction(
   });
 
   if (error) return { success: false, error: error.message };
+
+  // Notify staff that the customer sent a new message
+  const { data: orderInfo } = await supabase
+    .from("orders")
+    .select("order_number")
+    .eq("id", order_id)
+    .single();
+  if (orderInfo) {
+    const locale = (await getLocale()) as "ar" | "en";
+    const isAr = locale === "ar";
+    const preview =
+      attachmentMeta.kind === "audio"
+        ? isAr
+          ? "🎙️ ملاحظة صوتية جديدة"
+          : "🎙️ New voice note"
+        : content
+          ? content.slice(0, 80)
+          : isAr
+            ? "رسالة جديدة"
+            : "New message";
+    notifyAdmins({
+      title: isAr
+        ? `💬 رسالة من العميل — ${orderInfo.order_number}`
+        : `💬 Customer message — ${orderInfo.order_number}`,
+      body: preview,
+      type: "new_message",
+      link: `/admin/orders/${order_id}`,
+    }).catch(() => {});
+  }
+
   revalidatePath(`/orders/${order_id}`);
+  revalidatePath(`/admin/orders/${order_id}`);
   return { success: true };
 }
 
