@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { GlassCard } from "../ui/glass-card";
 import { SectionHeading } from "../ui/section-heading";
+import { Section } from "../ui/section";
+import { H3, H4 } from "../ui/typography";
 
 // Bento grid (6 cells, asymmetric). Inspired by three.tools / n8n.io.
 // Each cell mixes icon + headline + body, with one large feature cell
@@ -17,7 +19,7 @@ export function AuroraBentoFeatures({ locale }: { locale: string }) {
   const isAr = locale === "ar";
 
   return (
-    <section className="container py-24 md:py-32 relative">
+    <Section>
       <SectionHeading
         kicker={isAr ? "لماذا تختارنا" : "Why work with us"}
         title={isAr ? "كل ما تحتاجه لإطلاق منتجك" : "Everything you need to ship a product"}
@@ -35,9 +37,7 @@ export function AuroraBentoFeatures({ locale }: { locale: string }) {
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500/30 to-cyan-500/30 border border-white/10">
               <Sparkles className="h-5 w-5 text-white" />
             </span>
-            <h3 className="text-xl md:text-2xl font-semibold text-white">
-              {isAr ? "تسليم متكامل من البداية للنهاية" : "End-to-end delivery"}
-            </h3>
+            <H3>{isAr ? "تسليم متكامل من البداية للنهاية" : "End-to-end delivery"}</H3>
             <p className="text-sm text-white/55 leading-relaxed">
               {isAr
                 ? "نأخذ مشروعك من فكرة على ورق إلى منتج منشور — بحث، تصميم، تطوير، اختبار، نشر، ومتابعة بعد الإطلاق."
@@ -71,9 +71,7 @@ export function AuroraBentoFeatures({ locale }: { locale: string }) {
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.06] border border-white/10">
             <Globe className="h-4 w-4 text-white" />
           </span>
-          <h3 className="text-base font-semibold text-white">
-            {isAr ? "عربي وإنجليزي بشكل أصلي" : "Native AR and EN"}
-          </h3>
+          <H4>{isAr ? "عربي وإنجليزي بشكل أصلي" : "Native AR and EN"}</H4>
           <p className="text-sm text-white/55">
             {isAr ? "RTL مدروس بعناية في كل تفصيلة" : "RTL handled at every layer, not bolted on"}
           </p>
@@ -89,9 +87,7 @@ export function AuroraBentoFeatures({ locale }: { locale: string }) {
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.06] border border-white/10">
             <Zap className="h-4 w-4 text-white" />
           </span>
-          <h3 className="text-base font-semibold text-white">
-            {isAr ? "أداء فائق" : "Performance-first"}
-          </h3>
+          <H4>{isAr ? "أداء فائق" : "Performance-first"}</H4>
           <div className="flex items-baseline gap-1">
             <span className="aurora-mono text-3xl font-bold aurora-grad-text">95+</span>
             <span className="text-xs text-white/40">Lighthouse</span>
@@ -103,9 +99,7 @@ export function AuroraBentoFeatures({ locale }: { locale: string }) {
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.06] border border-white/10">
             <Layers className="h-4 w-4 text-white" />
           </span>
-          <h3 className="text-base font-semibold text-white">
-            {isAr ? "مصمم للنمو" : "Built to scale"}
-          </h3>
+          <H4>{isAr ? "مصمم للنمو" : "Built to scale"}</H4>
           <p className="text-sm text-white/55">
             {isAr ? "من 10 إلى 10,000 مستخدم بدون إعادة كتابة" : "From 10 to 10K users without a rewrite"}
           </p>
@@ -116,9 +110,7 @@ export function AuroraBentoFeatures({ locale }: { locale: string }) {
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.06] border border-white/10">
             <ShieldCheck className="h-4 w-4 text-white" />
           </span>
-          <h3 className="text-sm font-semibold text-white">
-            {isAr ? "أمان من اليوم الأول" : "Secure by design"}
-          </h3>
+          <H4>{isAr ? "أمان من اليوم الأول" : "Secure by design"}</H4>
         </GlassCard>
 
         {/* Cell 6 — SLA */}
@@ -126,11 +118,9 @@ export function AuroraBentoFeatures({ locale }: { locale: string }) {
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.06] border border-white/10">
             <Clock4 className="h-4 w-4 text-white" />
           </span>
-          <h3 className="text-sm font-semibold text-white">
-            {isAr ? "دعم 24/7" : "24/7 support"}
-          </h3>
+          <H4>{isAr ? "دعم 24/7" : "24/7 support"}</H4>
         </GlassCard>
       </div>
-    </section>
+    </Section>
   );
 }

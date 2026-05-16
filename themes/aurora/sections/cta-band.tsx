@@ -2,6 +2,7 @@ import { Link } from "@/i18n/routing";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { AuroraButton } from "../ui/aurora-button";
 import { GradientOrbs } from "../ui/gradient-orbs";
+import { Section } from "../ui/section";
 
 export function AuroraCtaBand({
   locale,
@@ -16,7 +17,7 @@ export function AuroraCtaBand({
     : "/contact";
 
   return (
-    <section className="container py-24 md:py-32">
+    <Section size="lg">
       <div className="relative overflow-hidden rounded-3xl aurora-glass p-10 md:p-16 text-center">
         <div className="absolute inset-0 -z-10" aria-hidden>
           <GradientOrbs variant="soft" />
@@ -48,6 +49,6 @@ export function AuroraCtaBand({
           </AuroraButton>
         </div>
       </div>
-    </section>
+    </Section>
   );
 }

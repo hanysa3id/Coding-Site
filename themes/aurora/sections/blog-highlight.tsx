@@ -3,6 +3,7 @@ import { Link } from "@/i18n/routing";
 import { ArrowRight, Clock } from "lucide-react";
 import { GlassCard } from "../ui/glass-card";
 import { SectionHeading } from "../ui/section-heading";
+import { Section } from "../ui/section";
 import { formatDate } from "@/lib/utils";
 import type { BlogPost } from "@/types/database";
 
@@ -17,7 +18,7 @@ export function AuroraBlogHighlight({
   if (posts.length === 0) return null;
 
   return (
-    <section className="container py-24 md:py-32">
+    <Section>
       <div className="flex flex-wrap items-end justify-between gap-6 mb-14">
         <SectionHeading
           kicker={isAr ? "من المدونة" : "From the blog"}
@@ -78,6 +79,6 @@ export function AuroraBlogHighlight({
           </Link>
         ))}
       </div>
-    </section>
+    </Section>
   );
 }

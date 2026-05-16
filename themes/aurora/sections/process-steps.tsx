@@ -1,4 +1,5 @@
 import { SectionHeading } from "../ui/section-heading";
+import { Section } from "../ui/section";
 
 // Visual "how it works" — 4 numbered steps with connector line.
 // Connector renders as horizontal on md+ and vertical on mobile.
@@ -28,7 +29,7 @@ export function AuroraProcessSteps({ locale }: { locale: string }) {
   ];
 
   return (
-    <section className="container py-24 md:py-32">
+    <Section>
       <SectionHeading
         align="center"
         kicker={isAr ? "كيف نعمل" : "How we work"}
@@ -66,6 +67,6 @@ export function AuroraProcessSteps({ locale }: { locale: string }) {
           </div>
         ))}
       </div>
-    </section>
+    </Section>
   );
 }

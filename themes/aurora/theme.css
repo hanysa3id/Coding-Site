@@ -167,11 +167,44 @@
   to { transform: rotate(360deg); }
 }
 
+/* Marquee for logo cloud */
+.theme-aurora .aurora-marquee {
+  display: flex;
+  width: max-content;
+  animation: aurora-marquee 40s linear infinite;
+}
+
+@keyframes aurora-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+[dir="rtl"] .theme-aurora .aurora-marquee {
+  animation-direction: reverse;
+}
+
+.theme-aurora .aurora-marquee-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+          mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
+
+/* Diagonal stripes overlay (subtle, for the pricing "popular" badge etc) */
+.theme-aurora .aurora-stripes {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04) 0,
+    rgba(255, 255, 255, 0.04) 1px,
+    transparent 1px,
+    transparent 8px
+  );
+}
+
 /* Reduce motion respect */
 @media (prefers-reduced-motion: reduce) {
   .theme-aurora .aurora-fade-up,
   .theme-aurora .aurora-orb,
-  .theme-aurora .aurora-spin-slow {
+  .theme-aurora .aurora-spin-slow,
+  .theme-aurora .aurora-marquee {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;

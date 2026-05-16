@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
 import { Eyebrow } from "./eyebrow";
+import { H2, Lead } from "./typography";
 
-// Consistent section header used across the Aurora theme.
-// `kicker` is the small mono label, `title` is the big heading, `description`
-// is the optional muted paragraph beneath it.
+// Consistent section header. kicker = mono label, title = H2, description = lead.
+// Always use this — never compose a section header by hand.
 export function SectionHeading({
   kicker,
   title,
@@ -20,16 +20,14 @@ export function SectionHeading({
   return (
     <div
       className={cn(
-        "max-w-2xl space-y-3",
+        "max-w-2xl space-y-4",
         align === "center" && "mx-auto text-center",
         className
       )}
     >
       {kicker && <Eyebrow>{kicker}</Eyebrow>}
-      <h2 className="aurora-display text-3xl md:text-4xl text-white">{title}</h2>
-      {description && (
-        <p className="text-base text-white/60 leading-relaxed">{description}</p>
-      )}
+      <H2>{title}</H2>
+      {description && <Lead>{description}</Lead>}
     </div>
   );
 }

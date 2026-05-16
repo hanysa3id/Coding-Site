@@ -6,7 +6,7 @@ import { getSiteSettings } from "@/lib/settings/get";
 import { LocaleSwitcher } from "@/components/shared/locale-switcher";
 import { UserMenu } from "@/components/shared/user-menu";
 import { NotificationsBell } from "@/components/shared/notifications-bell";
-import { MobileMenu } from "@/components/public/mobile-menu";
+import { AuroraMobileMenu } from "./aurora-mobile-menu";
 import { AuroraButton } from "./ui/aurora-button";
 
 export async function SiteHeader() {
@@ -28,7 +28,7 @@ export async function SiteHeader() {
     >
       <div className="container flex h-16 items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <MobileMenu profile={profile} siteName={siteName} locale={locale} />
+          <AuroraMobileMenu profile={profile} locale={locale} />
           <Link
             href="/"
             className="flex items-center gap-2.5 whitespace-nowrap"

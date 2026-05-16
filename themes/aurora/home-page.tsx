@@ -3,15 +3,23 @@ import { createClient } from "@/lib/supabase/server";
 import { listFeaturedServices } from "@/lib/queries/services";
 import { getWhatsappNumber } from "@/lib/settings/get";
 import type { PortfolioProject, BlogPost } from "@/types/database";
+
 import { AuroraHero } from "./sections/hero";
+import { AuroraLogoCloud } from "./sections/logo-cloud";
 import { AuroraBentoFeatures } from "./sections/bento-features";
 import { AuroraStatsBand } from "./sections/stats-band";
 import { AuroraServicesGrid } from "./sections/services-grid";
-import { AuroraPortfolioStrip } from "./sections/portfolio-strip";
 import { AuroraProcessSteps } from "./sections/process-steps";
+import { AuroraPortfolioStrip } from "./sections/portfolio-strip";
+import { AuroraTestimonials } from "./sections/testimonials";
+import { AuroraPricingTeaser } from "./sections/pricing-teaser";
 import { AuroraBlogHighlight } from "./sections/blog-highlight";
+import { AuroraFaq } from "./sections/faq";
+import { AuroraNewsletter } from "./sections/newsletter";
 import { AuroraCtaBand } from "./sections/cta-band";
 
+// Canonical homepage composition for the Aurora theme.
+// Order must match the table in themes/aurora/DESIGN_SYSTEM.md §4.
 export async function HomePage({
   params,
 }: {
@@ -22,8 +30,6 @@ export async function HomePage({
   const t = await getTranslations("home");
   const isAr = locale === "ar";
 
-  // Build the hero title — single string, split with "|" to render the second
-  // line as gradient text. Falls back if the locale file does not include "|".
   const rawTitle = t("heroTitle");
   const heroTitle =
     rawTitle.includes("|")
@@ -64,8 +70,7 @@ export async function HomePage({
     }
   }
 
-  // Fetch everything in parallel; failures degrade to empty arrays.
-  const [services, portfolioRes, blogRes, waNumber] = await Promise.all([
+  const [services, projects, posts, waNumber] = await Promise.all([
     listFeaturedServices(6).catch(() => []),
     loadPortfolio(),
     loadBlog(),
@@ -83,17 +88,27 @@ export async function HomePage({
         secondaryCta={{ label: t("ctaContact"), href: "/contact" }}
       />
 
+      <AuroraLogoCloud locale={locale} />
+
       <AuroraBentoFeatures locale={locale} />
 
       <AuroraStatsBand locale={locale} />
 
       <AuroraServicesGrid locale={locale} services={services} />
 
-      <AuroraPortfolioStrip locale={locale} projects={portfolioRes} />
-
       <AuroraProcessSteps locale={locale} />
 
-      <AuroraBlogHighlight locale={locale} posts={blogRes} />
+      <AuroraPortfolioStrip locale={locale} projects={projects} />
+
+      <AuroraTestimonials locale={locale} />
+
+      <AuroraPricingTeaser locale={locale} />
+
+      <AuroraBlogHighlight locale={locale} posts={posts} />
+
+      <AuroraFaq locale={locale} />
+
+      <AuroraNewsletter locale={locale} />
 
       <AuroraCtaBand locale={locale} whatsappNumber={waNumber} />
     </>

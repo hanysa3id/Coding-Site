@@ -3,6 +3,7 @@ import { Link } from "@/i18n/routing";
 import { ArrowRight } from "lucide-react";
 import { GlassCard } from "../ui/glass-card";
 import { SectionHeading } from "../ui/section-heading";
+import { Section } from "../ui/section";
 import type { PortfolioProject } from "@/types/database";
 
 export function AuroraPortfolioStrip({
@@ -16,7 +17,7 @@ export function AuroraPortfolioStrip({
   if (projects.length === 0) return null;
 
   return (
-    <section className="container py-24 md:py-32">
+    <Section>
       <div className="flex flex-wrap items-end justify-between gap-6 mb-14">
         <SectionHeading
           kicker={isAr ? "أعمالنا" : "Selected work"}
@@ -66,6 +67,6 @@ export function AuroraPortfolioStrip({
           </Link>
         ))}
       </div>
-    </section>
+    </Section>
   );
 }

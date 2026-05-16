@@ -2,6 +2,7 @@ import { Link } from "@/i18n/routing";
 import { ArrowRight, Sparkles, Terminal } from "lucide-react";
 import { GradientOrbs } from "../ui/gradient-orbs";
 import { AuroraButton } from "../ui/aurora-button";
+import { BleedSection } from "../ui/section";
 
 // Hero section: floating orbs background, gradient headline, two CTAs,
 // and a mock "request a project" terminal card on the side.
@@ -22,7 +23,7 @@ export function AuroraHero({
 }) {
   const isAr = locale === "ar";
   return (
-    <section className="relative overflow-hidden pt-24 pb-24 md:pt-32 md:pb-32">
+    <BleedSection size="lg" className="overflow-hidden">
       <div className="absolute inset-0 -z-10" aria-hidden>
         <GradientOrbs />
       </div>
@@ -151,7 +152,7 @@ export function AuroraHero({
           </div>
         </div>
       </div>
-    </section>
+    </BleedSection>
   );
 }
 

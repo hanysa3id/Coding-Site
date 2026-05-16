@@ -3,6 +3,7 @@ import { Link } from "@/i18n/routing";
 import { ArrowRight } from "lucide-react";
 import { GlassCard } from "../ui/glass-card";
 import { SectionHeading } from "../ui/section-heading";
+import { Section } from "../ui/section";
 import { formatCurrency } from "@/lib/utils";
 import type { Service } from "@/types/database";
 
@@ -17,7 +18,7 @@ export function AuroraServicesGrid({
   if (services.length === 0) return null;
 
   return (
-    <section className="container py-24 md:py-32">
+    <Section>
       <div className="flex flex-wrap items-end justify-between gap-6 mb-14">
         <SectionHeading
           kicker={isAr ? "ما نقدمه" : "What we do"}
@@ -56,9 +57,7 @@ export function AuroraServicesGrid({
                 <div className="aspect-[16/9] bg-gradient-to-br from-violet-500/20 to-cyan-500/10" />
               )}
               <div className="p-5 space-y-2">
-                <h3 className="text-lg font-semibold text-white leading-tight">
-                  {isAr ? s.name_ar : s.name_en}
-                </h3>
+                <h3 className="text-lg font-semibold text-white leading-tight">{isAr ? s.name_ar : s.name_en}</h3>
                 <p className="text-sm text-white/55 line-clamp-2">
                   {isAr ? s.short_description_ar : s.short_description_en}
                 </p>
@@ -81,6 +80,6 @@ export function AuroraServicesGrid({
           </Link>
         ))}
       </div>
-    </section>
+    </Section>
   );
 }
