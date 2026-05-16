@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { signStorageUrls } from "@/lib/storage/sign-url";
 import { PaymentActions } from "./payment-actions";
 import type { Payment, Order } from "@/types/database";
 
@@ -30,6 +31,19 @@ export default async function AdminPaymentsPage({
 
   const { data: payments } = await query;
   const rows = (payments as unknown as PaymentRow[]) ?? [];
+
+  // Receipts live in a private bucket — sign URLs server-side so the
+  // "View receipt" links actually open the file for the admin.
+  const indexed: { idx: number; url: string }[] = [];
+  rows.forEach((p, i) => {
+    if (p.receipt_url) indexed.push({ idx: i, url: p.receipt_url });
+  });
+  if (indexed.length > 0) {
+    const signed = await signStorageUrls(indexed.map((x) => x.url));
+    indexed.forEach(({ idx }, i) => {
+      rows[idx].receipt_url = signed[i];
+    });
+  }
 
   return (
     <div className="space-y-6">

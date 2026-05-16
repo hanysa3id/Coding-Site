@@ -138,7 +138,23 @@ export async function listOrderPayments(orderId: string) {
     .select("*")
     .eq("order_id", orderId)
     .order("created_at", { ascending: false });
-  return data ?? [];
+
+  const rows = (data ?? []) as Array<{ receipt_url: string | null } & Record<string, unknown>>;
+
+  // Receipts live in a private bucket — convert stored URLs to short-lived
+  // signed URLs so the "View receipt" links work for both customer and admin.
+  const indexed: { idx: number; url: string }[] = [];
+  rows.forEach((p, i) => {
+    if (p.receipt_url) indexed.push({ idx: i, url: p.receipt_url });
+  });
+  if (indexed.length > 0) {
+    const signed = await signStorageUrls(indexed.map((x) => x.url));
+    indexed.forEach(({ idx }, i) => {
+      rows[idx].receipt_url = signed[i];
+    });
+  }
+
+  return rows;
 }
 
 export async function listOrderStatusHistory(orderId: string) {

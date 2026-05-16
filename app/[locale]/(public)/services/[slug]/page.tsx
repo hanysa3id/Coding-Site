@@ -10,17 +10,26 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
 import { VideoEmbed } from "@/components/portfolio/video-embed";
+import { ReviewCard } from "@/components/public/review-card";
 import { Clock, ArrowRight, Star, CheckCircle2, Gift, Sparkles } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { JsonLd, serviceSchema } from "@/components/seo/json-ld";
-import { getWhatsappNumber } from "@/lib/settings/get";
+import { getWhatsappNumber, getSiteName } from "@/lib/settings/get";
 import type { Metadata } from "next";
 import type {
-  Review,
   PortfolioProject,
   ServiceGalleryMedia,
   TimelineStep,
 } from "@/types/database";
+
+type PublicReview = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  admin_reply: string | null;
+  created_at: string;
+  customer: { full_name: string | null; avatar_url: string | null } | null;
+};
 
 export async function generateMetadata({
   params,
@@ -70,7 +79,9 @@ export default async function ServiceDetailPage({
         .order("sort_order", { ascending: true }),
       supabase
         .from("reviews")
-        .select("*")
+        .select(
+          "id, rating, comment, admin_reply, created_at, customer:profiles!reviews_customer_id_fkey(full_name, avatar_url)"
+        )
         .eq("service_id", service.id)
         .eq("is_visible", true)
         .order("created_at", { ascending: false })
@@ -89,10 +100,11 @@ export default async function ServiceDetailPage({
     .map((l) => l.portfolio_projects)
     .filter((p): p is PortfolioProject => !!p && p.is_visible);
 
-  const reviewsList = (reviews as Review[] | null) ?? [];
+  const reviewsList = (reviews as unknown as PublicReview[] | null) ?? [];
   const avgRating = reviewsList.length
     ? reviewsList.reduce((a, r) => a + r.rating, 0) / reviewsList.length
     : null;
+  const brandName = await getSiteName(locale);
 
   const features = isAr ? service.features_ar : service.features_en;
   const deliverables = isAr ? service.deliverables_ar : service.deliverables_en;
@@ -398,32 +410,28 @@ export default async function ServiceDetailPage({
         <>
           <Separator className="my-12" />
           <section>
-            <h2 className="text-2xl font-bold mb-6">
-              {isAr ? "آراء العملاء" : "Customer reviews"}
-            </h2>
+            <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+              <h2 className="text-2xl font-bold">
+                {isAr ? "آراء العملاء" : "Customer reviews"}
+              </h2>
+              {avgRating !== null && (
+                <div className="inline-flex items-center gap-2 rounded-full border bg-muted/30 px-3 py-1.5">
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  <span className="font-bold text-amber-600">{avgRating.toFixed(1)}</span>
+                  <span className="text-xs text-muted-foreground">
+                    ({reviewsList.length} {isAr ? "تقييم" : "reviews"})
+                  </span>
+                </div>
+              )}
+            </div>
             <div className="grid gap-4 md:grid-cols-2">
               {reviewsList.map((r) => (
-                <Card key={r.id}>
-                  <CardContent className="pt-6 space-y-3">
-                    <div className="flex">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < r.rating ? "fill-amber-400 text-amber-400" : "text-muted"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    {r.comment && <p className="text-sm">{r.comment}</p>}
-                    {r.admin_reply && (
-                      <div className="rounded-md border-s-2 border-primary bg-muted/50 p-3 text-sm">
-                        <p className="font-medium mb-1">{isAr ? "رد الإدارة:" : "Reply:"}</p>
-                        <p>{r.admin_reply}</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                <ReviewCard
+                  key={r.id}
+                  review={r}
+                  locale={locale}
+                  brandName={brandName}
+                />
               ))}
             </div>
           </section>
