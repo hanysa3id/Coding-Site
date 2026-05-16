@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Layers } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -18,9 +18,14 @@ import type { Category } from "@/types/database";
 import { CategoryForm } from "./category-form";
 import { deleteCategoryAction } from "./actions";
 
-type Props = { categories: Category[]; locale: string };
+type ServiceCounts = { total: number; visible: number };
+type Props = {
+  categories: Category[];
+  locale: string;
+  serviceCountMap?: Record<string, ServiceCounts>;
+};
 
-export function CategoriesTable({ categories, locale }: Props) {
+export function CategoriesTable({ categories, locale, serviceCountMap = {} }: Props) {
   const isAr = locale === "ar";
   const [editing, setEditing] = useState<Category | null>(null);
   const [creating, setCreating] = useState(false);
@@ -69,6 +74,7 @@ export function CategoriesTable({ categories, locale }: Props) {
                 isAr={isAr}
                 onEdit={setEditing}
                 onDelete={setDeleting}
+                serviceCountMap={serviceCountMap}
               />
             ))}
           </ul>
@@ -150,24 +156,40 @@ function CategoryRow({
   isAr,
   onEdit,
   onDelete,
+  serviceCountMap,
 }: {
   node: Node;
   depth: number;
   isAr: boolean;
   onEdit: (c: Category) => void;
   onDelete: (c: Category) => void;
+  serviceCountMap: Record<string, { total: number; visible: number }>;
 }) {
+  const svcCount = serviceCountMap[node.id];
   return (
     <>
-      <li className="flex items-center justify-between p-4 hover:bg-muted/30">
-        <div className="flex items-center gap-3" style={{ paddingInlineStart: depth * 24 }}>
+      <li className="flex items-center justify-between p-4 hover:bg-muted/30 transition">
+        <div
+          className="flex items-center gap-3 flex-1 min-w-0"
+          style={{ paddingInlineStart: depth * 24 }}
+        >
+          {depth > 0 && (
+            <span className="text-muted-foreground text-xs shrink-0">└</span>
+          )}
           <span className="font-medium">{isAr ? node.name_ar : node.name_en}</span>
           <code className="text-xs text-muted-foreground">{node.slug}</code>
           {!node.is_visible && (
             <Badge variant="secondary">{isAr ? "مخفي" : "Hidden"}</Badge>
           )}
+          {svcCount && svcCount.total > 0 && (
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <Layers className="h-3 w-3" />
+              {svcCount.visible}/{svcCount.total}
+              {isAr ? " خدمة" : " services"}
+            </span>
+          )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Button size="icon" variant="ghost" onClick={() => onEdit(node)}>
             <Pencil className="h-4 w-4" />
           </Button>
@@ -184,6 +206,7 @@ function CategoryRow({
           isAr={isAr}
           onEdit={onEdit}
           onDelete={onDelete}
+          serviceCountMap={serviceCountMap}
         />
       ))}
     </>

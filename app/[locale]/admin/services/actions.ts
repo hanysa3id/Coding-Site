@@ -107,3 +107,35 @@ export async function uploadServiceImage(formData: FormData) {
   if (!file) return { success: false as const, error: "No file" };
   return uploadToBucket("service-images", file);
 }
+
+export async function toggleServiceVisibilityAction(
+  id: string,
+  is_visible: boolean
+): Promise<Result> {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("services")
+    .update({ is_visible })
+    .eq("id", id);
+  if (error) return { success: false, error: error.message };
+  revalidatePath("/admin/services");
+  revalidatePath("/services");
+  return { success: true };
+}
+
+export async function toggleServiceFeaturedAction(
+  id: string,
+  is_featured: boolean
+): Promise<Result> {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("services")
+    .update({ is_featured })
+    .eq("id", id);
+  if (error) return { success: false, error: error.message };
+  revalidatePath("/admin/services");
+  revalidatePath("/services");
+  return { success: true };
+}
