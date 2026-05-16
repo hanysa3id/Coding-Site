@@ -3,19 +3,27 @@ import { listAllOrders } from "@/lib/queries/orders";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/routing";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
+import { AdminPagination } from "@/components/admin/pagination";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { parsePage, pageRange, totalPages } from "@/lib/pagination";
 import { ArrowRight } from "lucide-react";
 import type { OrderStatus } from "@/types/database";
 
 export default async function AdminOrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: OrderStatus }>;
+  searchParams: Promise<{ status?: OrderStatus; page?: string }>;
 }) {
   const locale = await getLocale();
   const isAr = locale === "ar";
-  const { status } = await searchParams;
-  const orders = await listAllOrders({ status });
+  const sp = await searchParams;
+  const page = parsePage(sp.page);
+  const range = pageRange(page);
+
+  const { rows: orders, total } = await listAllOrders(
+    { status: sp.status },
+    { from: range.from, to: range.to }
+  );
 
   const statusFilters: (OrderStatus | "all")[] = [
     "all",
@@ -34,13 +42,13 @@ export default async function AdminOrdersPage({
       <header>
         <h1 className="text-3xl font-bold">{isAr ? "الطلبات" : "Orders"}</h1>
         <p className="text-muted-foreground">
-          {isAr ? `${orders.length} طلب` : `${orders.length} orders`}
+          {isAr ? `${total} طلب` : `${total} orders`}
         </p>
       </header>
 
       <div className="flex flex-wrap gap-2">
         {statusFilters.map((f) => {
-          const isActive = f === "all" ? !status : f === status;
+          const isActive = f === "all" ? !sp.status : f === sp.status;
           const href = f === "all" ? "/admin/orders" : `/admin/orders?status=${f}`;
           const label =
             f === "all"
@@ -122,6 +130,15 @@ export default async function AdminOrdersPage({
           )}
         </CardContent>
       </Card>
+
+      <AdminPagination
+        page={page}
+        totalPages={totalPages(total)}
+        totalItems={total}
+        basePath="/admin/orders"
+        preserveParams={{ status: sp.status }}
+        locale={locale}
+      />
     </div>
   );
 }

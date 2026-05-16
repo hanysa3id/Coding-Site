@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { setRequestLocale, getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -77,12 +78,17 @@ export default async function ServicesPage({
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {allServices.map((s) => (
                     <Link key={s.id} href={`/services/${s.slug}`} className="block">
-                      <Card className="h-full transition hover:shadow-md">
+                      <Card className="h-full transition hover:shadow-md overflow-hidden">
                         {s.cover_image && (
-                          <div
-                            className="h-48 rounded-t-lg bg-cover bg-center"
-                            style={{ backgroundImage: `url(${s.cover_image})` }}
-                          />
+                          <div className="relative h-48 w-full">
+                            <Image
+                              src={s.cover_image}
+                              alt={isAr ? s.name_ar : s.name_en}
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              className="object-cover"
+                            />
+                          </div>
                         )}
                         <CardHeader>
                           <CardTitle className="text-lg">

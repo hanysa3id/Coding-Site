@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/routing";
 import { Users, Mail, Phone } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { AdminPagination } from "@/components/admin/pagination";
+import { parsePage, pageRange, totalPages } from "@/lib/pagination";
 import { CustomerRoleSelector } from "./customer-role-selector";
 import type { UserRole } from "@/types/database";
 
@@ -24,22 +26,28 @@ type CustomerRow = {
 export default async function AdminCustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ role?: UserRole | "all" }>;
+  searchParams: Promise<{ role?: UserRole | "all"; page?: string }>;
 }) {
   const locale = await getLocale();
   const isAr = locale === "ar";
   const me = await requireStaff();
-  const { role } = await searchParams;
-  const filterRole = role && role !== "all" ? role : null;
+  const sp = await searchParams;
+  const filterRole = sp.role && sp.role !== "all" ? sp.role : null;
+  const page = parsePage(sp.page);
+  const range = pageRange(page);
 
   const supabase = await createClient();
 
   let profilesQuery = supabase
     .from("profiles")
-    .select("id, full_name, email, phone, whatsapp_number, role, created_at")
-    .order("created_at", { ascending: false });
+    .select("id, full_name, email, phone, whatsapp_number, role, created_at", {
+      count: "exact",
+    })
+    .order("created_at", { ascending: false })
+    .range(range.from, range.to);
   if (filterRole) profilesQuery = profilesQuery.eq("role", filterRole);
-  const { data: profiles } = await profilesQuery;
+  const { data: profiles, count } = await profilesQuery;
+  const total = count ?? 0;
 
   const list = (profiles as Array<{
     id: string;
@@ -101,7 +109,7 @@ export default async function AdminCustomersPage({
           {isAr ? "العملاء والمستخدمون" : "Customers & Users"}
         </h1>
         <p className="text-muted-foreground">
-          {isAr ? `${rows.length} مستخدم` : `${rows.length} users`}
+          {isAr ? `${total} مستخدم` : `${total} users`}
         </p>
       </header>
 
@@ -195,6 +203,15 @@ export default async function AdminCustomersPage({
           </CardContent>
         </Card>
       )}
+
+      <AdminPagination
+        page={page}
+        totalPages={totalPages(total)}
+        totalItems={total}
+        basePath="/admin/customers"
+        preserveParams={{ role: sp.role }}
+        locale={locale}
+      />
     </div>
   );
 }

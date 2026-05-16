@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import { ReviewRow } from "./review-row";
 import { CsvPanel } from "@/components/admin/csv-panel";
+import { AdminPagination } from "@/components/admin/pagination";
+import { parsePage, pageRange, totalPages } from "@/lib/pagination";
 import {
   exportReviewsAction,
   importReviewsAction,
@@ -16,21 +18,38 @@ type FullReview = Review & {
   customer: Pick<Profile, "full_name" | "email"> | null;
 };
 
-export default async function AdminReviewsPage() {
+export default async function AdminReviewsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const locale = await getLocale();
   const isAr = locale === "ar";
+  const sp = await searchParams;
+  const page = parsePage(sp.page);
+  const range = pageRange(page);
 
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("reviews")
-    .select(
-      "*, services(name_ar, name_en), customer:profiles!reviews_customer_id_fkey(full_name, email)"
-    )
-    .order("created_at", { ascending: false });
+  // One query for the current page (paginated rows), one tiny query
+  // for the GLOBAL average rating so the header stays accurate.
+  const [{ data, count }, { data: ratingsForAvg }] = await Promise.all([
+    supabase
+      .from("reviews")
+      .select(
+        "*, services(name_ar, name_en), customer:profiles!reviews_customer_id_fkey(full_name, email)",
+        { count: "exact" }
+      )
+      .order("created_at", { ascending: false })
+      .range(range.from, range.to),
+    supabase.from("reviews").select("rating"),
+  ]);
 
   const reviews = (data as unknown as FullReview[]) ?? [];
-  const avg = reviews.length
-    ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1)
+  const total = count ?? 0;
+
+  const allRatings = ((ratingsForAvg as { rating: number }[] | null) ?? []).map((r) => r.rating);
+  const avg = allRatings.length
+    ? (allRatings.reduce((a, r) => a + r, 0) / allRatings.length).toFixed(1)
     : "—";
 
   return (
@@ -39,7 +58,7 @@ export default async function AdminReviewsPage() {
         <div>
           <h1 className="text-3xl font-bold">{isAr ? "التقييمات" : "Reviews"}</h1>
           <p className="text-muted-foreground">
-            {isAr ? `${reviews.length} تقييم` : `${reviews.length} reviews`}
+            {isAr ? `${total} تقييم` : `${total} reviews`}
           </p>
         </div>
         <div className="text-end">
@@ -73,6 +92,14 @@ export default async function AdminReviewsPage() {
           ))}
         </div>
       )}
+
+      <AdminPagination
+        page={page}
+        totalPages={totalPages(total)}
+        totalItems={total}
+        basePath="/admin/reviews"
+        locale={locale}
+      />
     </div>
   );
 }

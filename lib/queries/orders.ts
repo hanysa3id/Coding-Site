@@ -21,19 +21,27 @@ export async function listCustomerOrders(customerId: string) {
   return (data as unknown as OrderWithService[]) ?? [];
 }
 
-export async function listAllOrders(filter?: { status?: OrderStatus }) {
+export async function listAllOrders(
+  filter?: { status?: OrderStatus },
+  pagination?: { from: number; to: number }
+) {
   const supabase = await createClient();
   let query = supabase
     .from("orders")
     .select(
-      "*, services(id, name_ar, name_en, slug, cover_image), customer:profiles!orders_customer_id_fkey(id, full_name, email, phone, whatsapp_number)"
+      "*, services(id, name_ar, name_en, slug, cover_image), customer:profiles!orders_customer_id_fkey(id, full_name, email, phone, whatsapp_number)",
+      { count: "exact" }
     )
     .order("created_at", { ascending: false });
   if (filter?.status) query = query.eq("status", filter.status);
-  const { data } = await query;
-  return (data as unknown as (OrderWithService & {
-    customer: Pick<Profile, "id" | "full_name" | "email" | "phone" | "whatsapp_number"> | null;
-  })[]) ?? [];
+  if (pagination) query = query.range(pagination.from, pagination.to);
+  const { data, count } = await query;
+  return {
+    rows: (data as unknown as (OrderWithService & {
+      customer: Pick<Profile, "id" | "full_name" | "email" | "phone" | "whatsapp_number"> | null;
+    })[]) ?? [],
+    total: count ?? 0,
+  };
 }
 
 export async function getOrderForCustomer(orderId: string, customerId: string) {

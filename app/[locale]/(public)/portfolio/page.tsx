@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { Link } from "@/i18n/routing";
@@ -52,10 +53,15 @@ export default async function PortfolioPage({
             <Link key={p.id} href={`/portfolio/${p.slug}`}>
               <Card className="h-full overflow-hidden transition hover:shadow-md">
                 {p.cover_image ? (
-                  <div
-                    className="aspect-video bg-cover bg-center"
-                    style={{ backgroundImage: `url(${p.cover_image})` }}
-                  />
+                  <div className="relative aspect-video">
+                    <Image
+                      src={p.cover_image}
+                      alt={isAr ? p.title_ar : p.title_en}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="aspect-video bg-muted" />
                 )}

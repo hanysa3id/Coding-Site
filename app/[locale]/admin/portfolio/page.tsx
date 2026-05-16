@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/routing";
 import { Plus, Pencil } from "lucide-react";
 import { CsvPanel } from "@/components/admin/csv-panel";
+import { AdminPagination } from "@/components/admin/pagination";
+import { parsePage, pageRange, totalPages } from "@/lib/pagination";
 import {
   exportPortfolioAction,
   importPortfolioAction,
@@ -13,15 +15,24 @@ import {
 } from "./csv-actions";
 import type { PortfolioProject } from "@/types/database";
 
-export default async function AdminPortfolioPage() {
+export default async function AdminPortfolioPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const locale = await getLocale();
   const isAr = locale === "ar";
-  const supabase = await createClient();
+  const sp = await searchParams;
+  const page = parsePage(sp.page);
+  const range = pageRange(page);
 
-  const { data: projects } = await supabase
+  const supabase = await createClient();
+  const { data: projects, count } = await supabase
     .from("portfolio_projects")
-    .select("*")
-    .order("sort_order", { ascending: true });
+    .select("*", { count: "exact" })
+    .order("sort_order", { ascending: true })
+    .range(range.from, range.to);
+  const total = count ?? 0;
 
   return (
     <div className="space-y-6">
@@ -93,6 +104,14 @@ export default async function AdminPortfolioPage() {
           )}
         </CardContent>
       </Card>
+
+      <AdminPagination
+        page={page}
+        totalPages={totalPages(total)}
+        totalItems={total}
+        basePath="/admin/portfolio"
+        locale={locale}
+      />
     </div>
   );
 }

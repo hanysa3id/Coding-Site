@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { CsvPanel } from "@/components/admin/csv-panel";
+import { AdminPagination } from "@/components/admin/pagination";
+import { parsePage, pageRange, totalPages } from "@/lib/pagination";
 import {
   exportBlogAction,
   importBlogAction,
@@ -14,14 +16,24 @@ import {
 } from "./csv-actions";
 import type { BlogPost } from "@/types/database";
 
-export default async function AdminBlogPage() {
+export default async function AdminBlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const locale = await getLocale();
   const isAr = locale === "ar";
+  const sp = await searchParams;
+  const page = parsePage(sp.page);
+  const range = pageRange(page);
+
   const supabase = await createClient();
-  const { data: posts } = await supabase
+  const { data: posts, count } = await supabase
     .from("blog_posts")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(range.from, range.to);
+  const total = count ?? 0;
 
   return (
     <div className="space-y-6">
@@ -96,6 +108,14 @@ export default async function AdminBlogPage() {
           )}
         </CardContent>
       </Card>
+
+      <AdminPagination
+        page={page}
+        totalPages={totalPages(total)}
+        totalItems={total}
+        basePath="/admin/blog"
+        locale={locale}
+      />
     </div>
   );
 }
