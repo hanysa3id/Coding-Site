@@ -1,0 +1,192 @@
+/* ============================================================================
+ * Aurora theme — dark-first, gradient-driven, bento layouts.
+ * Inspired by invertase.io / n8n.io / mastra.ai / layer9.com / three.tools.
+ *
+ * All styles are scoped under `.theme-aurora` so they coexist with other themes.
+ * ============================================================================ */
+
+.theme-aurora {
+  /* Surface palette */
+  --aurora-bg:        #07070d;
+  --aurora-bg-soft:   #0b0b14;
+  --aurora-surface:   #11111b;
+  --aurora-border:    rgba(255, 255, 255, 0.08);
+  --aurora-border-2:  rgba(255, 255, 255, 0.14);
+
+  /* Text */
+  --aurora-fg:        rgba(255, 255, 255, 0.96);
+  --aurora-fg-muted:  rgba(255, 255, 255, 0.62);
+  --aurora-fg-dim:    rgba(255, 255, 255, 0.42);
+
+  /* Brand gradient stops */
+  --aurora-grad-1:    #8b5cf6;   /* violet-500 */
+  --aurora-grad-2:    #ec4899;   /* pink-500 */
+  --aurora-grad-3:    #06b6d4;   /* cyan-500 */
+
+  /* Accent ring */
+  --aurora-ring:      rgba(139, 92, 246, 0.35);
+
+  background-color: var(--aurora-bg);
+  color: var(--aurora-fg);
+  color-scheme: dark;
+}
+
+/* Page-level radial mesh — sits behind everything, never scrolls weirdly */
+.theme-aurora .aurora-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60rem 60rem at 10% -10%, rgba(139, 92, 246, 0.15), transparent 60%),
+    radial-gradient(50rem 50rem at 110% 20%, rgba(236, 72, 153, 0.10), transparent 60%),
+    radial-gradient(45rem 45rem at 50% 110%, rgba(6, 182, 212, 0.10), transparent 60%),
+    var(--aurora-bg);
+}
+
+/* Subtle noise texture overlay */
+.theme-aurora .aurora-noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
+}
+
+/* Gradient text helper */
+.theme-aurora .aurora-grad-text {
+  background-image: linear-gradient(135deg, var(--aurora-grad-1), var(--aurora-grad-2) 45%, var(--aurora-grad-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Glass card surface */
+.theme-aurora .aurora-glass {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+    var(--aurora-surface);
+  border: 1px solid var(--aurora-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-aurora .aurora-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), transparent 30%, transparent 70%, rgba(6, 182, 212, 0.3));
+  -webkit-mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 200ms;
+  pointer-events: none;
+}
+
+.theme-aurora .aurora-glass:hover::after {
+  opacity: 1;
+}
+
+/* Floating orb */
+.theme-aurora .aurora-orb {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(60px);
+  opacity: 0.5;
+  animation: aurora-float 14s ease-in-out infinite;
+}
+
+@keyframes aurora-float {
+  0%, 100%  { transform: translate3d(0, 0, 0) scale(1); }
+  50%       { transform: translate3d(0, -40px, 0) scale(1.08); }
+}
+
+/* Reveal-on-mount fade-up */
+.theme-aurora .aurora-fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: aurora-fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--aurora-delay, 0ms);
+}
+
+@keyframes aurora-fade-up {
+  to { opacity: 1; transform: none; }
+}
+
+/* Shimmer for inline badges/dividers */
+.theme-aurora .aurora-shimmer-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--aurora-border-2), transparent);
+}
+
+/* Pill border with gradient */
+.theme-aurora .aurora-pill {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--aurora-border);
+  border-radius: 9999px;
+  backdrop-filter: blur(8px);
+}
+
+/* Section accent label (eyebrow) */
+.theme-aurora .aurora-eyebrow {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--aurora-fg-muted);
+}
+
+/* Big display heading helper */
+.theme-aurora .aurora-display {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+}
+
+/* Mono accent */
+.theme-aurora .aurora-mono {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-feature-settings: "ss01" on, "cv01" on;
+}
+
+/* Subtle conic spinner for stat indicators */
+.theme-aurora .aurora-spin-slow {
+  animation: aurora-spin 24s linear infinite;
+}
+
+@keyframes aurora-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Reduce motion respect */
+@media (prefers-reduced-motion: reduce) {
+  .theme-aurora .aurora-fade-up,
+  .theme-aurora .aurora-orb,
+  .theme-aurora .aurora-spin-slow {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Ensure form controls inside the theme inherit dark color scheme */
+.theme-aurora input,
+.theme-aurora textarea,
+.theme-aurora select {
+  color-scheme: dark;
+}
+
+/* Make focus rings visible on dark background */
+.theme-aurora :focus-visible {
+  outline: 2px solid var(--aurora-grad-2);
+  outline-offset: 2px;
+}
