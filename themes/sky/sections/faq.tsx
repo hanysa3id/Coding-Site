@@ -1,7 +1,8 @@
 import { SkySection, SkySectionHeading } from "../ui/section";
 import { Plus, HelpCircle } from "lucide-react";
+import type { LandingFaqItem } from "@/lib/validators/settings";
 
-const FAQS = [
+const DEFAULT_FAQS = [
   {
     qAr: "كم تكلفة المشروع؟",
     qEn: "How much does a project cost?",
@@ -40,8 +41,20 @@ const FAQS = [
   },
 ];
 
-export function SkyFaq({ locale }: { locale: string }) {
+export function SkyFaq({
+  locale,
+  faqs = [],
+}: {
+  locale: string;
+  faqs?: LandingFaqItem[];
+}) {
   const isAr = locale === "ar";
+  // Normalize admin-curated FAQs to the same shape as defaults so the render
+  // loop below treats them identically.
+  const items =
+    faqs.length > 0
+      ? faqs.map((f) => ({ qAr: f.q_ar, qEn: f.q_en, aAr: f.a_ar, aEn: f.a_en }))
+      : DEFAULT_FAQS;
 
   return (
     <SkySection size="lg">
@@ -56,7 +69,7 @@ export function SkyFaq({ locale }: { locale: string }) {
       />
 
       <div className="max-w-3xl mx-auto mt-12 space-y-3">
-        {FAQS.map((f, i) => (
+        {items.map((f, i) => (
           <details
             key={i}
             className="sky-card sky-fade-up group"

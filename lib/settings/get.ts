@@ -12,6 +12,7 @@ import type {
   OrdersPolicyInput,
   BusinessHoursInput,
   ThemeSettings,
+  LandingSettings,
 } from "@/lib/validators/settings";
 
 /**
@@ -78,6 +79,10 @@ export async function getBusinessHours(): Promise<BusinessHoursInput | null> {
 
 export async function getThemeSettings(): Promise<ThemeSettings | null> {
   return getSetting<ThemeSettings>("theme");
+}
+
+export async function getLandingSettings(): Promise<LandingSettings | null> {
+  return getSetting<LandingSettings>("landing");
 }
 
 /**

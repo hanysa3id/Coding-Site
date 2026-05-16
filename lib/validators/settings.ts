@@ -9,6 +9,85 @@ export const themeSettingsSchema = z.object({
 });
 export type ThemeSettings = z.infer<typeof themeSettingsSchema>;
 
+// ─── Landing page / Frontpage settings ──────────────────────────────────────
+// Canonical section ids that themes opt-in to. If a theme has the section,
+// it reads the visibility toggle; if it doesn't, the toggle is a no-op.
+export const landingSectionIdSchema = z.enum([
+  "hero",
+  "logo_cloud",
+  "features",
+  "stats",
+  "services",
+  "process",
+  "portfolio",
+  "testimonials",
+  "pricing",
+  "blog",
+  "faq",
+  "newsletter",
+  "team",
+  "cta",
+]);
+export type LandingSectionId = z.infer<typeof landingSectionIdSchema>;
+
+export const landingNavItemSchema = z.object({
+  label_ar: z.string().min(1),
+  label_en: z.string().min(1),
+  href: z.string().min(1),
+});
+export type LandingNavItem = z.infer<typeof landingNavItemSchema>;
+
+export const landingFaqSchema = z.object({
+  q_ar: z.string().min(1),
+  q_en: z.string().min(1),
+  a_ar: z.string().min(1),
+  a_en: z.string().min(1),
+});
+export type LandingFaqItem = z.infer<typeof landingFaqSchema>;
+
+export const landingSettingsSchema = z.object({
+  // Section visibility — keyed by canonical id. Missing key = visible.
+  sections: z.record(z.string(), z.boolean()).default({}),
+
+  // Hero overrides — empty fields fall back to the theme default.
+  hero: z
+    .object({
+      title_ar: z.string().nullable().optional(),
+      title_en: z.string().nullable().optional(),
+      subtitle_ar: z.string().nullable().optional(),
+      subtitle_en: z.string().nullable().optional(),
+      badge_ar: z.string().nullable().optional(),
+      badge_en: z.string().nullable().optional(),
+      primary_cta_label_ar: z.string().nullable().optional(),
+      primary_cta_label_en: z.string().nullable().optional(),
+      primary_cta_href: z.string().nullable().optional(),
+      secondary_cta_label_ar: z.string().nullable().optional(),
+      secondary_cta_label_en: z.string().nullable().optional(),
+      secondary_cta_href: z.string().nullable().optional(),
+    })
+    .default({}),
+
+  // Nav-bar visibility + custom items appended after the defaults.
+  nav: z
+    .object({
+      show_services: z.boolean().default(true),
+      show_portfolio: z.boolean().default(true),
+      show_blog: z.boolean().default(true),
+      show_about: z.boolean().default(true),
+      show_contact: z.boolean().default(true),
+      custom_items: z.array(landingNavItemSchema).default([]),
+    })
+    .default({}),
+
+  // Logo cloud names. Empty = theme falls back to client_name from portfolio
+  // table + stylized fillers.
+  logos: z.array(z.string().min(1)).default([]),
+
+  // FAQ entries. Empty = theme uses built-in defaults.
+  faqs: z.array(landingFaqSchema).default([]),
+});
+export type LandingSettings = z.infer<typeof landingSettingsSchema>;
+
 export const siteSettingsSchema = z.object({
   name_ar: z.string().min(1),
   name_en: z.string().min(1),

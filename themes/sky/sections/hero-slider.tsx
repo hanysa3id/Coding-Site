@@ -17,16 +17,44 @@ import {
 import { SkyButton } from "../ui/sky-button";
 import { Typewriter } from "../ui/typewriter";
 import { cn } from "@/lib/utils";
+import type { LandingSettings } from "@/lib/validators/settings";
+
+type HeroOverride = {
+  badge: string | null;
+  title: string | null;
+  subtitle: string | null;
+  primaryLabel: string | null;
+  primaryHref: string | null;
+  secondaryLabel: string | null;
+  secondaryHref: string | null;
+};
 
 type Slide = {
   id: string;
   bgClass: string;
-  render: (locale: string) => React.ReactNode;
+  render: (locale: string, override?: HeroOverride) => React.ReactNode;
 };
 
-export function HeroSlider({ locale }: { locale: string }) {
+export function HeroSlider({
+  locale,
+  landing,
+}: {
+  locale: string;
+  landing?: LandingSettings | null;
+}) {
   const isAr = locale === "ar";
   const [index, setIndex] = useState(0);
+  // Optional admin overrides — only slide 1 (the lead slide) consumes them.
+  const h = landing?.hero;
+  const heroOverride = {
+    badge: (isAr ? h?.badge_ar : h?.badge_en)?.trim() || null,
+    title: (isAr ? h?.title_ar : h?.title_en)?.trim() || null,
+    subtitle: (isAr ? h?.subtitle_ar : h?.subtitle_en)?.trim() || null,
+    primaryLabel: (isAr ? h?.primary_cta_label_ar : h?.primary_cta_label_en)?.trim() || null,
+    primaryHref: h?.primary_cta_href?.trim() || null,
+    secondaryLabel: (isAr ? h?.secondary_cta_label_ar : h?.secondary_cta_label_en)?.trim() || null,
+    secondaryHref: h?.secondary_cta_href?.trim() || null,
+  };
 
   // Auto-advance every 7 seconds (paused if user prefers reduced motion)
   useEffect(() => {
@@ -52,8 +80,9 @@ export function HeroSlider({ locale }: { locale: string }) {
               data-active={i === index || undefined}
               aria-hidden={i !== index}
             >
-              {/* Re-mount the slide content when it becomes active so animations replay */}
-              {i === index && s.render(locale)}
+              {/* Re-mount the slide content when it becomes active so animations replay.
+                  Slide 0 consumes admin hero overrides; others ignore them. */}
+              {i === index && s.render(locale, i === 0 ? heroOverride : undefined)}
             </div>
           ))}
 
@@ -103,49 +132,64 @@ const SLIDES: Slide[] = [
   {
     id: "slide-1",
     bgClass: "sky-slide-bg sky-slide-bg-1",
-    render: (locale) => {
+    render: (locale, override) => {
       const isAr = locale === "ar";
+      const badgeText = override?.badge ?? (isAr ? "ابدأ مشروعك في 24 ساعة" : "Start in 24 hours");
+      const subtitle = override?.subtitle ?? (isAr
+        ? "فريق متخصص من المطورين والمصممين يحوّل أفكارك إلى منتجات رقمية تعمل بكفاءة وتحب جمهورك."
+        : "A specialized team of engineers and designers turning your ideas into delightful, reliable products.");
+      const primaryLabel = override?.primaryLabel ?? (isAr ? "اعرض الخدمات" : "Browse services");
+      const primaryHref = override?.primaryHref ?? "/services";
+      const secondaryLabel = override?.secondaryLabel ?? (isAr ? "محادثة مجانية" : "Free consult");
+      const secondaryHref = override?.secondaryHref ?? "/contact";
       return (
         <div className="relative z-10 h-full grid lg:grid-cols-2 gap-6 px-8 md:px-14 py-12">
           <div className="flex flex-col justify-center max-w-xl space-y-6">
             <span className="sky-pill sky-fade-in inline-flex items-center gap-2 px-3 py-1 text-xs w-fit">
               <Sparkles className="h-3.5 w-3.5" />
-              {isAr ? "ابدأ مشروعك في 24 ساعة" : "Start in 24 hours"}
+              {badgeText}
             </span>
             <h1 className="sky-display text-4xl md:text-6xl text-slate-900">
-              {isAr ? "نُطلق" : "We launch"}{" "}
-              <span className="sky-grad-text">
-                <Typewriter
-                  words={
-                    isAr
-                      ? ["مواقع متكاملة", "تطبيقات جوال", "متاجر إلكترونية", "حلولاً مخصصة"]
-                      : ["full websites", "mobile apps", "online stores", "custom solutions"]
-                  }
-                />
-              </span>
-              <br />
-              {isAr ? "بسرعة و إبداع." : "with speed and craft."}
+              {override?.title ? (
+                // Custom title from admin — typewriter still emphasizes verbs
+                <>
+                  <span className="sky-grad-text">{override.title}</span>
+                </>
+              ) : (
+                <>
+                  {isAr ? "نُطلق" : "We launch"}{" "}
+                  <span className="sky-grad-text">
+                    <Typewriter
+                      words={
+                        isAr
+                          ? ["مواقع متكاملة", "تطبيقات جوال", "متاجر إلكترونية", "حلولاً مخصصة"]
+                          : ["full websites", "mobile apps", "online stores", "custom solutions"]
+                      }
+                    />
+                  </span>
+                  <br />
+                  {isAr ? "بسرعة و إبداع." : "with speed and craft."}
+                </>
+              )}
             </h1>
             <p
               className="sky-fade-up text-base md:text-lg text-slate-600 leading-relaxed"
               style={{ "--sky-delay": "200ms" } as React.CSSProperties}
             >
-              {isAr
-                ? "فريق متخصص من المطورين والمصممين يحوّل أفكارك إلى منتجات رقمية تعمل بكفاءة وتحب جمهورك."
-                : "A specialized team of engineers and designers turning your ideas into delightful, reliable products."}
+              {subtitle}
             </p>
             <div
               className="sky-fade-up flex flex-wrap gap-3"
               style={{ "--sky-delay": "400ms" } as React.CSSProperties}
             >
               <SkyButton asChild size="lg" variant="primary">
-                <Link href="/services">
-                  {isAr ? "اعرض الخدمات" : "Browse services"}
+                <Link href={primaryHref}>
+                  {primaryLabel}
                   <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                 </Link>
               </SkyButton>
               <SkyButton asChild size="lg" variant="secondary">
-                <Link href="/contact">{isAr ? "محادثة مجانية" : "Free consult"}</Link>
+                <Link href={secondaryHref}>{secondaryLabel}</Link>
               </SkyButton>
             </div>
           </div>

@@ -2,8 +2,9 @@ import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { getTranslations, getLocale } from "next-intl/server";
 import { getCurrentProfile } from "@/lib/auth/guards";
-import { getSiteSettings } from "@/lib/settings/get";
+import { getSiteSettings, getLandingSettings } from "@/lib/settings/get";
 import { listVisibleCategories } from "@/lib/queries/services";
+import { resolveNav } from "@/lib/landing/helpers";
 import { LocaleSwitcher } from "@/components/shared/locale-switcher";
 import { UserMenu } from "@/components/shared/user-menu";
 import { NotificationsBell } from "@/components/shared/notifications-bell";
@@ -15,13 +16,22 @@ export async function SiteHeader() {
   const tc = await getTranslations("common");
   const locale = await getLocale();
   const isAr = locale === "ar";
-  const [profile, site, categories] = await Promise.all([
+  const [profile, site, categories, landing] = await Promise.all([
     getCurrentProfile(),
     getSiteSettings(),
     listVisibleCategories(),
+    getLandingSettings().catch(() => null),
   ]);
 
   const siteName = site ? (isAr ? site.name_ar : site.name_en) : tc("siteName");
+  const nav = landing?.nav ?? {
+    show_services: true,
+    show_portfolio: true,
+    show_blog: true,
+    show_about: true,
+    show_contact: true,
+    custom_items: [],
+  };
 
   // Show only root categories in the nav dropdown.
   const rootCategories = categories
@@ -32,6 +42,15 @@ export async function SiteHeader() {
       name: isAr ? c.name_ar : c.name_en,
       description: isAr ? c.description_ar : c.description_en,
     }));
+
+  // Build the extra nav items (after Services dropdown) using landing settings.
+  const extraNav = resolveNav(landing, locale, {
+    services: tc("services"),
+    portfolio: tc("portfolio"),
+    blog: tc("blog"),
+    about: tc("about"),
+    contact: tc("contact"),
+  }).filter((i) => i.href !== "/services"); // services is rendered as a dropdown above
 
   return (
     <header className="sticky top-0 z-50 pt-3 px-3 md:px-4">
@@ -66,25 +85,20 @@ export async function SiteHeader() {
               </Link>
             </div>
 
-            {/* Center: nav */}
+            {/* Center: nav — Services dropdown is rendered only if enabled */}
             <nav className="hidden md:flex items-center">
-              <NavCategoriesDropdown
-                label={tc("services")}
-                categories={rootCategories}
-                locale={locale}
-              />
-              <Link href="/portfolio" className="sky-nav-link">
-                {tc("portfolio")}
-              </Link>
-              <Link href="/blog" className="sky-nav-link">
-                {tc("blog")}
-              </Link>
-              <Link href="/about" className="sky-nav-link">
-                {tc("about")}
-              </Link>
-              <Link href="/contact" className="sky-nav-link">
-                {tc("contact")}
-              </Link>
+              {nav.show_services && (
+                <NavCategoriesDropdown
+                  label={tc("services")}
+                  categories={rootCategories}
+                  locale={locale}
+                />
+              )}
+              {extraNav.map((item) => (
+                <Link key={item.href} href={item.href} className="sky-nav-link">
+                  {item.label}
+                </Link>
+              ))}
             </nav>
 
             {/* Right: actions */}

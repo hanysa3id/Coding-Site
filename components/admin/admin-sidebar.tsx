@@ -19,6 +19,7 @@ import {
   UsersRound,
   UserCheck,
   Menu,
+  Home,
 } from "lucide-react";
 import {
   Sheet,
@@ -54,6 +55,7 @@ const NAV_GROUPS: NavGroup[] = [
     labelAr: "المحتوى",
     labelEn: "Content",
     items: [
+      { href: "/admin/landing", labelAr: "الصفحة الرئيسية", labelEn: "Landing Page", icon: Home, roles: ["admin"] },
       { href: "/admin/categories", labelAr: "الأقسام", labelEn: "Categories", icon: FolderTree, roles: ["admin"] },
       { href: "/admin/services", labelAr: "الخدمات", labelEn: "Services", icon: Briefcase, roles: ["admin"] },
       { href: "/admin/portfolio", labelAr: "معرض الأعمال", labelEn: "Portfolio", icon: ImageIcon, roles: ["admin"] },

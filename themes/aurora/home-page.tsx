@@ -1,7 +1,9 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { listFeaturedServices } from "@/lib/queries/services";
-import { getWhatsappNumber } from "@/lib/settings/get";
+import { getWhatsappNumber, getLandingSettings } from "@/lib/settings/get";
+import { isSectionVisible, resolveHero } from "@/lib/landing/helpers";
+import type { LandingSectionId } from "@/lib/validators/settings";
 import type { PortfolioProject, BlogPost } from "@/types/database";
 
 import { AuroraHero } from "./sections/hero";
@@ -70,47 +72,61 @@ export async function HomePage({
     }
   }
 
-  const [services, projects, posts, waNumber] = await Promise.all([
+  const [services, projects, posts, waNumber, landing] = await Promise.all([
     listFeaturedServices(6).catch(() => []),
     loadPortfolio(),
     loadBlog(),
     getWhatsappNumber().catch(() => null),
+    getLandingSettings().catch(() => null),
   ]);
+
+  const show = (id: LandingSectionId) => isSectionVisible(landing, id);
+  const hero = resolveHero(landing, locale, {
+    badge: isAr ? "نُطلق منتجات رقمية مذهلة" : "We ship digital products",
+    title: heroTitle,
+    subtitle: t("heroSubtitle"),
+    primaryLabel: t("ctaServices"),
+    primaryHref: "/services",
+    secondaryLabel: t("ctaContact"),
+    secondaryHref: "/contact",
+  });
 
   return (
     <>
-      <AuroraHero
-        locale={locale}
-        title={heroTitle}
-        subtitle={t("heroSubtitle")}
-        badge={isAr ? "نُطلق منتجات رقمية مذهلة" : "We ship digital products"}
-        primaryCta={{ label: t("ctaServices"), href: "/services" }}
-        secondaryCta={{ label: t("ctaContact"), href: "/contact" }}
-      />
+      {show("hero") && (
+        <AuroraHero
+          locale={locale}
+          title={hero.title}
+          subtitle={hero.subtitle}
+          badge={hero.badge}
+          primaryCta={{ label: hero.primary.label, href: hero.primary.href }}
+          secondaryCta={{ label: hero.secondary.label, href: hero.secondary.href }}
+        />
+      )}
 
-      <AuroraLogoCloud locale={locale} />
+      {show("logo_cloud") && <AuroraLogoCloud locale={locale} />}
 
-      <AuroraBentoFeatures locale={locale} />
+      {show("features") && <AuroraBentoFeatures locale={locale} />}
 
-      <AuroraStatsBand locale={locale} />
+      {show("stats") && <AuroraStatsBand locale={locale} />}
 
-      <AuroraServicesGrid locale={locale} services={services} />
+      {show("services") && <AuroraServicesGrid locale={locale} services={services} />}
 
-      <AuroraProcessSteps locale={locale} />
+      {show("process") && <AuroraProcessSteps locale={locale} />}
 
-      <AuroraPortfolioStrip locale={locale} projects={projects} />
+      {show("portfolio") && <AuroraPortfolioStrip locale={locale} projects={projects} />}
 
-      <AuroraTestimonials locale={locale} />
+      {show("testimonials") && <AuroraTestimonials locale={locale} />}
 
-      <AuroraPricingTeaser locale={locale} />
+      {show("pricing") && <AuroraPricingTeaser locale={locale} />}
 
-      <AuroraBlogHighlight locale={locale} posts={posts} />
+      {show("blog") && <AuroraBlogHighlight locale={locale} posts={posts} />}
 
-      <AuroraFaq locale={locale} />
+      {show("faq") && <AuroraFaq locale={locale} />}
 
-      <AuroraNewsletter locale={locale} />
+      {show("newsletter") && <AuroraNewsletter locale={locale} />}
 
-      <AuroraCtaBand locale={locale} whatsappNumber={waNumber} />
+      {show("cta") && <AuroraCtaBand locale={locale} whatsappNumber={waNumber} />}
     </>
   );
 }

@@ -1,7 +1,8 @@
 import { setRequestLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { listVisibleServices, listVisibleCategories } from "@/lib/queries/services";
-import { getWhatsappNumber } from "@/lib/settings/get";
+import { getWhatsappNumber, getLandingSettings } from "@/lib/settings/get";
+import { isSectionVisible } from "@/lib/landing/helpers";
 import type {
   PortfolioProject,
   BlogPost,
@@ -9,6 +10,7 @@ import type {
   AboutSettings,
   Review,
 } from "@/types/database";
+import type { LandingSectionId } from "@/lib/validators/settings";
 
 import { HeroSlider } from "./sections/hero-slider";
 import { LogoMarquee } from "./sections/logo-marquee";
@@ -20,8 +22,6 @@ import { CtaBand } from "./sections/cta-band";
 import { BlogStrip } from "./sections/blog-strip";
 import { SkyFaq } from "./sections/faq";
 
-// Canonical homepage composition for the Sky theme.
-// Order matches the 11-point spec from the brief.
 export async function HomePage({
   params,
 }: {
@@ -118,7 +118,7 @@ export async function HomePage({
     }
   }
 
-  const [services, categories, projects, posts, team, about, reviews, waNumber] =
+  const [services, categories, projects, posts, team, about, reviews, waNumber, landing] =
     await Promise.all([
       listVisibleServices().catch(() => []),
       listVisibleCategories().catch(() => []),
@@ -128,43 +128,27 @@ export async function HomePage({
       loadAbout(),
       loadReviews(),
       getWhatsappNumber().catch(() => null),
+      getLandingSettings().catch(() => null),
     ]);
+
+  const show = (id: LandingSectionId) => isSectionVisible(landing, id);
 
   return (
     <>
-      {/* 2. Hero slider with 4 slides */}
-      <HeroSlider locale={locale} />
-
-      {/* 3. Logo marquee — B&W → color on hover */}
-      <LogoMarquee locale={locale} projects={projects} />
-
-      {/* 4. Services by category (main heart of the site) */}
-      <ServicesByCategory
-        locale={locale}
-        services={services}
-        categories={categories}
-      />
-
-      {/* 5. Portfolio showcase */}
-      <PortfolioShowcase locale={locale} projects={projects} />
-
-      {/* 8. First CTA — high in the page after seeing portfolio */}
-      <CtaBand locale={locale} whatsappNumber={waNumber} />
-
-      {/* 6. Testimonials */}
-      <SkyTestimonials locale={locale} reviews={reviews} />
-
-      {/* 7. Team + mission/vision + stats */}
-      <TeamStats locale={locale} team={team} about={about} />
-
-      {/* 9. Blog */}
-      <BlogStrip locale={locale} posts={posts} />
-
-      {/* 10. FAQ */}
-      <SkyFaq locale={locale} />
-
-      {/* 8b. Final CTA — last conversion opportunity */}
-      <CtaBand locale={locale} whatsappNumber={waNumber} />
+      {show("hero") && <HeroSlider locale={locale} landing={landing} />}
+      {show("logo_cloud") && (
+        <LogoMarquee locale={locale} projects={projects} logos={landing?.logos ?? []} />
+      )}
+      {show("services") && (
+        <ServicesByCategory locale={locale} services={services} categories={categories} />
+      )}
+      {show("portfolio") && <PortfolioShowcase locale={locale} projects={projects} />}
+      {show("cta") && <CtaBand locale={locale} whatsappNumber={waNumber} />}
+      {show("testimonials") && <SkyTestimonials locale={locale} reviews={reviews} />}
+      {show("team") && <TeamStats locale={locale} team={team} about={about} />}
+      {show("blog") && <BlogStrip locale={locale} posts={posts} />}
+      {show("faq") && <SkyFaq locale={locale} faqs={landing?.faqs ?? []} />}
+      {show("cta") && <CtaBand locale={locale} whatsappNumber={waNumber} />}
     </>
   );
 }

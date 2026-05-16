@@ -15,6 +15,7 @@ import {
   ordersPolicySchema,
   businessHoursSchema,
   themeSettingsSchema,
+  landingSettingsSchema,
   type SiteSettings,
   type WhatsappSettings,
   type SeoSettings,
@@ -26,6 +27,7 @@ import {
   type OrdersPolicyInput,
   type BusinessHoursInput,
   type ThemeSettings,
+  type LandingSettings,
 } from "@/lib/validators/settings";
 import { sendTelegramRaw } from "@/lib/telegram/send";
 
@@ -57,6 +59,14 @@ export async function saveThemeSettingsAction(input: ThemeSettings) {
     return { success: false as const, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
   return upsertSetting("theme", parsed.data);
+}
+
+export async function saveLandingSettingsAction(input: LandingSettings) {
+  const parsed = landingSettingsSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false as const, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+  return upsertSetting("landing", parsed.data);
 }
 
 export async function saveWhatsappSettingsAction(input: WhatsappSettings) {
