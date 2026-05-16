@@ -9,7 +9,9 @@ export async function uploadTeamAvatarAction(formData: FormData) {
   await requireAdmin();
   const file = formData.get("file") as File | null;
   if (!file) return { success: false as const, error: "No file" };
-  return uploadToBucket("avatars", file);
+  // Namespaced under team/ to keep admin-managed team photos separate from
+  // user-uploaded self-avatars (which live in {auth.uid()}/...).
+  return uploadToBucket("avatars", file, "team/");
 }
 
 export async function createTeamMemberAction(data: {
