@@ -111,6 +111,12 @@ export type ServiceStage = {
   sort_order: number;
 };
 
+export type TimelineStep = {
+  title: string;
+  description?: string | null;
+  date?: string | null;
+};
+
 export type PortfolioProject = {
   id: string;
   slug: string;
@@ -122,11 +128,32 @@ export type PortfolioProject = {
   delivery_date: string | null;
   cover_image: string | null;
   project_url: string | null;
+  features_ar: string[];
+  features_en: string[];
+  problems_solved_ar: string[];
+  problems_solved_en: string[];
+  technologies: string[];
+  timeline_ar: TimelineStep[];
+  timeline_en: TimelineStep[];
+  seo_title_ar: string | null;
+  seo_title_en: string | null;
+  seo_description_ar: string | null;
+  seo_description_en: string | null;
+  seo_keywords: string | null;
   is_featured: boolean;
   is_visible: boolean;
   sort_order: number;
   created_at: string;
   updated_at: string;
+};
+
+export type PortfolioGalleryItem = {
+  id: string;
+  portfolio_id: string;
+  image_url: string;
+  alt_text: string | null;
+  sort_order: number;
+  media_type: "image" | "video";
 };
 
 export type Order = {
