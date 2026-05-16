@@ -5,30 +5,65 @@
  * All styles are scoped under `.theme-aurora` so they coexist with other themes.
  * ============================================================================ */
 
-.theme-aurora {
-  /* Surface palette */
+/* DARK MODE (default) -------------------------------------------------- */
+.theme-aurora,
+.theme-aurora[data-mode="dark"] {
   --aurora-bg:        #07070d;
   --aurora-bg-soft:   #0b0b14;
   --aurora-surface:   #11111b;
+  --aurora-surface-2: #15151f;
   --aurora-border:    rgba(255, 255, 255, 0.08);
   --aurora-border-2:  rgba(255, 255, 255, 0.14);
 
-  /* Text */
   --aurora-fg:        rgba(255, 255, 255, 0.96);
   --aurora-fg-muted:  rgba(255, 255, 255, 0.62);
   --aurora-fg-dim:    rgba(255, 255, 255, 0.42);
 
-  /* Brand gradient stops */
+  --aurora-overlay-hi: rgba(255, 255, 255, 0.06);
+  --aurora-overlay-lo: rgba(255, 255, 255, 0.02);
+
+  /* Brand gradient stops are shared with light mode — they are the brand. */
   --aurora-grad-1:    #8b5cf6;   /* violet-500 */
   --aurora-grad-2:    #ec4899;   /* pink-500 */
   --aurora-grad-3:    #06b6d4;   /* cyan-500 */
 
-  /* Accent ring */
   --aurora-ring:      rgba(139, 92, 246, 0.35);
 
+  /* Button: on-brand inverse */
+  --aurora-btn-primary-bg: #ffffff;
+  --aurora-btn-primary-fg: #14141f;
+
+  color-scheme: dark;
+}
+
+/* LIGHT MODE ----------------------------------------------------------- */
+.theme-aurora[data-mode="light"] {
+  --aurora-bg:        #fafafe;
+  --aurora-bg-soft:   #f3f3f9;
+  --aurora-surface:   #ffffff;
+  --aurora-surface-2: #fbfbff;
+  --aurora-border:    rgba(15, 15, 30, 0.08);
+  --aurora-border-2:  rgba(15, 15, 30, 0.14);
+
+  --aurora-fg:        #14141f;
+  --aurora-fg-muted:  #525266;
+  --aurora-fg-dim:    #82828f;
+
+  --aurora-overlay-hi: rgba(15, 15, 30, 0.04);
+  --aurora-overlay-lo: rgba(15, 15, 30, 0.02);
+
+  --aurora-ring:      rgba(139, 92, 246, 0.45);
+
+  /* Button: dark on light */
+  --aurora-btn-primary-bg: #14141f;
+  --aurora-btn-primary-fg: #ffffff;
+
+  color-scheme: light;
+}
+
+.theme-aurora {
   background-color: var(--aurora-bg);
   color: var(--aurora-fg);
-  color-scheme: dark;
 }
 
 /* Page-level radial mesh — sits behind everything, never scrolls weirdly */
@@ -41,6 +76,15 @@
     radial-gradient(60rem 60rem at 10% -10%, rgba(139, 92, 246, 0.15), transparent 60%),
     radial-gradient(50rem 50rem at 110% 20%, rgba(236, 72, 153, 0.10), transparent 60%),
     radial-gradient(45rem 45rem at 50% 110%, rgba(6, 182, 212, 0.10), transparent 60%),
+    var(--aurora-bg);
+}
+
+/* In light mode the radial tints look washed out — keep them softer */
+.theme-aurora[data-mode="light"] .aurora-mesh {
+  background:
+    radial-gradient(60rem 60rem at 10% -10%, rgba(139, 92, 246, 0.10), transparent 60%),
+    radial-gradient(50rem 50rem at 110% 20%, rgba(236, 72, 153, 0.07), transparent 60%),
+    radial-gradient(45rem 45rem at 50% 110%, rgba(6, 182, 212, 0.07), transparent 60%),
     var(--aurora-bg);
 }
 
@@ -66,7 +110,7 @@
 /* Glass card surface */
 .theme-aurora .aurora-glass {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+    linear-gradient(180deg, var(--aurora-overlay-hi), var(--aurora-overlay-lo)),
     var(--aurora-surface);
   border: 1px solid var(--aurora-border);
   backdrop-filter: blur(8px);
@@ -81,13 +125,17 @@
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), transparent 30%, transparent 70%, rgba(6, 182, 212, 0.3));
+  background: linear-gradient(135deg, var(--aurora-grad-1), transparent 30%, transparent 70%, var(--aurora-grad-3));
   -webkit-mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
   -webkit-mask-composite: xor;
           mask-composite: exclude;
   opacity: 0;
   transition: opacity 200ms;
   pointer-events: none;
+}
+
+.theme-aurora[data-mode="light"] .aurora-glass {
+  box-shadow: 0 1px 2px rgba(15, 15, 30, 0.04), 0 8px 24px -12px rgba(15, 15, 30, 0.08);
 }
 
 .theme-aurora .aurora-glass:hover::after {
