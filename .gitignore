@@ -28,9 +28,14 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files
-.env*.local
+# env files — keep .env.example tracked, hide everything else
 .env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+!.env.example
 
 # vercel
 .vercel
