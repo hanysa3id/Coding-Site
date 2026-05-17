@@ -23,14 +23,23 @@ export function MoonLogoCloud({
     description?: string | null;
   }[] = [];
   for (const entry of logos) {
-    const t = entry.name.trim();
+    // Defensive: pre-migration data may still be plain strings.
+    const name = typeof entry === "string" ? entry : entry?.name;
+    const image = typeof entry === "string" ? null : entry?.image_url;
+    const desc =
+      typeof entry === "string"
+        ? null
+        : isAr
+        ? entry?.description_ar
+        : entry?.description_en;
+    const t = (name ?? "").trim();
     if (!t || seen.has(t.toLowerCase())) continue;
     seen.add(t.toLowerCase());
     items.push({
       key: `admin-${t}`,
       label: t,
-      image: entry.image_url,
-      description: isAr ? entry.description_ar : entry.description_en,
+      image,
+      description: desc,
     });
   }
   for (const p of projects) {

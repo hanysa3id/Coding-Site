@@ -17,10 +17,13 @@ export function ComboLogoCloud({
   const seen = new Set<string>();
   const items: { key: string; label: string; image?: string | null }[] = [];
   for (const entry of logos) {
-    const t = entry.name.trim();
+    // Defensive: pre-migration data may still be plain strings.
+    const name = typeof entry === "string" ? entry : entry?.name;
+    const image = typeof entry === "string" ? null : entry?.image_url;
+    const t = (name ?? "").trim();
     if (!t || seen.has(t.toLowerCase())) continue;
     seen.add(t.toLowerCase());
-    items.push({ key: `admin-${t}`, label: t, image: entry.image_url });
+    items.push({ key: `admin-${t}`, label: t, image });
   }
   for (const p of projects) {
     const label = (p.client_name ?? (isAr ? p.title_ar : p.title_en) ?? "").trim();

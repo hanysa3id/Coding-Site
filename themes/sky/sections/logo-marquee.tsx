@@ -22,10 +22,14 @@ export function LogoMarquee({
   const seen = new Set<string>();
   const items: { key: string; label: string; image: string | null }[] = [];
   for (const entry of logos) {
-    const label = entry.name.trim();
+    // Defensive: pre-migration data may still be plain strings instead of
+    // { name, image_url? } objects.
+    const name = typeof entry === "string" ? entry : entry?.name;
+    const image = typeof entry === "string" ? null : entry?.image_url || null;
+    const label = (name ?? "").trim();
     if (!label || seen.has(label.toLowerCase())) continue;
     seen.add(label.toLowerCase());
-    items.push({ key: `admin-${label}`, label, image: entry.image_url || null });
+    items.push({ key: `admin-${label}`, label, image });
   }
 
   // Priority 2: real client names from the portfolio table.

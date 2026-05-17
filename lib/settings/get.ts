@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { unstable_noStore as noStore } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { landingSettingsSchema } from "@/lib/validators/settings";
 import type {
   SiteSettings,
   WhatsappSettings,
@@ -88,7 +89,14 @@ export async function getThemeSettings(): Promise<ThemeSettings | null> {
 }
 
 export async function getLandingSettings(): Promise<LandingSettings | null> {
-  return getSetting<LandingSettings>("landing");
+  // Parse through the schema so legacy shapes (e.g. logos as a plain string
+  // array) are migrated by the Zod preprocess into the current object shape.
+  // Without this every theme that iterates `landing.logos` and accesses
+  // `entry.name.trim()` would crash on data saved before the schema change.
+  const raw = await getSetting<unknown>("landing");
+  if (!raw || typeof raw !== "object") return null;
+  const parsed = landingSettingsSchema.safeParse(raw);
+  return parsed.success ? parsed.data : null;
 }
 
 export async function getThemeCustomizationsRaw(): Promise<Record<string, unknown> | null> {
