@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/routing";
 import { toast } from "sonner";
 import {
@@ -102,7 +103,9 @@ export function ThemeBuilderForm({
   isActive: boolean;
 }) {
   const isAr = locale === "ar";
+  const router = useRouter();
   const [state, setState] = useState<ThemeCustomization>(initial);
+  const [savedSnapshot, setSavedSnapshot] = useState<ThemeCustomization>(initial);
   const [isPending, startTransition] = useTransition();
   const [previewKey, setPreviewKey] = useState(0);
   const previewRef = useRef<HTMLIFrameElement | null>(null);
@@ -158,8 +161,8 @@ export function ThemeBuilderForm({
   }
 
   const dirty = useMemo(
-    () => JSON.stringify(state) !== JSON.stringify(initial),
-    [state, initial]
+    () => JSON.stringify(state) !== JSON.stringify(savedSnapshot),
+    [state, savedSnapshot]
   );
 
   // Validate live so users see schema errors
@@ -199,7 +202,13 @@ export function ThemeBuilderForm({
         toast.error(r.error);
         return;
       }
-      toast.success(isAr ? "تم حفظ التخصيصات" : "Customization saved");
+      // Snapshot what we just saved so the dirty flag resets without a reload.
+      setSavedSnapshot(validation.data);
+      // Refresh the iframe so the preview re-fetches the new server-rendered
+      // CSS variables, and refresh the admin route's server data too.
+      setPreviewKey((k) => k + 1);
+      router.refresh();
+      toast.success(isAr ? "تم حفظ التخصيصات وتطبيقها" : "Saved & applied");
     });
   }
   function onReset() {

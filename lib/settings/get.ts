@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { unstable_noStore as noStore } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type {
   SiteSettings,
@@ -23,6 +24,11 @@ import type {
  * `getSiteSettings()` multiple times in one render does a single DB hit.
  */
 const fetchAllSettings = cache(async (): Promise<Map<string, Record<string, unknown>>> => {
+  // Opt out of Next's data cache for the underlying fetch — `settings` is a
+  // small singleton table that admins edit live from /admin/themes and
+  // /admin/settings, so we can never serve stale data. React `cache()`
+  // still memoizes within a single request.
+  noStore();
   const map = new Map<string, Record<string, unknown>>();
   try {
     const supabase = createAdminClient();
