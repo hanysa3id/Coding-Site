@@ -3,6 +3,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth/guards";
 import { revalidatePath } from "next/cache";
+
+/**
+ * Invalidate everything that depends on the active theme + customization:
+ * the admin page, the dynamic locale segment, and the route group with the
+ * actual public layout. We hit several paths because Next.js path-based
+ * revalidation does not cascade through route groups automatically.
+ */
+function revalidateThemeSurfaces() {
+  revalidatePath("/admin/themes", "layout");
+  revalidatePath("/[locale]", "layout");
+  revalidatePath("/[locale]/(public)", "layout");
+  revalidatePath("/", "layout");
+}
 import {
   themeCustomizationSchema,
   themeCustomizationsBagSchema,
@@ -48,8 +61,7 @@ export async function saveThemeCustomizationAction(
     .upsert({ key: "theme_customizations", value: finalBag.data }, { onConflict: "key" });
   if (error) return { success: false, error: error.message };
 
-  revalidatePath("/admin/themes");
-  revalidatePath("/", "layout");
+  revalidateThemeSurfaces();
   return { success: true };
 }
 
@@ -64,8 +76,7 @@ export async function resetThemeCustomizationAction(themeId: ThemeId): Promise<R
     .upsert({ key: "theme_customizations", value: bag }, { onConflict: "key" });
   if (error) return { success: false, error: error.message };
 
-  revalidatePath("/admin/themes");
-  revalidatePath("/", "layout");
+  revalidateThemeSurfaces();
   return { success: true };
 }
 
@@ -82,6 +93,6 @@ export async function activateThemeAction(themeId: ThemeId): Promise<Result> {
     .from("settings")
     .upsert({ key: "theme", value: { active: parsed.data } }, { onConflict: "key" });
   if (error) return { success: false, error: error.message };
-  revalidatePath("/", "layout");
+  revalidateThemeSurfaces();
   return { success: true };
 }
