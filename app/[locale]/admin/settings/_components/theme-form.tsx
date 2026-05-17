@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import type { ThemeSettings } from "@/lib/validators/settings";
 import { saveThemeSettingsAction } from "../actions";
 
-type ThemeId = "classic" | "aurora" | "nova" | "sky" | "moon" | "prism";
+type ThemeId = "classic" | "aurora" | "nova" | "sky" | "moon" | "prism" | "combo";
 
 type ThemeOption = {
   id: ThemeId;
@@ -68,6 +68,14 @@ const OPTIONS: ThemeOption[] = [
     descAr: "ثيم الوكالات — ألوان طيفية صاخبة، ستيكرز، marquee، فيديو في الـ Hero، spotlight cursor، يعبر عن كود + تصميم + تسويق.",
     descEn: "Full-spectrum agency theme — bold magenta/cyan/lime, sticker tags, marquee strips, video hero, spotlight cursor. Code + design + marketing in one voice.",
     preview: <PrismPreview />,
+  },
+  {
+    id: "combo",
+    nameAr: "Combo",
+    nameEn: "Combo",
+    descAr: "ثيم استوديو هندسي مستوحى من invertase.io — بنفسجي غامق، شبكة منقطة، مكعبات 3D متحركة في الـ Hero، gradient orbs، typography جريء.",
+    descEn: "Engineering-studio theme inspired by invertase.io — deep violet, dotted grid backdrop, animated 3D cube cluster, gradient orbs, bold display type.",
+    preview: <ComboPreview />,
   },
 ];
 
@@ -316,6 +324,86 @@ function NovaPreview() {
         <div className="h-1 w-1 rounded-full bg-yellow-400/70" />
         <div className="h-1 w-1 rounded-full bg-green-400/70" />
         <div className="ms-1 h-1 w-12 rounded bg-violet-400/70" />
+      </div>
+    </div>
+  );
+}
+
+function ComboPreview() {
+  return (
+    <div
+      className="relative h-full w-full p-2 flex flex-col gap-1.5 overflow-hidden"
+      style={{
+        backgroundColor: "#0a0418",
+        backgroundImage:
+          "radial-gradient(20rem 14rem at 5% -10%, rgba(139,92,246,.45), transparent 60%), radial-gradient(18rem 14rem at 100% 30%, rgba(236,72,153,.35), transparent 60%), radial-gradient(16rem 12rem at 50% 110%, rgba(6,182,212,.30), transparent 60%)",
+      }}
+    >
+      {/* dot grid */}
+      <div
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: "radial-gradient(rgba(167,139,250,.5) 1px, transparent 1px)",
+          backgroundSize: "12px 12px",
+        }}
+        aria-hidden
+      />
+      {/* navbar */}
+      <div className="relative flex items-center gap-1 rounded-lg bg-white/[0.06] backdrop-blur border border-white/15 px-1.5 py-1">
+        <div
+          className="h-2 w-2 rounded-sm"
+          style={{ background: "linear-gradient(135deg,#8b5cf6,#ec4899,#06b6d4)" }}
+        />
+        <div className="h-1.5 w-8 rounded bg-white/85" />
+        <div className="ms-auto flex gap-0.5">
+          <div className="h-1 w-3 rounded bg-white/35" />
+          <div className="h-1 w-3 rounded bg-white/35" />
+          <div className="h-1 w-3 rounded bg-white/35" />
+        </div>
+      </div>
+      {/* hero with little cube */}
+      <div className="relative flex-1 grid grid-cols-[1.2fr_1fr] gap-1 px-1">
+        <div className="flex flex-col items-start justify-center gap-1">
+          <div className="h-1 w-6 rounded-full bg-violet-300" />
+          <div className="h-1.5 w-20 rounded bg-white/90" />
+          <div
+            className="h-1.5 w-14 rounded"
+            style={{ background: "linear-gradient(135deg,#8b5cf6,#ec4899,#06b6d4)" }}
+          />
+          <div className="mt-1.5 flex gap-1">
+            <div
+              className="h-3 w-10 rounded-full text-white"
+              style={{ background: "linear-gradient(135deg,#8b5cf6,#ec4899,#06b6d4)" }}
+            />
+            <div className="h-3 w-10 rounded-full border border-white/20 bg-white/[0.04]" />
+          </div>
+        </div>
+        <div className="grid place-items-center">
+          {/* mini 3D cube */}
+          <div
+            className="relative w-8 h-8"
+            style={{ transform: "rotateX(-22deg) rotateY(28deg)", transformStyle: "preserve-3d" }}
+          >
+            <div
+              className="absolute inset-0"
+              style={{ background: "linear-gradient(135deg,#8b5cf6,#7c3aed)", transform: "translateZ(8px)" }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{ background: "linear-gradient(135deg,#ec4899,#db2777)", transform: "rotateY(90deg) translateZ(8px)" }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{ background: "linear-gradient(135deg,#06b6d4,#0891b2)", transform: "rotateX(90deg) translateZ(8px)" }}
+            />
+          </div>
+        </div>
+      </div>
+      {/* cards row */}
+      <div className="relative grid grid-cols-3 gap-1">
+        <div className="h-3 rounded border border-white/10 bg-white/[0.04]" />
+        <div className="h-3 rounded border border-violet-400/30 bg-violet-500/[0.10]" />
+        <div className="h-3 rounded border border-white/10 bg-white/[0.04]" />
       </div>
     </div>
   );

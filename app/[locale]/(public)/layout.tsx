@@ -89,6 +89,12 @@ export default async function PublicLayout({
           <div className="prism-grain" aria-hidden />
         </>
       )}
+      {themeId === "combo" && (
+        <>
+          <div className="combo-mesh" aria-hidden />
+          <div className="combo-grid" aria-hidden />
+        </>
+      )}
 
       {/* Extra effects opted-in via the Theme Builder */}
       {customization?.effects.spotlight_cursor && (
