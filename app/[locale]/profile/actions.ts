@@ -50,7 +50,40 @@ export async function changePasswordAction(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({ password: parsed.data.new_password });
+
+  // 1) Re-authenticate with the current password so a hijacked session can't
+  //    silently rotate the password. We need the user's email for this, and
+  //    we use a one-off non-cookie client so the verification call doesn't
+  //    mutate the user's live session cookies.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const email = user?.email;
+  if (!email) {
+    return { success: false, error: "Could not resolve account email" };
+  }
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) {
+    return { success: false, error: "Auth is not configured" };
+  }
+  const { createClient: createPlainClient } = await import("@supabase/supabase-js");
+  const verifier = createPlainClient(url, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { error: verifyError } = await verifier.auth.signInWithPassword({
+    email,
+    password: parsed.data.current_password,
+  });
+  if (verifyError) {
+    return { success: false, error: "Current password is incorrect" };
+  }
+
+  // 2) Now rotate to the new password on the real session client.
+  const { error } = await supabase.auth.updateUser({
+    password: parsed.data.new_password,
+  });
   if (error) return { success: false, error: error.message };
   return { success: true };
 }

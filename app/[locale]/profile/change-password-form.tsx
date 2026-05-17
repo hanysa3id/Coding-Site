@@ -41,6 +41,21 @@ export function ChangePasswordForm({ locale }: { locale: string }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md">
       <div className="space-y-2">
+        <Label>{isAr ? "كلمة المرور الحالية" : "Current password"}</Label>
+        <Input
+          type="password"
+          autoComplete="current-password"
+          {...register("current_password")}
+          disabled={isPending}
+        />
+        {errors.current_password && (
+          <p className="text-sm text-destructive">
+            {isAr ? "كلمة المرور الحالية مطلوبة" : errors.current_password.message}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
         <Label>{isAr ? "كلمة المرور الجديدة" : "New password"}</Label>
         <Input
           type="password"
