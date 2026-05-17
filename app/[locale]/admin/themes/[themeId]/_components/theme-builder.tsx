@@ -31,7 +31,17 @@ import {
   Box,
   Layers,
   ExternalLink,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   themeCustomizationSchema,
   toCssVariables,
@@ -211,17 +221,22 @@ export function ThemeBuilderForm({
       toast.success(isAr ? "تم حفظ التخصيصات وتطبيقها" : "Saved & applied");
     });
   }
-  function onReset() {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  function onDelete() {
     startTransition(async () => {
       const r = await resetThemeCustomizationAction(themeId);
       if (!r.success) {
         toast.error(r.error);
         return;
       }
-      toast.success(isAr ? "تم استرجاع التصميم الافتراضي" : "Reset to base theme");
-      // Refresh by reloading the page
+      toast.success(isAr ? "تم حذف التخصيصات" : "Customization deleted");
+      // Hard reload so the form re-initializes from the cleared server state.
       window.location.reload();
     });
+  }
+  function onDiscardLocal() {
+    setState(savedSnapshot);
+    toast.info(isAr ? "تم تجاهل التعديلات غير المحفوظة" : "Unsaved edits discarded");
   }
   function onActivate() {
     startTransition(async () => {
@@ -307,9 +322,21 @@ export function ThemeBuilderForm({
               {isAr ? "تفعيل" : "Activate"}
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={onReset} disabled={isPending}>
-            <RotateCcw className="h-3.5 w-3.5" />
-            {isAr ? "إعادة تعيين" : "Reset"}
+          {dirty && (
+            <Button variant="ghost" size="sm" onClick={onDiscardLocal} disabled={isPending}>
+              <RotateCcw className="h-3.5 w-3.5" />
+              {isAr ? "تجاهل التعديلات" : "Discard"}
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setConfirmDelete(true)}
+            disabled={isPending}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            {isAr ? "حذف التخصيصات" : "Delete customization"}
           </Button>
           <Button onClick={onSave} disabled={!dirty || isPending} size="sm">
             <Save className="h-3.5 w-3.5" />
@@ -317,6 +344,58 @@ export function ThemeBuilderForm({
           </Button>
         </div>
       </div>
+
+      <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              {isAr
+                ? `حذف تخصيصات «${themeName}»؟`
+                : `Delete the "${themeName}" customization?`}
+            </DialogTitle>
+            <DialogDescription className="pt-2 space-y-2">
+              <span className="block">
+                {isAr
+                  ? "سيتم حذف كل التخصيصات المحفوظة لهذا الثيم (الألوان، الخطوط، الانحناءات، الحركات، الأصوات، ترتيب الأقسام) وسيعود لمظهره الأصلي."
+                  : "All saved customizations for this theme (colors, fonts, radius, animations, sounds, section order) will be removed and the theme will revert to its built-in defaults."}
+              </span>
+              {isActive && (
+                <span className="block text-amber-600 dark:text-amber-400 font-medium">
+                  {isAr
+                    ? "تنبيه: هذا الثيم مفعّل حالياً، فالتغيير سيظهر فوراً على الموقع العام."
+                    : "Heads up: this theme is currently live, so the change will take effect on the public site immediately."}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setConfirmDelete(false)}
+              disabled={isPending}
+            >
+              {isAr ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={onDelete}
+              disabled={isPending}
+            >
+              <Trash2 className="h-4 w-4" />
+              {isPending
+                ? isAr
+                  ? "جارٍ الحذف..."
+                  : "Deleting..."
+                : isAr
+                ? "حذف نهائياً"
+                : "Delete permanently"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_minmax(0,520px)]">
         {/* ── Builder controls ─────────────────────────────────────────── */}

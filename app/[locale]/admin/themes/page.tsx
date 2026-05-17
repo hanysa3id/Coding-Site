@@ -1,10 +1,10 @@
-import { Link } from "@/i18n/routing";
 import { getLocale } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Palette, Wrench, Sparkles } from "lucide-react";
+import { Palette, Sparkles } from "lucide-react";
 import { themes, type ThemeId } from "@/themes";
 import { getThemeSettings, getThemeCustomizationsRaw } from "@/lib/settings/get";
+import { ThemeCardActions } from "./_components/theme-card-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -62,22 +62,13 @@ export default async function ThemesIndexPage() {
                 <p className="text-sm text-muted-foreground line-clamp-3">
                   {t.config.description}
                 </p>
-                <div className="flex items-center gap-2 pt-1">
-                  <Link
-                    href={`/admin/themes/${id}`}
-                    className="inline-flex items-center gap-1.5 rounded-md bg-primary text-primary-foreground px-3 h-9 text-sm font-medium hover:opacity-90"
-                  >
-                    <Wrench className="h-3.5 w-3.5" />
-                    {isAr ? "تخصيص" : "Customize"}
-                  </Link>
-                  <Link
-                    href="/"
-                    target="_blank"
-                    className="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 h-9 text-sm font-medium hover:bg-muted"
-                  >
-                    {isAr ? "معاينة" : "Preview"}
-                  </Link>
-                </div>
+                <ThemeCardActions
+                  themeId={id}
+                  themeName={t.config.name}
+                  customized={customized}
+                  isActive={isActive}
+                  locale={locale}
+                />
               </CardContent>
             </Card>
           );
