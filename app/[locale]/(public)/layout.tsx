@@ -95,6 +95,7 @@ export default async function PublicLayout({
           <div className="combo-grid" aria-hidden />
         </>
       )}
+      {themeId === "hany" && <div className="hany-mesh" aria-hidden />}
 
       {/* Extra effects opted-in via the Theme Builder */}
       {customization?.effects.spotlight_cursor && (

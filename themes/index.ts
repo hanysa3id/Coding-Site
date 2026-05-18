@@ -5,6 +5,7 @@ import * as sky from "./sky";
 import * as moon from "./moon";
 import * as prism from "./prism";
 import * as combo from "./combo";
+import * as hany from "./hany";
 import { getThemeSettings } from "@/lib/settings/get";
 
 export const themes = {
@@ -15,6 +16,7 @@ export const themes = {
   moon,
   prism,
   combo,
+  hany,
 } as const;
 
 export type ThemeId = keyof typeof themes;

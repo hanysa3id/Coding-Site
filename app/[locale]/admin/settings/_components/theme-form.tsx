@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import type { ThemeSettings } from "@/lib/validators/settings";
 import { saveThemeSettingsAction } from "../actions";
 
-type ThemeId = "classic" | "aurora" | "nova" | "sky" | "moon" | "prism" | "combo";
+type ThemeId = "classic" | "aurora" | "nova" | "sky" | "moon" | "prism" | "combo" | "hany";
 
 type ThemeOption = {
   id: ThemeId;
@@ -76,6 +76,16 @@ const OPTIONS: ThemeOption[] = [
     descAr: "ثيم استوديو هندسي مستوحى من invertase.io — بنفسجي غامق، شبكة منقطة، مكعبات 3D متحركة في الـ Hero، gradient orbs، typography جريء.",
     descEn: "Engineering-studio theme inspired by invertase.io — deep violet, dotted grid backdrop, animated 3D cube cluster, gradient orbs, bold display type.",
     preview: <ComboPreview />,
+  },
+  {
+    id: "hany",
+    nameAr: "Hany",
+    nameEn: "Hany",
+    descAr:
+      "ثيم فاتح بريميوم — تدرّجات بنفسجية/سماوية، Navbar زجاجي، خدمات مُجمَّعة (Build / Grow / Maintain)، كل أقسام لوحة التحكم مدعومة. مُحسَّن للتحويل.",
+    descEn:
+      "Premium light theme — indigo/violet/cyan gradient, glass navbar, grouped services (Build / Grow / Maintain), every landing section supported. Conversion-tuned.",
+    preview: <HanyPreview />,
   },
 ];
 
@@ -515,6 +525,57 @@ function MoonPreview() {
         <div className="h-3 rounded border border-white/10 bg-white/[0.04]" />
         <div className="h-3 rounded border border-sky-400/30 bg-sky-400/[0.08]" />
         <div className="h-3 rounded border border-white/10 bg-white/[0.04]" />
+      </div>
+    </div>
+  );
+}
+
+function HanyPreview() {
+  const grad = "linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #06b6d4 100%)";
+  return (
+    <div
+      className="relative h-full w-full p-2 flex flex-col gap-1.5 overflow-hidden"
+      style={{
+        backgroundColor: "#f8fafc",
+        backgroundImage:
+          "radial-gradient(20rem 15rem at 12% 0%, rgba(79,70,229,.18), transparent 60%), radial-gradient(20rem 15rem at 100% 20%, rgba(6,182,212,.18), transparent 60%)",
+      }}
+    >
+      {/* Glass navbar */}
+      <div className="flex items-center gap-1 rounded-lg bg-white/70 backdrop-blur border border-white/60 px-1.5 py-1 shadow-sm">
+        <div className="h-2 w-2 rounded-sm" style={{ background: grad }} />
+        <div className="h-1.5 w-8 rounded bg-slate-700" />
+        <div className="ms-auto flex gap-0.5">
+          <div className="h-1 w-3 rounded bg-slate-300" />
+          <div className="h-1 w-3 rounded bg-slate-300" />
+          <div className="h-1 w-3 rounded bg-slate-300" />
+        </div>
+      </div>
+      {/* Hero */}
+      <div className="flex flex-col items-center text-center gap-1 mt-1">
+        <div className="h-1 w-8 rounded-full" style={{ background: grad }} />
+        <div className="h-1.5 w-16 rounded bg-slate-800" />
+        <div className="h-1.5 w-12 rounded" style={{ background: grad }} />
+        <div className="mt-1 flex gap-1">
+          <div className="h-3 w-10 rounded-full" style={{ background: grad }} />
+          <div className="h-3 w-10 rounded-full border border-slate-300 bg-white" />
+        </div>
+      </div>
+      {/* Three grouped service cards (Build / Grow / Maintain) */}
+      <div className="mt-auto grid grid-cols-3 gap-1">
+        <div className="h-6 rounded border border-slate-200 bg-white p-0.5 flex flex-col gap-0.5">
+          <div className="h-1.5 w-1.5 rounded-sm" style={{ background: grad }} />
+          <div className="h-0.5 w-3 rounded bg-slate-400" />
+        </div>
+        <div className="h-6 rounded border border-transparent p-0.5 flex flex-col gap-0.5"
+             style={{ background: "linear-gradient(white,white) padding-box, " + grad + " border-box" }}>
+          <div className="h-1.5 w-1.5 rounded-sm bg-emerald-500" />
+          <div className="h-0.5 w-3 rounded bg-slate-500" />
+        </div>
+        <div className="h-6 rounded border border-slate-200 bg-white p-0.5 flex flex-col gap-0.5">
+          <div className="h-1.5 w-1.5 rounded-sm bg-cyan-500" />
+          <div className="h-0.5 w-3 rounded bg-slate-400" />
+        </div>
       </div>
     </div>
   );
