@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/auth/guards";
 import { SiteHeader } from "@/components/public/site-header";

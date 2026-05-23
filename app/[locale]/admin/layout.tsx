@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { requireStaff } from "@/lib/auth/guards";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
