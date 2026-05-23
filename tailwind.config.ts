@@ -21,6 +21,8 @@ const config: Config = {
         sans: ["var(--font-cairo)", "var(--font-inter)", "sans-serif"],
         cairo: ["var(--font-cairo)", "sans-serif"],
         inter: ["var(--font-inter)", "sans-serif"],
+        arabic: ["var(--font-ibm-plex-arabic)", "var(--font-cairo)", "sans-serif"],
+        display: ["var(--font-poppins)", "var(--font-cairo)", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

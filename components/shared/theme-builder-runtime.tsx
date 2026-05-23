@@ -73,17 +73,23 @@ export function ThemeBuilderRuntime({
     if (click === "none" && hover === "none") return;
 
     function ensureCtx(): AudioContext | null {
-      if (audioRef.current) return audioRef.current;
-      try {
-        const AC =
-          window.AudioContext ||
-          (window as unknown as { webkitAudioContext: typeof AudioContext })
-            .webkitAudioContext;
-        audioRef.current = new AC();
-        return audioRef.current;
-      } catch {
-        return null;
+      let ctx = audioRef.current;
+      if (!ctx) {
+        try {
+          const AC =
+            window.AudioContext ||
+            (window as unknown as { webkitAudioContext: typeof AudioContext })
+              .webkitAudioContext;
+          ctx = new AC();
+          audioRef.current = ctx;
+        } catch {
+          return null;
+        }
       }
+      if (ctx && ctx.state === "suspended") {
+        ctx.resume().catch(() => {});
+      }
+      return ctx;
     }
 
     function play(preset: SoundPreset) {
@@ -181,21 +187,83 @@ export function ThemeBuilderRuntime({
   }, [customization]);
 
   // ── 5: live-preview hook (admin Theme Builder iframe) ──────────────────────
+  // The server layout already renders a <style> with the saved customization
+  // inside <body>. CSS cascade rule: later in source order wins (same
+  // specificity). So we must ALSO place the preview <style> inside <body>,
+  // appended LAST, otherwise the saved values shadow the live edits.
   useEffect(() => {
+    function ensurePreviewEl(): HTMLStyleElement {
+      let el = document.getElementById("app-theme-vars-preview") as HTMLStyleElement | null;
+      if (!el) {
+        el = document.createElement("style");
+        el.id = "app-theme-vars-preview";
+      }
+      // Always re-attach to the END of body so it wins the cascade over the
+      // server-rendered <style> that sits earlier in the body subtree.
+      if (el.parentElement !== document.body || el.nextElementSibling !== null) {
+        document.body.appendChild(el);
+      }
+      return el;
+    }
+
     function onMsg(e: MessageEvent) {
       if (e.origin !== window.location.origin) return;
       const data = e.data;
       if (data && data.type === "theme-builder:vars" && typeof data.css === "string") {
-        let el = document.getElementById("app-theme-vars-preview") as HTMLStyleElement | null;
-        if (!el) {
-          el = document.createElement("style");
-          el.id = "app-theme-vars-preview";
-          document.head.appendChild(el);
-        }
+        const el = ensurePreviewEl();
         el.textContent = data.css;
+      } else if (data && data.type === "theme-builder:sections" && Array.isArray(data.sections)) {
+        const sectionsList = data.sections as any[];
+        let container = document.getElementById("sections-container");
+        if (!container) {
+          const sections = document.querySelectorAll("section[id]");
+          if (sections.length > 0) {
+            container = sections[0].parentElement;
+          }
+        }
+        if (container) {
+          sectionsList.forEach((sec) => {
+            const el = document.getElementById(sec.id);
+            if (el) {
+              // Reorder
+              container!.appendChild(el);
+              
+              // Visibility
+              el.style.display = sec.visible ? "" : "none";
+              
+              // Animations
+              el.className = el.className.replace(/app-anim-\S+/g, "").trim();
+              if (sec.animation !== "none" && sec.visible) {
+                el.classList.add(animationClass(sec.animation));
+                el.style.setProperty("--app-anim-duration", `${sec.duration_ms}ms`);
+                el.style.setProperty("--app-anim-stagger", `${sec.stagger_ms}ms`);
+                el.classList.remove("app-anim-paused");
+                
+                // Restart animation
+                const prevAnim = el.style.animation;
+                el.style.animation = "none";
+                el.offsetHeight; // trigger reflow
+                el.style.animation = prevAnim;
+              }
+            }
+          });
+        }
       }
     }
+    // Also handle being inside an iframe: signal the parent we are ready
+    // so it can send the initial CSS (avoids losing the very first message
+    // before this listener mounts).
     window.addEventListener("message", onMsg);
+    if (window.parent && window.parent !== window) {
+      try {
+        window.parent.postMessage(
+          { type: "theme-builder:ready" },
+          window.location.origin
+        );
+      } catch {
+        /* cross-origin guard */
+      }
+    }
     return () => window.removeEventListener("message", onMsg);
   }, []);
 

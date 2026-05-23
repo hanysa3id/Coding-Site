@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import type { ThemeSettings } from "@/lib/validators/settings";
 import { saveThemeSettingsAction } from "../actions";
 
-type ThemeId = "classic" | "aurora" | "nova" | "sky" | "moon" | "prism" | "combo" | "hany";
+type ThemeId = "pro";
 
 type ThemeOption = {
   id: ThemeId;
@@ -22,70 +22,12 @@ type ThemeOption = {
 
 const OPTIONS: ThemeOption[] = [
   {
-    id: "classic",
-    nameAr: "Classic",
-    nameEn: "Classic",
-    descAr: "تصميم فاتح بسيط، عملي، يصلح لمعظم الأعمال — شريط علوي بسيط، بطاقات بيضاء، أزرار داكنة.",
-    descEn: "Clean light layout — neutral header, white cards, dark buttons. Safe choice for most businesses.",
-    preview: <ClassicPreview />,
-  },
-  {
-    id: "aurora",
-    nameAr: "Aurora",
-    nameEn: "Aurora",
-    descAr: "مظلم متدرّج — كرات gradient عائمة، glass cards، bento layouts. مستوحى من invertase / n8n.",
-    descEn: "Dark + gradient — floating orbs, glass cards, bento layouts. Inspired by invertase / n8n.",
-    preview: <AuroraPreview />,
-  },
-  {
-    id: "nova",
-    nameAr: "Nova",
-    nameEn: "Nova",
-    descAr: "مظلم تطويري — بنفسجي صاف، code blocks، 3D mockups. مستوحى من novu.co.",
-    descEn: "Developer-platform dark — pure violet, code blocks, 3D mockups. Inspired by novu.co.",
-    preview: <NovaPreview />,
-  },
-  {
-    id: "sky",
-    nameAr: "Sky",
-    nameEn: "Sky",
-    descAr: "فاتح سماوي مفعم بالحركة — Navbar زجاجي، Hero بشرائح متعددة، marquee لشعارات العملاء، أقسام خدمات حسب التصنيف.",
-    descEn: "Bright sky-blue with motion — glass navbar, multi-slide hero, client logo marquee, services by category.",
-    preview: <SkyPreview />,
-  },
-  {
-    id: "moon",
-    nameAr: "Moon",
-    nameEn: "Moon",
-    descAr: "ليلي غامق متكامل — starfield, moon disc, hero بأربع شرائح، كل أقسام لوحة التحكم مدعومة. أكثر الثيمات شمولاً.",
-    descEn: "Deep midnight + cool tones — starfield, moon disc, 4-slide hero, every landing section covered. The most comprehensive theme.",
-    preview: <MoonPreview />,
-  },
-  {
-    id: "prism",
-    nameAr: "Prism",
-    nameEn: "Prism",
-    descAr: "ثيم الوكالات — ألوان طيفية صاخبة، ستيكرز، marquee، فيديو في الـ Hero، spotlight cursor، يعبر عن كود + تصميم + تسويق.",
-    descEn: "Full-spectrum agency theme — bold magenta/cyan/lime, sticker tags, marquee strips, video hero, spotlight cursor. Code + design + marketing in one voice.",
-    preview: <PrismPreview />,
-  },
-  {
-    id: "combo",
-    nameAr: "Combo",
-    nameEn: "Combo",
-    descAr: "ثيم استوديو هندسي مستوحى من invertase.io — بنفسجي غامق، شبكة منقطة، مكعبات 3D متحركة في الـ Hero، gradient orbs، typography جريء.",
-    descEn: "Engineering-studio theme inspired by invertase.io — deep violet, dotted grid backdrop, animated 3D cube cluster, gradient orbs, bold display type.",
-    preview: <ComboPreview />,
-  },
-  {
-    id: "hany",
-    nameAr: "Hany",
-    nameEn: "Hany",
-    descAr:
-      "ثيم فاتح بريميوم — تدرّجات بنفسجية/سماوية، Navbar زجاجي، خدمات مُجمَّعة (Build / Grow / Maintain)، كل أقسام لوحة التحكم مدعومة. مُحسَّن للتحويل.",
-    descEn:
-      "Premium light theme — indigo/violet/cyan gradient, glass navbar, grouped services (Build / Grow / Maintain), every landing section supported. Conversion-tuned.",
-    preview: <HanyPreview />,
+    id: "pro",
+    nameAr: "Pro",
+    nameEn: "Pro",
+    descAr: "ثيم احترافي متقدم يعكس هوية شركتك بأفضل شكل مع التحكم الكامل بكل قسم.",
+    descEn: "Advanced professional theme reflecting your company identity with full control.",
+    preview: <ProPreview />,
   },
 ];
 
@@ -231,401 +173,39 @@ export function ThemeSettingsForm({
 
 // ─── Theme preview mini-mockups ──────────────────────────────────────────────
 
-function ClassicPreview() {
-  return (
-    <div className="h-full w-full bg-white p-2 flex flex-col gap-1.5">
-      <div className="flex items-center gap-1 border-b border-zinc-200 pb-1.5">
-        <div className="h-2 w-2 rounded-full bg-zinc-900" />
-        <div className="h-1.5 w-10 rounded bg-zinc-900" />
-        <div className="ms-auto flex gap-1">
-          <div className="h-1 w-4 rounded bg-zinc-400" />
-          <div className="h-1 w-4 rounded bg-zinc-400" />
-          <div className="h-1 w-4 rounded bg-zinc-400" />
-        </div>
-      </div>
-      <div className="flex-1 grid place-items-center gap-1">
-        <div className="h-1.5 w-20 rounded bg-zinc-900" />
-        <div className="h-1 w-16 rounded bg-zinc-400" />
-        <div className="mt-1.5 flex gap-1">
-          <div className="h-3 w-10 rounded bg-zinc-900" />
-          <div className="h-3 w-10 rounded border border-zinc-300 bg-white" />
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-1">
-        <div className="h-3 rounded border border-zinc-200 bg-zinc-50" />
-        <div className="h-3 rounded border border-zinc-200 bg-zinc-50" />
-        <div className="h-3 rounded border border-zinc-200 bg-zinc-50" />
-      </div>
-    </div>
-  );
-}
-
-function AuroraPreview() {
+function ProPreview() {
+  const grad = "linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)";
   return (
     <div
       className="relative h-full w-full p-2 flex flex-col gap-1.5 overflow-hidden"
       style={{
-        backgroundColor: "#07070d",
+        backgroundColor: "#ffffff",
         backgroundImage:
-          "radial-gradient(20rem 20rem at 10% -10%, rgba(139,92,246,.35), transparent 60%), radial-gradient(20rem 20rem at 100% 100%, rgba(236,72,153,.25), transparent 60%)",
+          "radial-gradient(18rem 14rem at 0% 0%, rgba(79,70,229,.10), transparent 60%), radial-gradient(18rem 14rem at 100% 100%, rgba(6,182,212,.10), transparent 60%)",
       }}
     >
-      <div className="flex items-center gap-1 border-b border-white/[0.08] pb-1.5">
-        <div
-          className="h-2 w-2 rounded-full"
-          style={{ background: "linear-gradient(135deg, #8b5cf6, #ec4899)" }}
-        />
-        <div className="h-1.5 w-10 rounded bg-white/70" />
-      </div>
-      <div className="flex-1 grid place-items-center gap-1">
-        <div className="h-1.5 w-20 rounded bg-white/85" />
-        <div
-          className="h-1.5 w-14 rounded"
-          style={{ background: "linear-gradient(90deg, #c084fc, #f472b6)" }}
-        />
-        <div className="mt-1.5 flex gap-1">
-          <div className="h-3 w-10 rounded bg-white" />
-          <div className="h-3 w-10 rounded border border-white/15 bg-white/[0.06]" />
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-1">
-        <div className="h-3 rounded border border-white/[0.08] bg-white/[0.03]" />
-        <div className="h-3 rounded border border-white/[0.08] bg-white/[0.03]" />
-        <div className="h-3 rounded border border-white/[0.08] bg-white/[0.03]" />
-      </div>
-    </div>
-  );
-}
-
-function NovaPreview() {
-  return (
-    <div
-      className="relative h-full w-full p-2 flex flex-col gap-1.5 overflow-hidden"
-      style={{
-        backgroundColor: "#06060a",
-        backgroundImage:
-          "radial-gradient(20rem 15rem at 50% -20%, rgba(139,92,246,.35), transparent 60%)",
-      }}
-    >
-      <div className="flex items-center gap-1 border-b border-white/[0.06] pb-1.5">
-        <div className="h-2 w-2 rounded-sm bg-gradient-to-br from-violet-500 to-purple-700" />
-        <div className="h-1.5 w-10 rounded bg-white/80" />
-        <div className="ms-auto flex gap-0.5">
-          <div className="h-1 w-2 rounded bg-white/30" />
-          <div className="h-1 w-2 rounded bg-white/30" />
-        </div>
-      </div>
-      <div className="flex-1 grid place-items-center gap-1">
-        <div className="h-1.5 w-24 rounded bg-white/85" />
-        <div
-          className="h-1.5 w-16 rounded"
-          style={{ background: "linear-gradient(135deg, #a78bfa, #ec4899)" }}
-        />
-        <div className="mt-1.5 flex gap-1">
-          <div
-            className="h-3 w-10 rounded"
-            style={{ background: "linear-gradient(180deg, #a78bfa, #7c3aed)" }}
-          />
-          <div className="h-3 w-10 rounded border border-white/15 bg-white/[0.05]" />
-        </div>
-      </div>
-      <div className="h-4 rounded border border-white/[0.06] bg-black/40 flex items-center px-1 gap-0.5">
-        <div className="h-1 w-1 rounded-full bg-red-400/70" />
-        <div className="h-1 w-1 rounded-full bg-yellow-400/70" />
-        <div className="h-1 w-1 rounded-full bg-green-400/70" />
-        <div className="ms-1 h-1 w-12 rounded bg-violet-400/70" />
-      </div>
-    </div>
-  );
-}
-
-function ComboPreview() {
-  return (
-    <div
-      className="relative h-full w-full p-2 flex flex-col gap-1.5 overflow-hidden"
-      style={{
-        backgroundColor: "#0a0418",
-        backgroundImage:
-          "radial-gradient(20rem 14rem at 5% -10%, rgba(139,92,246,.45), transparent 60%), radial-gradient(18rem 14rem at 100% 30%, rgba(236,72,153,.35), transparent 60%), radial-gradient(16rem 12rem at 50% 110%, rgba(6,182,212,.30), transparent 60%)",
-      }}
-    >
-      {/* dot grid */}
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage: "radial-gradient(rgba(167,139,250,.5) 1px, transparent 1px)",
-          backgroundSize: "12px 12px",
-        }}
-        aria-hidden
-      />
-      {/* navbar */}
-      <div className="relative flex items-center gap-1 rounded-lg bg-white/[0.06] backdrop-blur border border-white/15 px-1.5 py-1">
-        <div
-          className="h-2 w-2 rounded-sm"
-          style={{ background: "linear-gradient(135deg,#8b5cf6,#ec4899,#06b6d4)" }}
-        />
-        <div className="h-1.5 w-8 rounded bg-white/85" />
-        <div className="ms-auto flex gap-0.5">
-          <div className="h-1 w-3 rounded bg-white/35" />
-          <div className="h-1 w-3 rounded bg-white/35" />
-          <div className="h-1 w-3 rounded bg-white/35" />
-        </div>
-      </div>
-      {/* hero with little cube */}
-      <div className="relative flex-1 grid grid-cols-[1.2fr_1fr] gap-1 px-1">
-        <div className="flex flex-col items-start justify-center gap-1">
-          <div className="h-1 w-6 rounded-full bg-violet-300" />
-          <div className="h-1.5 w-20 rounded bg-white/90" />
-          <div
-            className="h-1.5 w-14 rounded"
-            style={{ background: "linear-gradient(135deg,#8b5cf6,#ec4899,#06b6d4)" }}
-          />
-          <div className="mt-1.5 flex gap-1">
-            <div
-              className="h-3 w-10 rounded-full text-white"
-              style={{ background: "linear-gradient(135deg,#8b5cf6,#ec4899,#06b6d4)" }}
-            />
-            <div className="h-3 w-10 rounded-full border border-white/20 bg-white/[0.04]" />
-          </div>
-        </div>
-        <div className="grid place-items-center">
-          {/* mini 3D cube */}
-          <div
-            className="relative w-8 h-8"
-            style={{ transform: "rotateX(-22deg) rotateY(28deg)", transformStyle: "preserve-3d" }}
-          >
-            <div
-              className="absolute inset-0"
-              style={{ background: "linear-gradient(135deg,#8b5cf6,#7c3aed)", transform: "translateZ(8px)" }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{ background: "linear-gradient(135deg,#ec4899,#db2777)", transform: "rotateY(90deg) translateZ(8px)" }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{ background: "linear-gradient(135deg,#06b6d4,#0891b2)", transform: "rotateX(90deg) translateZ(8px)" }}
-            />
-          </div>
-        </div>
-      </div>
-      {/* cards row */}
-      <div className="relative grid grid-cols-3 gap-1">
-        <div className="h-3 rounded border border-white/10 bg-white/[0.04]" />
-        <div className="h-3 rounded border border-violet-400/30 bg-violet-500/[0.10]" />
-        <div className="h-3 rounded border border-white/10 bg-white/[0.04]" />
-      </div>
-    </div>
-  );
-}
-
-function PrismPreview() {
-  return (
-    <div
-      className="relative h-full w-full p-2 flex flex-col gap-1.5 overflow-hidden"
-      style={{
-        backgroundColor: "#0b0b14",
-        backgroundImage:
-          "radial-gradient(20rem 14rem at 5% -10%, rgba(255,43,181,.35), transparent 60%), radial-gradient(18rem 14rem at 100% 30%, rgba(0,229,255,.30), transparent 60%), radial-gradient(16rem 12rem at 50% 110%, rgba(196,255,62,.20), transparent 60%)",
-      }}
-    >
-      {/* sticker */}
-      <span
-        className="absolute top-1.5 left-2 px-1.5 py-0.5 text-[7px] font-black text-[#0b0b14]"
-        style={{ background: "#c4ff3e", border: "1.5px solid #0b0b14", borderRadius: 2, transform: "rotate(-3deg)", boxShadow: "2px 2px 0 #0b0b14" }}
-      >
-        STUDIO
-      </span>
-      {/* navbar */}
-      <div className="flex items-center gap-1 rounded-lg bg-white/[0.06] backdrop-blur border-2 border-white/15 px-1.5 py-1 mt-3" style={{ boxShadow: "3px 3px 0 rgba(255,43,181,.5)" }}>
-        <div className="h-2 w-2 rounded-sm" style={{ background: "linear-gradient(135deg,#ff2bb5,#00e5ff)" }} />
-        <div className="h-1.5 w-8 rounded bg-white/85" />
-        <div className="ms-auto flex gap-0.5">
-          <div className="h-1 w-3 rounded bg-white/35" />
-          <div className="h-1 w-3 rounded bg-white/35" />
-          <div className="h-1 w-3 rounded bg-white/35" />
-        </div>
-      </div>
-      {/* hero */}
-      <div className="relative flex-1 flex flex-col items-start justify-center gap-1 px-1">
-        <div className="h-1 w-6 rounded-full bg-cyan-300" />
-        <div className="h-1.5 w-20 rounded bg-white/90" />
-        <div className="h-1.5 w-14 rounded" style={{ background: "linear-gradient(90deg,#ff2bb5,#7c3aed,#00e5ff,#c4ff3e)" }} />
-        <div className="mt-1.5 flex gap-1">
-          <div className="h-3 w-10 rounded-full" style={{ background: "linear-gradient(90deg,#ff2bb5,#00e5ff,#c4ff3e)", border: "1.5px solid #0b0b14", boxShadow: "2px 2px 0 #0b0b14" }} />
-          <div className="h-3 w-10 rounded-full border-2 border-white/85 bg-transparent" />
-        </div>
-      </div>
-      {/* marquee strip */}
-      <div className="h-3 rounded-sm overflow-hidden" style={{ background: "linear-gradient(90deg,#ff2bb5,#00e5ff,#c4ff3e)", border: "1.5px solid #0b0b14" }}>
-        <div className="flex items-center gap-2 h-full px-1">
-          <span className="text-[6px] font-black text-[#0b0b14]">CODE • DESIGN • MARKETING</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MoonPreview() {
-  return (
-    <div
-      className="relative h-full w-full p-2 flex flex-col gap-1.5 overflow-hidden"
-      style={{
-        backgroundColor: "#060a16",
-        backgroundImage:
-          "radial-gradient(18rem 14rem at 85% -10%, rgba(96,165,250,.35), transparent 60%), radial-gradient(16rem 14rem at 0% 100%, rgba(45,212,191,.22), transparent 60%)",
-      }}
-    >
-      {/* tiny stars */}
-      <div className="absolute inset-0 opacity-70" aria-hidden>
-        <div className="absolute top-2 left-3 h-[2px] w-[2px] rounded-full bg-white" />
-        <div className="absolute top-4 left-8 h-[1px] w-[1px] rounded-full bg-white/70" />
-        <div className="absolute top-3 right-6 h-[2px] w-[2px] rounded-full bg-white/80" />
-        <div className="absolute top-7 right-10 h-[1px] w-[1px] rounded-full bg-white/60" />
-        <div className="absolute bottom-6 left-12 h-[1px] w-[1px] rounded-full bg-white/70" />
-      </div>
-      {/* moon disc */}
-      <div
-        className="absolute -top-3 -right-3 h-10 w-10 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle at 35% 35%, #f1f5f9, #94a3b8 60%, #334155)",
-          boxShadow: "0 0 16px rgba(96,165,250,.45)",
-        }}
-        aria-hidden
-      />
-      <div className="relative flex items-center gap-1 rounded-lg bg-white/[0.06] backdrop-blur border border-white/10 px-1.5 py-1">
-        <div
-          className="h-2 w-2 rounded-sm"
-          style={{ background: "linear-gradient(135deg, #60a5fa, #818cf8)" }}
-        />
-        <div className="h-1.5 w-8 rounded bg-white/80" />
-        <div className="ms-auto flex gap-0.5">
-          <div className="h-1 w-3 rounded bg-white/30" />
-          <div className="h-1 w-3 rounded bg-white/30" />
-          <div className="h-1 w-3 rounded bg-white/30" />
-        </div>
-      </div>
-      <div className="relative flex-1 flex flex-col items-start justify-center gap-1 px-1">
-        <div className="h-1 w-6 rounded-full bg-sky-400/60" />
-        <div className="h-1.5 w-20 rounded bg-white/85" />
-        <div
-          className="h-1.5 w-14 rounded"
-          style={{ background: "linear-gradient(135deg, #60a5fa, #818cf8, #2dd4bf)" }}
-        />
-        <div className="mt-1.5 flex gap-1">
-          <div
-            className="h-3 w-10 rounded-full"
-            style={{ background: "linear-gradient(135deg, #60a5fa, #818cf8)" }}
-          />
-          <div className="h-3 w-10 rounded-full border border-white/15 bg-white/[0.05]" />
-        </div>
-      </div>
-      <div className="relative grid grid-cols-3 gap-1">
-        <div className="h-3 rounded border border-white/10 bg-white/[0.04]" />
-        <div className="h-3 rounded border border-sky-400/30 bg-sky-400/[0.08]" />
-        <div className="h-3 rounded border border-white/10 bg-white/[0.04]" />
-      </div>
-    </div>
-  );
-}
-
-function HanyPreview() {
-  const grad = "linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #06b6d4 100%)";
-  return (
-    <div
-      className="relative h-full w-full p-2 flex flex-col gap-1.5 overflow-hidden"
-      style={{
-        backgroundColor: "#f8fafc",
-        backgroundImage:
-          "radial-gradient(20rem 15rem at 12% 0%, rgba(79,70,229,.18), transparent 60%), radial-gradient(20rem 15rem at 100% 20%, rgba(6,182,212,.18), transparent 60%)",
-      }}
-    >
-      {/* Glass navbar */}
-      <div className="flex items-center gap-1 rounded-lg bg-white/70 backdrop-blur border border-white/60 px-1.5 py-1 shadow-sm">
+      <div className="flex items-center gap-1 rounded bg-slate-100 border border-slate-200 px-1.5 py-1 shadow-sm">
         <div className="h-2 w-2 rounded-sm" style={{ background: grad }} />
-        <div className="h-1.5 w-8 rounded bg-slate-700" />
+        <div className="h-1.5 w-10 rounded bg-slate-700" />
         <div className="ms-auto flex gap-0.5">
-          <div className="h-1 w-3 rounded bg-slate-300" />
-          <div className="h-1 w-3 rounded bg-slate-300" />
-          <div className="h-1 w-3 rounded bg-slate-300" />
+          <div className="h-1 w-3 rounded bg-slate-400" />
+          <div className="h-1 w-3 rounded bg-slate-400" />
         </div>
       </div>
-      {/* Hero */}
-      <div className="flex flex-col items-center text-center gap-1 mt-1">
-        <div className="h-1 w-8 rounded-full" style={{ background: grad }} />
-        <div className="h-1.5 w-16 rounded bg-slate-800" />
-        <div className="h-1.5 w-12 rounded" style={{ background: grad }} />
-        <div className="mt-1 flex gap-1">
-          <div className="h-3 w-10 rounded-full" style={{ background: grad }} />
-          <div className="h-3 w-10 rounded-full border border-slate-300 bg-white" />
-        </div>
-      </div>
-      {/* Three grouped service cards (Build / Grow / Maintain) */}
-      <div className="mt-auto grid grid-cols-3 gap-1">
-        <div className="h-6 rounded border border-slate-200 bg-white p-0.5 flex flex-col gap-0.5">
-          <div className="h-1.5 w-1.5 rounded-sm" style={{ background: grad }} />
-          <div className="h-0.5 w-3 rounded bg-slate-400" />
-        </div>
-        <div className="h-6 rounded border border-transparent p-0.5 flex flex-col gap-0.5"
-             style={{ background: "linear-gradient(white,white) padding-box, " + grad + " border-box" }}>
-          <div className="h-1.5 w-1.5 rounded-sm bg-emerald-500" />
-          <div className="h-0.5 w-3 rounded bg-slate-500" />
-        </div>
-        <div className="h-6 rounded border border-slate-200 bg-white p-0.5 flex flex-col gap-0.5">
-          <div className="h-1.5 w-1.5 rounded-sm bg-cyan-500" />
-          <div className="h-0.5 w-3 rounded bg-slate-400" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
-function SkyPreview() {
-  return (
-    <div
-      className="relative h-full w-full p-2 flex flex-col gap-1.5 overflow-hidden"
-      style={{
-        backgroundColor: "#f0f9ff",
-        backgroundImage:
-          "radial-gradient(20rem 15rem at 80% -10%, rgba(14,165,233,.25), transparent 60%), radial-gradient(20rem 15rem at -10% 50%, rgba(99,102,241,.18), transparent 60%)",
-      }}
-    >
-      {/* Glass navbar pill */}
-      <div className="flex items-center gap-1 rounded-lg bg-white/70 backdrop-blur border border-white/60 px-1.5 py-1 shadow-sm">
-        <div className="h-2 w-2 rounded-sm bg-gradient-to-br from-sky-400 to-indigo-500" />
-        <div className="h-1.5 w-8 rounded bg-slate-700" />
-        <div className="ms-auto flex gap-0.5">
-          <div className="h-1 w-3 rounded bg-slate-300" />
-          <div className="h-1 w-3 rounded bg-slate-300" />
-          <div className="h-1 w-3 rounded bg-slate-300" />
+      <div className="flex flex-col items-center justify-center gap-1 mt-4 px-0.5 text-center">
+        <div className="h-2 w-20 rounded bg-slate-800" />
+        <div className="h-1.5 w-12 rounded" style={{ background: grad }} />
+        <div className="mt-1 flex gap-1 justify-center">
+          <div className="h-3 w-8 rounded text-white shadow-sm" style={{ background: grad }} />
+          <div className="h-3 w-8 rounded border border-slate-300 bg-transparent" />
         </div>
       </div>
-      {/* Hero slide */}
-      <div className="flex-1 flex flex-col items-start justify-center gap-1 px-1">
-        <div className="h-1 w-6 rounded-full bg-sky-300" />
-        <div className="h-1.5 w-20 rounded bg-slate-800" />
-        <div
-          className="h-1.5 w-14 rounded"
-          style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)" }}
-        />
-        <div className="mt-1.5 flex gap-1">
-          <div
-            className="h-3 w-10 rounded-full"
-            style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)" }}
-          />
-          <div className="h-3 w-10 rounded-full border border-slate-300 bg-white" />
-        </div>
-      </div>
-      {/* Category pills */}
-      <div className="flex gap-0.5">
-        <div
-          className="h-2 w-6 rounded-full"
-          style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)" }}
-        />
-        <div className="h-2 w-5 rounded-full bg-white border border-slate-200" />
-        <div className="h-2 w-5 rounded-full bg-white border border-slate-200" />
-        <div className="h-2 w-5 rounded-full bg-white border border-slate-200" />
+
+      <div className="mt-auto grid grid-cols-3 gap-1">
+        <div className="h-5 rounded border border-slate-200 bg-white p-0.5 shadow-sm" />
+        <div className="h-5 rounded border border-slate-200 bg-white p-0.5 shadow-sm" />
+        <div className="h-5 rounded border border-slate-200 bg-white p-0.5 shadow-sm" />
       </div>
     </div>
   );

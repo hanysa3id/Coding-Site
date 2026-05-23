@@ -59,9 +59,12 @@ export const sectionAnimationSchema = z.enum([
   "none",
   "fade-up",
   "fade-in",
+  "fade-left",
+  "fade-right",
   "slide-up",
   "slide-in",
   "zoom-in",
+  "scale-up",
   "blur-in",
 ]);
 export type SectionAnimation = z.infer<typeof sectionAnimationSchema>;
@@ -102,6 +105,20 @@ export const themeEffectsSchema = z.object({
 });
 export type ThemeEffects = z.infer<typeof themeEffectsSchema>;
 
+// ── Layout ─────────────────────────────────────────────────────────────────
+export const themeLayoutSchema = z.object({
+  container_width: z.enum(["narrow", "normal", "wide", "full"]).default("normal"),
+  density: z.enum(["compact", "comfortable", "spacious"]).default("comfortable"),
+});
+export type ThemeLayout = z.infer<typeof themeLayoutSchema>;
+
+// ── Accessibility ──────────────────────────────────────────────────────────
+export const themeAccessibilitySchema = z.object({
+  reduced_motion: z.boolean().default(false),
+  high_contrast: z.boolean().default(false),
+});
+export type ThemeAccessibility = z.infer<typeof themeAccessibilitySchema>;
+
 // ── Root customization document ────────────────────────────────────────────
 export const themeCustomizationSchema = z.object({
   /** Base theme this customization layers on top of. */
@@ -111,6 +128,14 @@ export const themeCustomizationSchema = z.object({
   colors: themeColorsSchema.default({}),
   typography: themeTypographySchema.default({}),
   shape: themeShapeSchema.default({}),
+  layout: themeLayoutSchema.default({
+    container_width: "normal",
+    density: "comfortable",
+  }),
+  accessibility: themeAccessibilitySchema.default({
+    reduced_motion: false,
+    high_contrast: false,
+  }),
   effects: themeEffectsSchema.default({
     spotlight_cursor: false,
     grain: false,
@@ -175,9 +200,12 @@ export function animationClass(a: SectionAnimation): string {
   switch (a) {
     case "fade-up": return "app-anim-fade-up";
     case "fade-in": return "app-anim-fade-in";
+    case "fade-left": return "app-anim-fade-left";
+    case "fade-right": return "app-anim-fade-right";
     case "slide-up": return "app-anim-slide-up";
     case "slide-in": return "app-anim-slide-in";
     case "zoom-in": return "app-anim-zoom-in";
+    case "scale-up": return "app-anim-scale-up";
     case "blur-in": return "app-anim-blur-in";
     default: return "";
   }

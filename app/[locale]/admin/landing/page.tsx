@@ -30,12 +30,18 @@ export default async function AdminLandingPage() {
             ? "تحكم في كل قسم من أقسام الواجهة العامة — أظهر/أخفِ الأقسام، عدّل نصوص الـ Hero، أضف بنوداً للقائمة العلوية، وأدر شريط الشركاء والأسئلة الشائعة."
             : "Control every section of the public landing page — toggle section visibility, edit hero copy, add nav items, and curate the client logo strip and FAQ."}
         </p>
-        <div className="inline-flex items-center gap-2 rounded-full border bg-muted/30 px-3 py-1 text-xs">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
-          <span>
-            {isAr ? "Theme النشط حالياً: " : "Active theme: "}
-            <span className="font-semibold capitalize">{themeId}</span>
-          </span>
+        <div className="flex items-center gap-4">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-muted/30 px-3 py-1 text-xs">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <span>
+              {isAr ? "Theme النشط حالياً: " : "Active theme: "}
+              <span className="font-semibold capitalize">{themeId}</span>
+            </span>
+          </div>
+          <a href={`/${locale}/admin/landing/dictionary`} className="inline-flex items-center gap-2 rounded-full border bg-primary/10 px-3 py-1 text-xs text-primary font-medium hover:bg-primary/20 transition-colors">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>{isAr ? "إدارة القاموس (النصوص)" : "Global Dictionary"}</span>
+          </a>
         </div>
       </header>
 

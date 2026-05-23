@@ -60,11 +60,16 @@ export default async function PublicLayout({
     customization?.typography.body_font,
   ]
     .filter((f): f is string => typeof f === "string" && f.trim().length > 0)
-    .map((f) => f.trim().replace(/\s+/g, "+"));
+    // De-duplicate: Cairo is already loaded by next/font — skip it to avoid double loading
+    .filter((f) => f.trim().toLowerCase() !== "cairo")
+    .map((f) => f.trim().replace(/\s+/g, "+"))
+    // Remove duplicates
+    .filter((f, i, arr) => arr.indexOf(f) === i);
+
   const googleFontsHref =
     fontFams.length > 0
       ? `https://fonts.googleapis.com/css2?${fontFams
-          .map((f) => `family=${f}:wght@400;500;600;700;800`)
+          .map((f) => `family=${f}:wght@300;400;500;600;700;800;900`)
           .join("&")}&display=swap`
       : null;
 
@@ -74,40 +79,26 @@ export default async function PublicLayout({
       data-theme-customized={customization ? "true" : undefined}
     >
       {/* Per-theme background art */}
-      {themeId === "aurora" && <div className="aurora-mesh" aria-hidden />}
-      {themeId === "nova" && <div className="nova-mesh" aria-hidden />}
-      {themeId === "sky" && <div className="sky-mesh" aria-hidden />}
-      {themeId === "moon" && (
-        <>
-          <div className="moon-mesh" aria-hidden />
-          <div className="moon-stars" aria-hidden />
-        </>
-      )}
-      {themeId === "prism" && (
-        <>
-          <div className="prism-mesh" aria-hidden />
-          <div className="prism-grain" aria-hidden />
-        </>
-      )}
-      {themeId === "combo" && (
-        <>
-          <div className="combo-mesh" aria-hidden />
-          <div className="combo-grid" aria-hidden />
-        </>
-      )}
-      {themeId === "hany" && <div className="hany-mesh" aria-hidden />}
+      <div className="pro-mesh" aria-hidden />
+      <div className="pro-grid" aria-hidden />
 
       {/* Extra effects opted-in via the Theme Builder */}
       {customization?.effects.spotlight_cursor && (
         <div id="app-spotlight" aria-hidden />
       )}
-      {customization?.effects.grain && themeId !== "prism" && (
+      {customization?.effects.grain && (
         <div className="app-grain" aria-hidden />
       )}
       {customization?.effects.blobs && <div className="app-blobs" aria-hidden />}
 
-      {/* Google Fonts — auto-hoisted to <head> by Next.js. */}
-      {googleFontsHref && <link rel="stylesheet" href={googleFontsHref} />}
+      {/* Google Fonts — preconnect for performance + auto-hoisted to <head> by Next.js. */}
+      {googleFontsHref && (
+        <>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          <link rel="stylesheet" href={googleFontsHref} />
+        </>
+      )}
       {/* Theme-Builder CSS variables — auto-hoisted as well. */}
       {customizationCss && (
         <style

@@ -1,27 +1,14 @@
-import * as aurora from "./aurora";
-import * as classic from "./classic";
-import * as nova from "./nova";
-import * as sky from "./sky";
-import * as moon from "./moon";
-import * as prism from "./prism";
-import * as combo from "./combo";
-import * as hany from "./hany";
+import * as pro from "./pro";
+import { cookies } from "next/headers";
 import { getThemeSettings } from "@/lib/settings/get";
 
 export const themes = {
-  classic,
-  aurora,
-  nova,
-  sky,
-  moon,
-  prism,
-  combo,
-  hany,
+  pro,
 } as const;
 
 export type ThemeId = keyof typeof themes;
 
-const DEFAULT_THEME: ThemeId = "classic";
+const DEFAULT_THEME: ThemeId = "pro";
 
 function envThemeId(): ThemeId | null {
   const raw = process.env.NEXT_PUBLIC_SITE_THEME?.toLowerCase();
@@ -30,9 +17,16 @@ function envThemeId(): ThemeId | null {
 }
 
 async function resolveThemeId(): Promise<ThemeId> {
-  // Resolution order: DB setting → env var → safe default.
-  // The admin theme picker writes to settings.theme, so that wins by default;
-  // env var is the build-time escape hatch when no DB is reachable.
+  // Resolution order: preview cookie (Theme Builder iframe) → DB setting →
+  // env var → safe default. The preview cookie is set by proxy.ts when the
+  // admin opens /admin/themes/:id and is scoped to the iframe session only.
+  try {
+    const store = await cookies();
+    const preview = store.get("hany_preview_theme")?.value;
+    if (preview && preview in themes) return preview as ThemeId;
+  } catch {
+    /* outside a request context (e.g. build time) */
+  }
   try {
     const settings = await getThemeSettings();
     const id = settings?.active;

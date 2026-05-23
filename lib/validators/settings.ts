@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { sectionContentOverrideSchema } from "./section-content";
 
 // Available theme ids must stay in sync with themes/index.ts THEMES map.
-export const themeIdSchema = z.enum(["classic", "aurora", "nova", "sky", "moon", "prism", "combo", "hany"]);
+export const themeIdSchema = z.enum(["classic", "aurora", "nova", "sky", "moon", "prism", "combo", "hany", "new", "newwwww", "pro"]);
 export type ThemeId = z.infer<typeof themeIdSchema>;
 
 export const themeSettingsSchema = z.object({
@@ -143,7 +144,33 @@ export const landingSettingsSchema = z.object({
   // Stats — the big numbers shown in the stats strip. Empty = theme uses
   // either AboutSettings.stats (Sky) or its own defaults.
   stats: z.array(landingStatSchema).default([]),
+
+  // Marketing Testimonials. Empty = theme uses fallback or database reviews.
+  testimonials: z.array(
+    z.object({
+      id: z.string().min(1),
+      rating: z.number().min(1).max(5).default(5),
+      comment_ar: z.string().min(1),
+      comment_en: z.string().min(1),
+      customer_name_ar: z.string().min(1),
+      customer_name_en: z.string().min(1),
+      customer_role_ar: z.string().nullable().optional(),
+      customer_role_en: z.string().nullable().optional(),
+      avatar_url: z.string().nullable().optional().or(z.literal("")),
+    })
+  ).default([]),
+
+  // Overrides for standard sections (titles, subtitles, etc.)
+  section_overrides: z.record(
+    z.string(),
+    sectionContentOverrideSchema
+  ).default({}),
+
+  // Global dictionary text overrides
+  dictionary_overrides_ar: z.record(z.string(), z.any()).default({}),
+  dictionary_overrides_en: z.record(z.string(), z.any()).default({}),
 });
+export type LandingTestimonial = z.infer<typeof landingSettingsSchema>["testimonials"][0];
 export type LandingSettings = z.infer<typeof landingSettingsSchema>;
 
 export const siteSettingsSchema = z.object({

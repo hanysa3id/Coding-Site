@@ -60,9 +60,12 @@ import { cn } from "@/lib/utils";
 const ANIMATIONS: { id: SectionAnimation; ar: string; en: string }[] = [
   { id: "fade-up", ar: "ظهور لأعلى", en: "Fade up" },
   { id: "fade-in", ar: "ظهور تدريجي", en: "Fade in" },
+  { id: "fade-left", ar: "ظهور من اليسار", en: "Fade left" },
+  { id: "fade-right", ar: "ظهور من اليمين", en: "Fade right" },
   { id: "slide-up", ar: "انزلاق لأعلى", en: "Slide up" },
   { id: "slide-in", ar: "انزلاق جانبي", en: "Slide in" },
   { id: "zoom-in", ar: "تكبير", en: "Zoom in" },
+  { id: "scale-up", ar: "تكبير الحجم تدريجياً", en: "Scale up" },
   { id: "blur-in", ar: "إزالة ضبابية", en: "Blur in" },
   { id: "none", ar: "بدون", en: "None" },
 ];
@@ -85,17 +88,26 @@ const PRESET_PALETTES = [
 ];
 
 const FONT_CHOICES = [
-  "Inter",
-  "Manrope",
-  "Cairo",
-  "Tajawal",
-  "IBM Plex Sans Arabic",
-  "Plus Jakarta Sans",
-  "Space Grotesk",
-  "DM Sans",
-  "Outfit",
-  "Sora",
+  // ── Arabic-first / Bilingual ─────────────────────────────────────
+  "Cairo",              // Primary — bilingual Arabic + Latin hero font
+  "IBM Plex Sans Arabic", // Premium IBM Arabic companion
+  "Tajawal",            // Soft geometric Arabic
+  "Almarai",            // Modern rounded Arabic
+  "Readex Pro",         // Clean bilingual variable font
+  "Noto Sans Arabic",   // Universal Arabic coverage
+  // ── Premium Latin / Marketing ────────────────────────────────────
+  "Poppins",            // Geometric modern — great for headings
+  "Inter",              // Neutral UI — highly legible at all sizes
+  "Plus Jakarta Sans",  // Friendly premium display
+  "Manrope",            // Humanist sans — editorial feel
+  "DM Sans",            // Low-contrast geometric
+  "Space Grotesk",      // Techy, angular character
+  "Outfit",             // Friendly contemporary
+  "Sora",               // Clean Japanese-inspired
+  // ── Monospaced / Technical ───────────────────────────────────────
+  "JetBrains Mono",     // Code & data labels
 ];
+
 
 export function ThemeBuilderForm({
   themeId,
@@ -121,6 +133,7 @@ export function ThemeBuilderForm({
   const previewRef = useRef<HTMLIFrameElement | null>(null);
   const dragIndexRef = useRef<number | null>(null);
   const [dragOver, setDragOver] = useState<number | null>(null);
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
 
   function patch<K extends keyof ThemeCustomization>(key: K, val: ThemeCustomization[K]) {
     setState((s) => ({ ...s, [key]: val }));
@@ -188,6 +201,9 @@ export function ThemeBuilderForm({
   }, [cssVars, themeId]);
 
   // Send updated CSS variables into the iframe whenever they change.
+  // We also re-broadcast whenever the iframe signals "ready" — this avoids
+  // losing the first paint when the iframe's runtime mounts AFTER the parent
+  // already fired its initial useEffect.
   useEffect(() => {
     const iframe = previewRef.current;
     if (!iframe || !iframe.contentWindow) return;
@@ -196,6 +212,34 @@ export function ThemeBuilderForm({
       window.location.origin
     );
   }, [previewCssText]);
+
+  useEffect(() => {
+    const iframe = previewRef.current;
+    if (!iframe || !iframe.contentWindow) return;
+    iframe.contentWindow.postMessage(
+      { type: "theme-builder:sections", sections: state.sections },
+      window.location.origin
+    );
+  }, [state.sections]);
+
+  useEffect(() => {
+    function onReady(e: MessageEvent) {
+      if (e.origin !== window.location.origin) return;
+      if (e.data?.type !== "theme-builder:ready") return;
+      const iframe = previewRef.current;
+      if (!iframe || !iframe.contentWindow) return;
+      iframe.contentWindow.postMessage(
+        { type: "theme-builder:vars", css: previewCssText },
+        window.location.origin
+      );
+      iframe.contentWindow.postMessage(
+        { type: "theme-builder:sections", sections: state.sections },
+        window.location.origin
+      );
+    }
+    window.addEventListener("message", onReady);
+    return () => window.removeEventListener("message", onReady);
+  }, [previewCssText, state.sections]);
 
   function refreshPreview() {
     setPreviewKey((k) => k + 1);
@@ -500,55 +544,113 @@ export function ThemeBuilderForm({
             </TabsContent>
 
             {/* TYPOGRAPHY */}
-            <TabsContent value="type" className="pt-5 space-y-5">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label className="text-xs">{isAr ? "خط العناوين" : "Heading font"}</Label>
+            <TabsContent value="type" className="pt-5 space-y-6">
+              
+              {/* Info banner */}
+              <div className="rounded-lg bg-primary/5 border border-primary/10 px-4 py-3 text-xs text-muted-foreground leading-relaxed">
+                {isAr
+                  ? "✦ الخط الافتراضي للثيم هو Cairo — خط احترافي يدعم اللغتين العربية والإنجليزية بشكل متناسق."
+                  : "✦ Default theme font is Cairo — a bilingual premium font covering both Arabic & Latin scripts seamlessly."}
+              </div>
+
+              <div className="grid gap-5 md:grid-cols-2">
+                {/* Heading font */}
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-xs font-semibold">{isAr ? "خط العناوين" : "Heading Font"}</Label>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      {isAr ? "يُطبَّق على H1 وH2 وH3 والعناوين الكبيرة" : "Applied to H1, H2, H3 and display headings"}
+                    </p>
+                  </div>
                   <select
                     value={state.typography.heading_font || ""}
                     onChange={(e) => patchTypography("heading_font", e.target.value)}
                     className="w-full h-10 rounded-md border bg-background px-3 text-sm"
                   >
-                    <option value="">{isAr ? "افتراضي الثيم" : "Theme default"}</option>
-                    {FONT_CHOICES.map((f) => (
-                      <option key={f} value={f}>{f}</option>
-                    ))}
+                    <option value="">{isAr ? "افتراضي الثيم (Cairo)" : "Theme default (Cairo)"}</option>
+                    <optgroup label={isAr ? "خطوط عربية وثنائية" : "Arabic & Bilingual"}>
+                      {FONT_CHOICES.slice(0, 6).filter(f => !f.startsWith("//")).map((f) => (
+                        <option key={f} value={f}>{f}</option>
+                      ))}
+                    </optgroup>
+                    <optgroup label={isAr ? "خطوط لاتينية / إنجليزية" : "Latin / English Fonts"}>
+                      {FONT_CHOICES.slice(6).filter(f => !f.startsWith("//")).map((f) => (
+                        <option key={f} value={f}>{f}</option>
+                      ))}
+                    </optgroup>
                   </select>
-                  <p
-                    className="mt-2 text-2xl"
-                    style={{ fontFamily: state.typography.heading_font || "inherit" }}
-                  >
-                    {isAr ? "نموذج عرض العناوين" : "Heading sample"}
-                  </p>
+                  {/* Preview card */}
+                  <div className="rounded-lg border bg-muted/30 p-4 space-y-1.5">
+                    <p
+                      className="text-2xl font-extrabold leading-tight tracking-tight"
+                      style={{ fontFamily: state.typography.heading_font || "Cairo, sans-serif" }}
+                    >
+                      {isAr ? "عنوان رئيسي احترافي" : "Premium Display Heading"}
+                    </p>
+                    <p
+                      className="text-base font-bold text-muted-foreground"
+                      style={{ fontFamily: state.typography.heading_font || "Cairo, sans-serif" }}
+                    >
+                      {isAr ? "عنوان ثانوي — H2 / H3" : "Subheading — H2 / H3 Level"}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-xs">{isAr ? "خط النص" : "Body font"}</Label>
+                {/* Body font */}
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-xs font-semibold">{isAr ? "خط النص والمحتوى" : "Body Font"}</Label>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      {isAr ? "يُطبَّق على الفقرات والأزرار والنماذج" : "Applied to paragraphs, buttons and forms"}
+                    </p>
+                  </div>
                   <select
                     value={state.typography.body_font || ""}
                     onChange={(e) => patchTypography("body_font", e.target.value)}
                     className="w-full h-10 rounded-md border bg-background px-3 text-sm"
                   >
-                    <option value="">{isAr ? "افتراضي الثيم" : "Theme default"}</option>
-                    {FONT_CHOICES.map((f) => (
-                      <option key={f} value={f}>{f}</option>
-                    ))}
+                    <option value="">{isAr ? "افتراضي الثيم (Cairo)" : "Theme default (Cairo)"}</option>
+                    <optgroup label={isAr ? "خطوط عربية وثنائية" : "Arabic & Bilingual"}>
+                      {FONT_CHOICES.slice(0, 6).filter(f => !f.startsWith("//")).map((f) => (
+                        <option key={f} value={f}>{f}</option>
+                      ))}
+                    </optgroup>
+                    <optgroup label={isAr ? "خطوط لاتينية / إنجليزية" : "Latin / English Fonts"}>
+                      {FONT_CHOICES.slice(6).filter(f => !f.startsWith("//")).map((f) => (
+                        <option key={f} value={f}>{f}</option>
+                      ))}
+                    </optgroup>
                   </select>
-                  <p
-                    className="mt-2 text-sm leading-relaxed"
-                    style={{ fontFamily: state.typography.body_font || "inherit" }}
-                  >
-                    {isAr
-                      ? "هذا نموذج لنص الجسم لمعاينة الخط المختار."
-                      : "This is a body-copy preview of the selected font."}
-                  </p>
+                  {/* Preview card */}
+                  <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
+                    <p
+                      className="text-sm leading-relaxed"
+                      style={{ fontFamily: state.typography.body_font || "Cairo, sans-serif" }}
+                    >
+                      {isAr
+                        ? "هذا نموذج لنص الجسم — يوضح مدى وضوح وجمال الخط المختار في الفقرات الطويلة وقراءة المحتوى."
+                        : "This is a body copy sample — shows how clear and readable the selected font looks in paragraphs and long-form content."}
+                    </p>
+                    <p
+                      className="text-xs text-muted-foreground"
+                      style={{ fontFamily: state.typography.body_font || "Cairo, sans-serif" }}
+                    >
+                      {isAr ? "نص تسمية — Label / Caption" : "Label / Caption — smaller text sample"}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-xs">
-                  {isAr ? "مقياس الخط العام" : "Type scale"} ({state.typography.scale ?? 1})
-                </Label>
+              {/* Type scale slider */}
+              <div className="space-y-2 pt-2 border-t">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold">
+                    {isAr ? "مقياس حجم الخط العام" : "Global Type Scale"}
+                  </Label>
+                  <span className="text-xs font-mono bg-muted px-2 py-0.5 rounded">
+                    ×{state.typography.scale?.toFixed(2) ?? "1.00"}
+                  </span>
+                </div>
                 <input
                   type="range"
                   min={0.85}
@@ -558,13 +660,14 @@ export function ThemeBuilderForm({
                   onChange={(e) => patchTypography("scale", Number(e.target.value))}
                   className="w-full accent-primary"
                 />
-                <p className="text-[11px] text-muted-foreground">
-                  {isAr
-                    ? "أصغر — أو — أكبر. يُطبَّق عبر CSS var على كل النصوص."
-                    : "Smaller ↔ larger. Applied via CSS var to every text element."}
-                </p>
+                <div className="flex justify-between text-[10px] text-muted-foreground">
+                  <span>{isAr ? "أصغر (85%)" : "Smaller (85%)"}</span>
+                  <span>{isAr ? "افتراضي (100%)" : "Default (100%)"}</span>
+                  <span>{isAr ? "أكبر (125%)" : "Larger (125%)"}</span>
+                </div>
               </div>
             </TabsContent>
+
 
             {/* SHAPE */}
             <TabsContent value="shape" className="pt-5 space-y-5">
@@ -619,6 +722,12 @@ export function ThemeBuilderForm({
                     draggable
                     onDragStart={() => {
                       dragIndexRef.current = i;
+                      setDraggingIndex(i);
+                    }}
+                    onDragEnd={() => {
+                      setDraggingIndex(null);
+                      dragIndexRef.current = null;
+                      setDragOver(null);
                     }}
                     onDragOver={(e) => {
                       e.preventDefault();
@@ -628,12 +737,14 @@ export function ThemeBuilderForm({
                     onDrop={() => {
                       const from = dragIndexRef.current;
                       if (from != null) moveSection(from, i);
+                      setDraggingIndex(null);
                       dragIndexRef.current = null;
                       setDragOver(null);
                     }}
                     className={cn(
-                      "rounded-lg border bg-card p-3 flex items-center gap-3 transition",
-                      dragOver === i && "border-primary ring-2 ring-primary/20",
+                      "rounded-lg border bg-card p-3 flex items-center gap-3 transition-all duration-200 transform",
+                      draggingIndex === i && "opacity-30 border-dashed border-primary/40 bg-muted/20 scale-[0.98]",
+                      dragOver === i && draggingIndex !== i && "border-primary ring-2 ring-primary/20 scale-[1.02] shadow-md bg-accent/40 translate-y-1",
                       !s.visible && "opacity-60"
                     )}
                   >
@@ -852,7 +963,7 @@ export function ThemeBuilderForm({
             <iframe
               ref={previewRef}
               key={previewKey}
-              src={`/?themeBuilder=1`}
+              src={`/?themeBuilder=1&previewTheme=${themeId}`}
               title="Theme preview"
               className="w-full h-[720px]"
             />

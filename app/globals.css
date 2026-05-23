@@ -34,6 +34,54 @@
     --ring: 215 20.2% 65.1%;
 
     --radius: 0.5rem;
+
+    /* ── Global Typography Tokens ─────────────────────────────────────── */
+
+    /* Font families — populated by next/font CSS variables */
+    --ty-font-primary:   var(--font-cairo),    "Cairo",              ui-sans-serif, system-ui, sans-serif;
+    --ty-font-arabic:    var(--font-ibm-plex-arabic), "IBM Plex Sans Arabic", var(--font-cairo), sans-serif;
+    --ty-font-latin:     var(--font-inter),    "Inter",              ui-sans-serif, system-ui, sans-serif;
+    --ty-font-display:   var(--font-poppins),  "Poppins",            var(--font-cairo), ui-sans-serif, sans-serif;
+    --ty-font-mono:      "JetBrains Mono",     "SF Mono",            ui-monospace, monospace;
+
+    /* Heading sizes — fluid scale */
+    --ty-h1: clamp(2rem,    4.5vw + 0.5rem, 3.75rem);   /* 32px → 60px  */
+    --ty-h2: clamp(1.6rem,  3.5vw + 0.25rem, 3rem);     /* 26px → 48px  */
+    --ty-h3: clamp(1.3rem,  2.5vw + 0.1rem,  2.25rem);  /* 21px → 36px  */
+    --ty-h4: clamp(1.1rem,  1.8vw + 0.1rem,  1.75rem);  /* 18px → 28px  */
+    --ty-h5: clamp(1rem,    1.2vw + 0.1rem,  1.375rem); /* 16px → 22px  */
+    --ty-h6: clamp(0.9rem,  0.8vw + 0.1rem,  1.125rem); /* 14px → 18px  */
+
+    /* Body sizes */
+    --ty-body-lg:   1.125rem; /* 18px */
+    --ty-body:      1rem;     /* 16px */
+    --ty-body-sm:   0.9375rem;/* 15px */
+    --ty-caption:   0.875rem; /* 14px */
+    --ty-label:     0.8125rem;/* 13px */
+    --ty-micro:     0.75rem;  /* 12px */
+
+    /* Line heights */
+    --ty-lh-heading: 1.15;
+    --ty-lh-subhead: 1.3;
+    --ty-lh-body:    1.7;
+    --ty-lh-compact: 1.45;
+
+    /* Letter spacing */
+    --ty-ls-tight:    -0.03em;
+    --ty-ls-snug:     -0.02em;
+    --ty-ls-normal:   0em;
+    --ty-ls-wide:     0.03em;
+    --ty-ls-wider:    0.06em;
+    --ty-ls-widest:   0.12em;
+
+    /* Font weights */
+    --ty-light:       300;
+    --ty-regular:     400;
+    --ty-medium:      500;
+    --ty-semibold:    600;
+    --ty-bold:        700;
+    --ty-extrabold:   800;
+    --ty-black:       900;
   }
 
   .dark {
@@ -72,17 +120,101 @@
   * {
     @apply border-border;
   }
+
+  /* ── Global base typography: Cairo-first ──────────────────────────── */
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  }
+
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: var(--ty-font-primary);
+    font-size: var(--ty-body);
+    line-height: var(--ty-lh-body);
+    font-weight: var(--ty-regular);
   }
+
+  /* RTL (Arabic) — Cairo is bilingual, IBM Plex Arabic for body copy */
   html[dir="rtl"] body {
-    font-family: var(--font-cairo), system-ui, sans-serif;
+    font-family: var(--ty-font-primary);
   }
+
+  /* LTR (English) — Cairo handles headings, Inter for body */
   html[dir="ltr"] body {
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: var(--ty-font-primary);
+  }
+
+  /* ── Heading hierarchy ───────────────────────────────────────────── */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--ty-font-primary);
+    line-height: var(--ty-lh-heading);
+    font-weight: var(--ty-bold);
+    letter-spacing: var(--ty-ls-snug);
+  }
+
+  h1 {
+    font-size: var(--ty-h1);
+    font-weight: var(--ty-extrabold);
+    letter-spacing: var(--ty-ls-tight);
+    line-height: 1.1;
+  }
+
+  h2 {
+    font-size: var(--ty-h2);
+    font-weight: var(--ty-bold);
+    letter-spacing: var(--ty-ls-snug);
+  }
+
+  h3 {
+    font-size: var(--ty-h3);
+    font-weight: var(--ty-bold);
+    letter-spacing: var(--ty-ls-snug);
+  }
+
+  h4 {
+    font-size: var(--ty-h4);
+    font-weight: var(--ty-semibold);
+    letter-spacing: var(--ty-ls-normal);
+  }
+
+  h5 {
+    font-size: var(--ty-h5);
+    font-weight: var(--ty-semibold);
+  }
+
+  h6 {
+    font-size: var(--ty-h6);
+    font-weight: var(--ty-medium);
+  }
+
+  /* ── Body and paragraph rhythm ───────────────────────────────────── */
+  p {
+    line-height: var(--ty-lh-body);
+    max-width: 72ch;
+  }
+
+  /* ── UI element typography ───────────────────────────────────────── */
+  button, input, select, textarea, label {
+    font-family: var(--ty-font-primary);
+  }
+
+  /* ── Code / mono ─────────────────────────────────────────────────── */
+  code, kbd, pre, samp {
+    font-family: var(--ty-font-mono);
+    font-size: 0.875em;
+  }
+
+  /* ── Strong & emphasis ───────────────────────────────────────────── */
+  strong, b {
+    font-weight: var(--ty-bold);
   }
 }
+
 
 /* ============================================================================
  * Theme Builder runtime — global classes shared by every theme.
@@ -130,18 +262,24 @@
 /* ─── Section animations ───────────────────────────────────────────────── */
 @keyframes app-fade-up   { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:none; } }
 @keyframes app-fade-in   { from { opacity:0; }                                to { opacity:1; } }
+@keyframes app-fade-left { from { opacity:0; transform:translateX(28px); } to { opacity:1; transform:none; } }
+@keyframes app-fade-right { from { opacity:0; transform:translateX(-28px); } to { opacity:1; transform:none; } }
 @keyframes app-slide-up  { from { opacity:0; transform:translateY(48px); } to { opacity:1; transform:none; } }
 @keyframes app-slide-in  { from { opacity:0; transform:translateX(48px); } to { opacity:1; transform:none; } }
 @keyframes app-zoom-in   { from { opacity:0; transform:scale(0.94); }       to { opacity:1; transform:none; } }
+@keyframes app-scale-up  { from { opacity:0; transform:scale(0.85); }       to { opacity:1; transform:none; } }
 @keyframes app-blur-in   { from { opacity:0; filter:blur(14px); }            to { opacity:1; filter:blur(0); } }
 [dir="rtl"] .app-anim-slide-in { animation-name: app-slide-in-rtl; }
 @keyframes app-slide-in-rtl { from { opacity:0; transform:translateX(-48px); } to { opacity:1; transform:none; } }
 
 .app-anim-fade-up   { animation: app-fade-up   var(--app-anim-duration) cubic-bezier(0.16,1,0.3,1) both; }
 .app-anim-fade-in   { animation: app-fade-in   var(--app-anim-duration) ease both; }
+.app-anim-fade-left { animation: app-fade-left var(--app-anim-duration) cubic-bezier(0.16,1,0.3,1) both; }
+.app-anim-fade-right { animation: app-fade-right var(--app-anim-duration) cubic-bezier(0.16,1,0.3,1) both; }
 .app-anim-slide-up  { animation: app-slide-up  var(--app-anim-duration) cubic-bezier(0.16,1,0.3,1) both; }
 .app-anim-slide-in  { animation: app-slide-in  var(--app-anim-duration) cubic-bezier(0.16,1,0.3,1) both; }
 .app-anim-zoom-in   { animation: app-zoom-in   var(--app-anim-duration) cubic-bezier(0.16,1,0.3,1) both; }
+.app-anim-scale-up  { animation: app-scale-up  var(--app-anim-duration) cubic-bezier(0.16,1,0.3,1) both; }
 .app-anim-blur-in   { animation: app-blur-in   var(--app-anim-duration) ease both; }
 
 .app-anim-paused { animation-play-state: paused; opacity: 0 !important; }
@@ -178,7 +316,7 @@
 }
 
 #app-spotlight {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0;
+  position: fixed; inset: 0; z-index: 20; pointer-events: none; opacity: 0;
   transition: opacity 220ms ease;
   background: radial-gradient(
     360px 360px at var(--mx, 50%) var(--my, 50%),

@@ -17,6 +17,24 @@ function stripLocale(pathname: string): string {
   return pathname;
 }
 
+/** Apply the `?previewTheme=` query (used by the admin Theme Builder iframe)
+ *  as a short-lived cookie so the public layout can read it without needing
+ *  search params (layouts don't receive search params in App Router). */
+function applyThemePreviewCookie(request: NextRequest, response: NextResponse) {
+  const url = request.nextUrl;
+  if (url.searchParams.get("themeBuilder") !== "1") return;
+  const t = url.searchParams.get("previewTheme");
+  if (!t) return;
+  // Allowlist via simple character check; the actual id is validated by
+  // themeIdSchema inside the layout before being applied.
+  if (!/^[a-z0-9_-]{1,32}$/.test(t)) return;
+  response.cookies.set("hany_preview_theme", t, {
+    path: "/",
+    maxAge: 300, // 5 minutes — long enough for an editing session
+    sameSite: "strict",
+  });
+}
+
 export async function proxy(request: NextRequest) {
   const pathWithoutLocale = stripLocale(request.nextUrl.pathname);
   const needsAuth = PROTECTED_PREFIXES.some((p) =>
@@ -39,12 +57,16 @@ export async function proxy(request: NextRequest) {
       response.cookies.getAll().forEach((c) =>
         intlResponse.cookies.set(c.name, c.value, c)
       );
+      applyThemePreviewCookie(request, intlResponse);
       return intlResponse;
     }
+    applyThemePreviewCookie(request, response);
     return response;
   }
 
-  return intlMiddleware(request);
+  const res = intlMiddleware(request) ?? NextResponse.next();
+  applyThemePreviewCookie(request, res);
+  return res;
 }
 
 export const config = {

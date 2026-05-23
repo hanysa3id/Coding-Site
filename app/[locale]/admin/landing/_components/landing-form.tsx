@@ -65,7 +65,7 @@ const SECTIONS: {
     en: "Hero",
     description_ar: "أول قسم يراه الزائر — العنوان والـ CTAs.",
     description_en: "First-screen — headline + primary CTAs.",
-    themes: ["classic", "aurora", "nova", "sky", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "logo_cloud",
@@ -74,7 +74,7 @@ const SECTIONS: {
     en: "Logo cloud",
     description_ar: "شريط متحرك بأسماء/شعارات الشركات.",
     description_en: "Marquee strip of client names / logos.",
-    themes: ["aurora", "nova", "sky", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "features",
@@ -83,7 +83,7 @@ const SECTIONS: {
     en: "Features / Bento",
     description_ar: "بطاقات تشرح ما الذي يميزك.",
     description_en: "Cards explaining what makes you different.",
-    themes: ["classic", "aurora", "nova", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "stats",
@@ -92,7 +92,7 @@ const SECTIONS: {
     en: "Stats",
     description_ar: "أرقام بارزة (مشاريع، عملاء، سنوات).",
     description_en: "Big numbers (projects, clients, years).",
-    themes: ["aurora", "sky", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "services",
@@ -101,7 +101,7 @@ const SECTIONS: {
     en: "Services",
     description_ar: "قائمة الخدمات المعروضة (تُسحب من DB).",
     description_en: "Service offerings (pulled from DB).",
-    themes: ["classic", "aurora", "nova", "sky", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "process",
@@ -110,7 +110,7 @@ const SECTIONS: {
     en: "Process steps",
     description_ar: "كيف نعمل — 4 مراحل من البداية للتسليم.",
     description_en: "How we work — 4 stages from start to finish.",
-    themes: ["aurora", "sky", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "portfolio",
@@ -119,7 +119,7 @@ const SECTIONS: {
     en: "Portfolio",
     description_ar: "آخر المشاريع المنجزة (من DB).",
     description_en: "Recent projects (from DB).",
-    themes: ["aurora", "sky", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "testimonials",
@@ -128,7 +128,7 @@ const SECTIONS: {
     en: "Testimonials",
     description_ar: "شهادات العملاء (من الـ reviews أو بديل).",
     description_en: "Customer quotes (from reviews or fallback).",
-    themes: ["aurora", "nova", "sky", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "pricing",
@@ -137,7 +137,7 @@ const SECTIONS: {
     en: "Pricing",
     description_ar: "ثلاث باقات بأسعار شفافة.",
     description_en: "Three transparent pricing tiers.",
-    themes: ["aurora", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "team",
@@ -146,7 +146,7 @@ const SECTIONS: {
     en: "Team + Mission/Vision",
     description_ar: "أعضاء الفريق + رسالة الشركة + إحصائيات.",
     description_en: "Team members + mission + stats.",
-    themes: ["sky", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "blog",
@@ -155,7 +155,7 @@ const SECTIONS: {
     en: "Blog",
     description_ar: "آخر 3 مقالات منشورة من المدونة.",
     description_en: "Latest 3 published blog posts.",
-    themes: ["aurora", "sky", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "faq",
@@ -164,7 +164,7 @@ const SECTIONS: {
     en: "FAQ",
     description_ar: "قسم الأسئلة الشائعة بـ accordion.",
     description_en: "FAQ accordion section.",
-    themes: ["aurora", "sky", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "newsletter",
@@ -173,7 +173,7 @@ const SECTIONS: {
     en: "Newsletter",
     description_ar: "نموذج اشتراك في النشرة الأسبوعية.",
     description_en: "Weekly newsletter signup form.",
-    themes: ["aurora", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
   {
     id: "cta",
@@ -182,7 +182,7 @@ const SECTIONS: {
     en: "Final CTA",
     description_ar: "قسم تحفيز أخير لبدء مشروع.",
     description_en: "Final conversion strip before footer.",
-    themes: ["classic", "aurora", "nova", "sky", "moon", "prism", "combo", "hany"],
+    themes: ["pro"],
   },
 ];
 
@@ -231,7 +231,7 @@ export function LandingForm({
   }
 
   function resetTab(
-    tab: "hero" | "slides" | "nav" | "logos" | "faqs" | "stats" | "sections"
+    tab: "hero" | "slides" | "nav" | "logos" | "faqs" | "stats" | "sections" | "testimonials" | "section_content"
   ) {
     if (tab === "hero") update("hero", emptyState().hero);
     if (tab === "slides") update("hero_slides", []);
@@ -240,6 +240,8 @@ export function LandingForm({
     if (tab === "faqs") update("faqs", []);
     if (tab === "stats") update("stats", []);
     if (tab === "sections") update("sections", {});
+    if (tab === "testimonials") update("testimonials", []);
+    if (tab === "section_content") update("section_overrides", {});
     toast.success(isAr ? "تم إعادة تعيين هذا القسم" : "Section reset to defaults");
   }
 
@@ -331,6 +333,8 @@ export function LandingForm({
           <TabsTrigger value="logos">{isAr ? "الشعارات" : "Logos"}</TabsTrigger>
           <TabsTrigger value="stats">{isAr ? "الإحصائيات" : "Stats"}</TabsTrigger>
           <TabsTrigger value="faqs">FAQ</TabsTrigger>
+          <TabsTrigger value="testimonials">{isAr ? "آراء العملاء" : "Testimonials"}</TabsTrigger>
+          <TabsTrigger value="section_content">{isAr ? "نصوص الأقسام" : "Section Content"}</TabsTrigger>
         </TabsList>
 
         {/* ─── SECTIONS ─────────────────────────────────────── */}
@@ -1157,6 +1161,242 @@ export function LandingForm({
               }}
             />
           )}
+        </TabsContent>
+
+        {/* ─── TESTIMONIALS ──────────────────────────────────────── */}
+        <TabsContent value="testimonials" className="pt-6 space-y-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <InfoBox
+              isAr={isAr}
+              ar="آراء العملاء التسويقية (تظهر بدلاً من التقييمات التلقائية)."
+              en="Marketing testimonials (override automated reviews)."
+            />
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  update("testimonials", [
+                    {
+                      id: "test-" + Date.now(),
+                      rating: 5,
+                      comment_ar: "",
+                      comment_en: "",
+                      customer_name_ar: "",
+                      customer_name_en: "",
+                      customer_role_ar: "",
+                      customer_role_en: "",
+                      avatar_url: "",
+                    },
+                    ...data.testimonials,
+                  ]);
+                }}
+              >
+                <Plus className="h-3.5 w-3.5 me-1.5" />
+                {isAr ? "إضافة رأي" : "Add Testimonial"}
+              </Button>
+              <Button type="button" size="sm" variant="ghost" onClick={() => resetTab("testimonials")}>
+                <RotateCcw className="h-3.5 w-3.5" />
+                {isAr ? "إعادة تعيين" : "Reset"}
+              </Button>
+            </div>
+          </div>
+          {data.testimonials.length === 0 ? (
+            <EmptyState isAr={isAr} ar="لم تتم إضافة أي آراء." en="No testimonials added yet." />
+          ) : (
+            <ReorderList
+              count={data.testimonials.length}
+              onMove={(from, to) => {
+                const next = [...data.testimonials];
+                const [item] = next.splice(from, 1);
+                next.splice(to, 0, item);
+                update("testimonials", next);
+              }}
+              onRemove={(i) => {
+                const next = [...data.testimonials];
+                next.splice(i, 1);
+                update("testimonials", next);
+              }}
+              renderItem={(i) => {
+                const test = data.testimonials[i];
+                return (
+                  <div className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <Field
+                        label="Name (AR)"
+                        dir="rtl"
+                        value={test.customer_name_ar}
+                        onChange={(v) => {
+                          const next = [...data.testimonials];
+                          next[i] = { ...test, customer_name_ar: v };
+                          update("testimonials", next);
+                        }}
+                      />
+                      <Field
+                        label="Name (EN)"
+                        dir="ltr"
+                        value={test.customer_name_en}
+                        onChange={(v) => {
+                          const next = [...data.testimonials];
+                          next[i] = { ...test, customer_name_en: v };
+                          update("testimonials", next);
+                        }}
+                      />
+                      <Field
+                        label="Role / Company (AR)"
+                        dir="rtl"
+                        value={test.customer_role_ar || ""}
+                        onChange={(v) => {
+                          const next = [...data.testimonials];
+                          next[i] = { ...test, customer_role_ar: v };
+                          update("testimonials", next);
+                        }}
+                      />
+                      <Field
+                        label="Role / Company (EN)"
+                        dir="ltr"
+                        value={test.customer_role_en || ""}
+                        onChange={(v) => {
+                          const next = [...data.testimonials];
+                          next[i] = { ...test, customer_role_en: v };
+                          update("testimonials", next);
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <TextareaField
+                        label="Comment (AR)"
+                        dir="rtl"
+                        value={test.comment_ar}
+                        onChange={(v) => {
+                          const next = [...data.testimonials];
+                          next[i] = { ...test, comment_ar: v };
+                          update("testimonials", next);
+                        }}
+                      />
+                      <TextareaField
+                        label="Comment (EN)"
+                        dir="ltr"
+                        value={test.comment_en}
+                        onChange={(v) => {
+                          const next = [...data.testimonials];
+                          next[i] = { ...test, comment_en: v };
+                          update("testimonials", next);
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Rating (1-5)</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          max="5"
+                          value={test.rating}
+                          onChange={(e) => {
+                            const next = [...data.testimonials];
+                            next[i] = { ...test, rating: Number(e.target.value) };
+                            update("testimonials", next);
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Avatar URL</Label>
+                        <ImageUpload
+                          value={test.avatar_url || null}
+                          onChange={(url) => {
+                            const next = [...data.testimonials];
+                            next[i] = { ...test, avatar_url: url ?? "" };
+                            update("testimonials", next);
+                          }}
+                          uploadAction={uploadHeroSlideImageAction}
+                          locale={locale}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              }}
+            />
+          )}
+        </TabsContent>
+
+        {/* ─── SECTION CONTENT ────────────────────────────────────── */}
+        <TabsContent value="section_content" className="pt-6 space-y-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <InfoBox
+              isAr={isAr}
+              ar="تخصيص نصوص الأقسام. اترك الحقل فارغاً للرجوع للنص الافتراضي للـ Theme."
+              en="Customize section copy. Leave empty to fallback to theme defaults."
+            />
+            <Button type="button" size="sm" variant="ghost" onClick={() => resetTab("section_content")}>
+              <RotateCcw className="h-3.5 w-3.5" />
+              {isAr ? "إعادة تعيين" : "Reset"}
+            </Button>
+          </div>
+          <div className="grid gap-6">
+            {SECTIONS.filter((s) => s.id !== "hero").map((s) => {
+              const inTheme = s.themes.includes(themeId);
+              if (!inTheme) return null;
+              const ov = data.section_overrides[s.id] || {};
+              return (
+                <div key={s.id} className="rounded-lg border p-4 space-y-4">
+                  <div className="flex items-center gap-2 border-b pb-2">
+                    <s.icon className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-semibold">{isAr ? s.ar : s.en}</span>
+                    <code className="text-[10px] bg-muted px-1.5 rounded ms-auto">{s.id}</code>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field
+                      label="Title (AR)"
+                      dir="rtl"
+                      value={ov.title_ar || ""}
+                      onChange={(v) => {
+                        update("section_overrides", {
+                          ...data.section_overrides,
+                          [s.id]: { ...ov, title_ar: v },
+                        });
+                      }}
+                    />
+                    <Field
+                      label="Title (EN)"
+                      dir="ltr"
+                      value={ov.title_en || ""}
+                      onChange={(v) => {
+                        update("section_overrides", {
+                          ...data.section_overrides,
+                          [s.id]: { ...ov, title_en: v },
+                        });
+                      }}
+                    />
+                    <TextareaField
+                      label="Subtitle (AR)"
+                      dir="rtl"
+                      value={ov.subtitle_ar || ""}
+                      onChange={(v) => {
+                        update("section_overrides", {
+                          ...data.section_overrides,
+                          [s.id]: { ...ov, subtitle_ar: v },
+                        });
+                      }}
+                    />
+                    <TextareaField
+                      label="Subtitle (EN)"
+                      dir="ltr"
+                      value={ov.subtitle_en || ""}
+                      onChange={(v) => {
+                        update("section_overrides", {
+                          ...data.section_overrides,
+                          [s.id]: { ...ov, subtitle_en: v },
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </TabsContent>
       </Tabs>
 

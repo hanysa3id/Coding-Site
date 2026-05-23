@@ -1,0 +1,2143 @@
+/* ============================================================================
+   Pro theme — Scoped under .theme-pro
+   Ultra-premium, cinematic, interactive dark theme.
+   ============================================================================ */
+
+/* Cairo loaded via next/font in layout.tsx — JetBrains Mono for code/mono elements */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap");
+
+.theme-pro {
+  --pro-primary:       var(--app-primary, #06b6d4);   /* Electric Cyan */
+  --pro-secondary:     var(--app-accent, #10b981);    /* Emerald Green */
+  --pro-accent:        var(--app-accent-2, #fbbf24);  /* Cyber Gold */
+  
+  --pro-bg:            var(--app-surface, #02040a);   /* Space pitch dark */
+  --pro-bg-soft:       var(--app-paper, #080d16);     /* Glassmorphic card back */
+  --pro-bg-mute:       var(--app-paper-mute, #0d1522);/* Highlighted block back */
+  
+  --pro-fg:            var(--app-ink, #f8fafc);       /* Slate white text */
+  --pro-fg-muted:      var(--app-ink-muted, #94a3b8); /* Muted gray text */
+  --pro-fg-subtle:     var(--app-ink-subtle, #64748b);/* Slate gray text */
+  
+  --pro-border:        color-mix(in srgb, var(--pro-primary) 12%, transparent);       /* Cyan tinted border */
+  --pro-border-soft:   rgba(255, 255, 255, 0.05);      /* Muted white border */
+  
+  --pro-grad:          linear-gradient(135deg, var(--pro-primary), var(--pro-secondary));
+  --pro-grad-glow:     linear-gradient(135deg, var(--pro-primary) 0%, var(--pro-accent) 50%, var(--pro-secondary) 100%);
+  --pro-grad-soft:     linear-gradient(135deg, color-mix(in srgb, var(--pro-primary) 8%, transparent), color-mix(in srgb, var(--pro-secondary) 8%, transparent));
+
+  --pro-radius:        var(--app-radius, 14px);
+  --pro-radius-card:   calc(var(--app-radius, 14px) + 4px);
+  --pro-scale:         var(--app-scale, 1);
+
+  background-color: var(--pro-bg);
+  color: var(--pro-fg);
+  color-scheme: dark;
+
+  /* Font system variables */
+  --font-primary: var(--font-cairo, 'Cairo'), sans-serif;
+  --font-secondary: 'Tajawal', sans-serif;
+  --font-ui: 'Almarai', sans-serif;
+
+  /* Cairo as primary — bilingual Arabic + Latin coverage */
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Heading typography ────────────────────────────────────────────────── */
+.theme-pro h1,
+.theme-pro h2,
+.theme-pro h3,
+.theme-pro h4,
+.theme-pro h5,
+.theme-pro h6 {
+  font-family: var(--font-cairo, "Cairo"), "Tajawal", sans-serif;
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--pro-fg);
+}
+
+/* RTL subheadings (h3, h4, h5, h6) and navigation links and labels use Tajawal */
+html[dir="rtl"] .theme-pro h3,
+html[dir="rtl"] .theme-pro h4,
+html[dir="rtl"] .theme-pro h5,
+html[dir="rtl"] .theme-pro h6,
+html[dir="rtl"] .theme-pro .pro-nav-link,
+html[dir="rtl"] .theme-pro .pro-badge,
+html[dir="rtl"] .theme-pro .pro-section-label,
+html[dir="rtl"] .theme-pro .pro-btn {
+  font-family: "Tajawal", var(--font-cairo), sans-serif;
+}
+
+/* LTR Heading overrides using Poppins */
+html[dir="ltr"] .theme-pro h1,
+html[dir="ltr"] .theme-pro h2,
+html[dir="ltr"] .theme-pro h3,
+html[dir="ltr"] .theme-pro h4,
+html[dir="ltr"] .theme-pro h5,
+html[dir="ltr"] .theme-pro h6 {
+  font-family: var(--font-poppins), "Tajawal", var(--font-cairo), sans-serif;
+}
+
+/* RTL copy paragraphs can use IBM Plex Sans Arabic for smoother reading */
+html[dir="rtl"] .theme-pro p {
+  font-family: var(--font-ibm-plex-arabic), var(--font-cairo), sans-serif;
+  font-weight: 400;
+}
+
+/* English text copy uses Inter */
+html[dir="ltr"] .theme-pro p,
+html[dir="ltr"] .theme-pro span,
+html[dir="ltr"] .theme-pro a,
+html[dir="ltr"] .theme-pro button,
+html[dir="ltr"] .theme-pro .pro-btn {
+  font-family: var(--font-inter), "Tajawal", var(--font-cairo), sans-serif;
+}
+
+.theme-pro h1 {
+  font-size: clamp(2.25rem, 5vw + 0.5rem, 4rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.theme-pro h2 {
+  font-size: clamp(1.8rem, 3.5vw + 0.25rem, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.theme-pro h3 {
+  font-size: clamp(1.4rem, 2.5vw + 0.1rem, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.theme-pro h4 {
+  font-size: clamp(1.1rem, 1.5vw + 0.1rem, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.theme-pro .pro-mono {
+  font-family: "JetBrains Mono", var(--font-inter), monospace;
+  font-size: 0.85em;
+}
+
+/* ── Mesh Decoration Backgrounds ────────────────────────────────────────── */
+.theme-pro .pro-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(80% 60% at 50% -10%, rgba(6, 182, 212, 0.14), transparent 70%),
+    radial-gradient(50% 50% at 100% 30%, rgba(16, 185, 129, 0.08), transparent 60%),
+    radial-gradient(60% 60% at 0% 90%, rgba(251, 191, 36, 0.05), transparent 70%),
+    var(--pro-bg);
+}
+
+.theme-pro .pro-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 182, 212, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 50%, transparent 90%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 50%, transparent 90%);
+}
+
+/* ── Header Floating Glass ─────────────────────────────────────────────── */
+.theme-pro .pro-header-container {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.theme-pro .pro-glass-bar {
+  background: rgba(8, 13, 22, 0.65);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--pro-border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Compact class applied dynamically on scroll */
+.theme-pro .pro-header-compact .pt-2 {
+  padding-top: 0.5rem !important;
+}
+
+.theme-pro .pro-header-compact .pro-glass-bar {
+  background: rgba(8, 13, 22, 0.85);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.7);
+  border-color: rgba(6, 182, 212, 0.22);
+}
+
+.theme-pro .pro-nav-link {
+  position: relative;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 550;
+  color: var(--pro-fg-muted);
+  border-radius: 6px;
+  transition: all 0.25s ease;
+}
+
+.theme-pro .pro-nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  width: 70%;
+  height: 2px;
+  background: var(--pro-grad);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.theme-pro .pro-nav-link:hover {
+  color: var(--pro-fg);
+  background: rgba(6, 182, 212, 0.05);
+}
+
+.theme-pro .pro-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.theme-pro .pro-nav-link-active {
+  color: var(--pro-primary);
+  background: rgba(6, 182, 212, 0.08);
+}
+
+.theme-pro .pro-nav-link-active::after {
+  transform: scaleX(1);
+}
+
+/* ── Premium Buttons ────────────────────────────────────────────────────── */
+.theme-pro .pro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: var(--pro-radius);
+  font-size: 0.92rem;
+  font-weight: 650;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.theme-pro .pro-btn-primary {
+  background: var(--pro-grad);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px -4px rgba(6, 182, 212, 0.4);
+}
+
+.theme-pro .pro-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 24px -6px rgba(6, 182, 212, 0.5),
+    0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.theme-pro .pro-btn-primary:active {
+  transform: translateY(1px);
+}
+
+.theme-pro .pro-btn-secondary {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--pro-fg);
+  border: 1px solid var(--pro-border-soft);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.theme-pro .pro-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(6, 182, 212, 0.3);
+  transform: translateY(-2px);
+}
+
+.theme-pro .pro-btn-ghost {
+  color: var(--pro-fg-muted);
+}
+
+.theme-pro .pro-btn-ghost:hover {
+  color: var(--pro-fg);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Premium Cards ──────────────────────────────────────────────────────── */
+.theme-pro .pro-card {
+  background: rgba(8, 13, 22, 0.65);
+  border: 1px solid var(--pro-border-soft);
+  border-radius: var(--pro-radius-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.theme-pro .pro-card:hover {
+  border-color: rgba(6, 182, 212, 0.25);
+  box-shadow: 
+    0 20px 40px -15px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(6, 182, 212, 0.05);
+  transform: translateY(-4px);
+}
+
+/* Glowing card layout variation */
+.theme-pro .pro-card-glow {
+  position: relative;
+}
+
+.theme-pro .pro-card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.4), rgba(16, 185, 129, 0.4));
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.theme-pro .pro-card-glow:hover::before {
+  opacity: 1;
+}
+
+/* ── Custom Animations ───────────────────────────────────────────────────── */
+@keyframes pro-ken-burns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.08) translate(1%, -1%);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+}
+
+.theme-pro .animate-ken-burns {
+  animation: pro-ken-burns 20s infinite ease-in-out;
+}
+
+@keyframes pro-float {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
+.theme-pro .animate-float {
+  animation: pro-float 6s infinite ease-in-out;
+}
+
+.theme-pro .animate-float-delayed {
+  animation: pro-float 6s infinite ease-in-out;
+  animation-delay: 2.5s;
+}
+
+/* ── Custom Magnetic Cursor Elements ─────────────────────────────────────── */
+.theme-pro .pro-cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--pro-primary);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate3d(-50%, -50%, 0);
+  transition: width 0.2s, height 0.2s, background-color 0.2s;
+}
+
+.theme-pro .pro-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid rgba(6, 182, 212, 0.35);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate3d(-50%, -50%, 0);
+  transition: width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s;
+}
+
+.theme-pro .pro-cursor-hover.pro-cursor-ring {
+  width: 50px;
+  height: 50px;
+  border-color: rgba(16, 185, 129, 0.5);
+  background-color: rgba(6, 182, 212, 0.05);
+}
+
+.theme-pro .pro-cursor-hover.pro-cursor-dot {
+  width: 10px;
+  height: 10px;
+  background-color: var(--pro-secondary);
+}
+
+/* Scroll progress */
+.theme-pro .pro-scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--pro-primary), var(--pro-secondary));
+  z-index: 1000;
+  transform-origin: 0% 50%;
+  transform: scaleX(0);
+  transition: transform 0.1s ease-out;
+}
+
+/* ── Scroll Reveal System ────────────────────────────────────────────────── */
+.theme-pro .pro-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.theme-pro .pro-reveal-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.theme-pro .pro-reveal-right {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.theme-pro .pro-revealed {
+  opacity: 1 !important;
+  transform: translate(0, 0) !important;
+}
+
+/* ── Timeline custom styling ──────────────────────────────────────────────── */
+@keyframes pro-timeline-glow-flow {
+  0% {
+    background-position: 0 0%;
+  }
+  100% {
+    background-position: 0 200%;
+  }
+}
+
+.theme-pro .pro-timeline-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--pro-primary), var(--pro-secondary), var(--pro-accent), var(--pro-primary));
+  background-size: 100% 200%;
+  animation: pro-timeline-glow-flow 8s linear infinite;
+  transform: translateX(-50%);
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.3);
+}
+
+[dir="rtl"] .theme-pro .pro-timeline-line {
+  left: 50%;
+}
+
+.theme-pro .pro-timeline-dot {
+  position: relative;
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  background: var(--pro-bg-soft);
+  border: 2px solid var(--pro-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+}
+
+/* Interactive Accordions */
+.theme-pro .pro-faq-trigger[aria-expanded="true"] .pro-faq-icon {
+  transform: rotate(45deg);
+  color: var(--pro-primary);
+}
+
+.theme-pro .pro-faq-icon {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* Custom Scrollbar */
+.theme-pro ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.theme-pro ::-webkit-scrollbar-track {
+  background: var(--pro-bg);
+}
+
+.theme-pro ::-webkit-scrollbar-thumb {
+  background: rgba(6, 182, 212, 0.2);
+  border-radius: 4px;
+}
+
+.theme-pro ::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.4);
+}
+
+/* ── Additional Premium Accents ── */
+.theme-pro .pro-btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.35),
+    transparent
+  );
+  transform: skewX(-25deg);
+  pointer-events: none;
+}
+
+.theme-pro .pro-btn-primary:hover::before {
+  animation: pro-shine 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pro-shine {
+  100% {
+    left: 150%;
+  }
+}
+
+.theme-pro .text-transparent {
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--pro-primary) 18%, transparent));
+}
+
+.theme-pro .pro-card:hover {
+  border-color: color-mix(in srgb, var(--pro-primary) 35%, transparent);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.85),
+    0 0 25px color-mix(in srgb, var(--pro-primary) 10%, transparent),
+    0 0 50px color-mix(in srgb, var(--pro-secondary) 5%, transparent);
+  transform: translateY(-6px);
+}
+
+/* ── Section Scroll Animations ── */
+.theme-pro .pro-section-reveal {
+  opacity: 0;
+  transition: opacity var(--pro-anim-duration, 700ms) cubic-bezier(0.16, 1, 0.3, 1),
+              transform var(--pro-anim-duration, 700ms) cubic-bezier(0.16, 1, 0.3, 1),
+              filter var(--pro-anim-duration, 700ms) cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity, filter;
+}
+
+.theme-pro .pro-anim-none {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+.theme-pro .pro-anim-fade-up {
+  transform: translateY(40px);
+}
+
+.theme-pro .pro-anim-fade-in {
+  transform: none;
+}
+
+.theme-pro .pro-anim-fade-left {
+  transform: translateX(-40px);
+}
+
+.theme-pro .pro-anim-fade-right {
+  transform: translateX(40px);
+}
+
+.theme-pro .pro-anim-slide-up {
+  transform: translateY(100px);
+}
+
+.theme-pro .pro-anim-slide-in {
+  transform: translateY(60px);
+}
+
+.theme-pro .pro-anim-zoom-in {
+  transform: scale(0.92);
+}
+
+.theme-pro .pro-anim-scale-up {
+  transform: scale(0.96) translateY(20px);
+}
+
+.theme-pro .pro-anim-blur-in {
+  filter: blur(12px);
+  transform: scale(0.98);
+}
+
+.theme-pro .pro-section-reveal.pro-revealed {
+  opacity: 1 !important;
+  transform: translate(0, 0) scale(1) !important;
+  filter: blur(0) !important;
+}
+
+/* Disable default builder animations to let the pro-native scroll reveal transition handle it */
+.theme-pro .app-anim-fade-up,
+.theme-pro .app-anim-fade-in,
+.theme-pro .app-anim-fade-left,
+.theme-pro .app-anim-fade-right,
+.theme-pro .app-anim-slide-up,
+.theme-pro .app-anim-slide-in,
+.theme-pro .app-anim-zoom-in,
+.theme-pro .app-anim-scale-up,
+.theme-pro .app-anim-blur-in {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.theme-pro .pro-mockup {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 
+    0 30px 60px -15px rgba(0, 0, 0, 0.9),
+    0 0 50px rgba(6, 182, 212, 0.05);
+}
+
+.theme-pro .pro-mockup:hover {
+  border-color: rgba(6, 182, 212, 0.3);
+  box-shadow: 
+    0 40px 80px -20px rgba(0, 0, 0, 0.95),
+    0 0 40px rgba(6, 182, 212, 0.15),
+    0 0 80px rgba(16, 185, 129, 0.05);
+  transform: scale(1.01) translateY(-2px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PREMIUM ENHANCEMENTS — Advanced visual language for the Pro theme
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Animated Ambient Orbs ──────────────────────────────────────────────── */
+@keyframes pro-orb-drift {
+  0%   { transform: translate(0%, 0%)    scale(1);    opacity: 0.12; }
+  25%  { transform: translate(3%, -4%)   scale(1.05); opacity: 0.16; }
+  50%  { transform: translate(6%, 2%)    scale(0.97); opacity: 0.10; }
+  75%  { transform: translate(-2%, 5%)   scale(1.03); opacity: 0.14; }
+  100% { transform: translate(0%, 0%)    scale(1);    opacity: 0.12; }
+}
+
+@keyframes pro-orb-drift-2 {
+  0%   { transform: translate(0%, 0%)    scale(1);    opacity: 0.08; }
+  33%  { transform: translate(-5%, 3%)   scale(1.06); opacity: 0.12; }
+  66%  { transform: translate(4%, -5%)   scale(0.95); opacity: 0.07; }
+  100% { transform: translate(0%, 0%)    scale(1);    opacity: 0.08; }
+}
+
+.theme-pro .pro-ambient-orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(80px);
+  will-change: transform, opacity;
+}
+
+.theme-pro .pro-ambient-orb-1 {
+  width: clamp(300px, 45vw, 700px);
+  height: clamp(300px, 45vw, 700px);
+  top: -15%;
+  left: -8%;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.18) 0%, transparent 70%);
+  animation: pro-orb-drift 28s ease-in-out infinite;
+}
+
+.theme-pro .pro-ambient-orb-2 {
+  width: clamp(250px, 35vw, 600px);
+  height: clamp(250px, 35vw, 600px);
+  bottom: 10%;
+  right: -10%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.14) 0%, transparent 70%);
+  animation: pro-orb-drift-2 34s ease-in-out infinite;
+}
+
+.theme-pro .pro-ambient-orb-3 {
+  width: clamp(200px, 25vw, 400px);
+  height: clamp(200px, 25vw, 400px);
+  top: 50%;
+  left: 45%;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.06) 0%, transparent 70%);
+  animation: pro-orb-drift 45s ease-in-out infinite reverse;
+}
+
+/* ── Gradient Text Animation ────────────────────────────────────────────── */
+@keyframes pro-gradient-shift {
+  0%   { background-position: 0% 50%;   }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%;   }
+}
+
+.theme-pro .pro-text-gradient-animate {
+  background: linear-gradient(
+    270deg,
+    var(--pro-primary),
+    var(--pro-secondary),
+    var(--pro-accent),
+    var(--pro-primary)
+  );
+  background-size: 300% 300%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: pro-gradient-shift 6s ease infinite;
+}
+
+/* ── Premium Badge / Label Pill ─────────────────────────────────────────── */
+.theme-pro .pro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-pro .pro-badge-glow {
+  background: color-mix(in srgb, var(--pro-primary) 8%, transparent);
+  border-color: color-mix(in srgb, var(--pro-primary) 30%, transparent);
+  color: var(--pro-primary);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--pro-primary) 15%, transparent);
+}
+
+.theme-pro .pro-badge-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--pro-primary) 10%, transparent), transparent);
+  transform: translateX(-100%);
+  animation: pro-badge-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes pro-badge-shimmer {
+  0%   { transform: translateX(-100%); }
+  50%, 100% { transform: translateX(100%); }
+}
+
+.theme-pro .pro-section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pro-primary);
+  position: relative;
+}
+
+.theme-pro .pro-section-label::before,
+.theme-pro .pro-section-label::after {
+  content: "";
+  display: block;
+  height: 1px;
+  width: 2rem;
+  background: linear-gradient(to right, transparent, var(--pro-primary));
+  opacity: 0.6;
+}
+
+.theme-pro .pro-section-label::after {
+  background: linear-gradient(to left, transparent, var(--pro-primary));
+}
+
+/* ── Glowing Icon Container ─────────────────────────────────────────────── */
+.theme-pro .pro-icon-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.theme-pro .pro-icon-box::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 15px;
+  background: var(--pro-grad);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.4s ease;
+  filter: blur(8px);
+}
+
+.theme-pro .pro-card:hover .pro-icon-box::after {
+  opacity: 0.5;
+}
+
+.theme-pro .pro-card:hover .pro-icon-box {
+  border-color: color-mix(in srgb, var(--pro-primary) 40%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--pro-primary) 20%, transparent);
+}
+
+/* ── Animated Gradient Border Card ─────────────────────────────────────── */
+@keyframes pro-border-rotate {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
+}
+
+.theme-pro .pro-card-premium {
+  position: relative;
+  background: rgba(8, 13, 22, 0.8);
+  border-radius: var(--pro-radius-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  overflow: hidden;
+}
+
+.theme-pro .pro-card-premium::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    var(--pro-primary),
+    var(--pro-secondary),
+    var(--pro-accent),
+    var(--pro-primary)
+  );
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  animation: pro-border-rotate 3s linear infinite;
+}
+
+.theme-pro .pro-card-premium:hover::before {
+  opacity: 1;
+}
+
+.theme-pro .pro-card-premium::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: calc(var(--pro-radius-card) - 1px);
+  background: rgba(8, 13, 22, 0.92);
+  z-index: 0;
+}
+
+.theme-pro .pro-card-premium > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Popular Pricing Card Spotlight ─────────────────────────────────────── */
+.theme-pro .pro-pricing-popular {
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-pro .pro-pricing-popular::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 45deg at 50% 50%,
+    transparent 0deg,
+    color-mix(in srgb, var(--pro-primary) 6%, transparent) 60deg,
+    transparent 120deg,
+    color-mix(in srgb, var(--pro-secondary) 4%, transparent) 200deg,
+    transparent 260deg
+  );
+  animation: pro-border-rotate 8s linear infinite;
+  pointer-events: none;
+}
+
+/* ── Stats Number Pulse ──────────────────────────────────────────────────── */
+@keyframes pro-stat-pulse {
+  0%, 100% { text-shadow: 0 0 20px color-mix(in srgb, var(--pro-primary) 0%, transparent); }
+  50%       { text-shadow: 0 0 30px color-mix(in srgb, var(--pro-primary) 40%, transparent),
+                           0 0 60px color-mix(in srgb, var(--pro-secondary) 20%, transparent); }
+}
+
+.theme-pro .pro-stat-value {
+  animation: pro-stat-pulse 3s ease-in-out infinite;
+}
+
+.theme-pro .pro-stat-value:nth-child(2) { animation-delay: 0.75s; }
+.theme-pro .pro-stat-value:nth-child(3) { animation-delay: 1.5s;  }
+.theme-pro .pro-stat-value:nth-child(4) { animation-delay: 2.25s; }
+
+/* ── Testimonial Glow Ring Avatar ───────────────────────────────────────── */
+.theme-pro .pro-avatar-ring {
+  position: relative;
+}
+
+.theme-pro .pro-avatar-ring::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: var(--pro-grad);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.theme-pro .pro-card:hover .pro-avatar-ring::before {
+  opacity: 1;
+}
+
+/* ── Aurora CTA Background ───────────────────────────────────────────────── */
+@keyframes pro-aurora-1 {
+  0%, 100% { transform: translateX(-5%) translateY(0) scale(1);   }
+  50%      { transform: translateX(5%)  translateY(-3%) scale(1.1); }
+}
+
+@keyframes pro-aurora-2 {
+  0%, 100% { transform: translateX(5%)  translateY(0) scale(1);   }
+  50%      { transform: translateX(-5%) translateY(4%) scale(1.08); }
+}
+
+.theme-pro .pro-aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.theme-pro .pro-aurora::before {
+  content: "";
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  top: -10%;
+  left: -10%;
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--pro-primary) 12%, transparent) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pro-aurora-1 12s ease-in-out infinite;
+  filter: blur(40px);
+}
+
+.theme-pro .pro-aurora::after {
+  content: "";
+  position: absolute;
+  width: 60%;
+  height: 60%;
+  bottom: -10%;
+  right: -5%;
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--pro-secondary) 10%, transparent) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pro-aurora-2 16s ease-in-out infinite;
+  filter: blur(50px);
+}
+
+/* ── Animated Top Gradient Highlight on Cards ───────────────────────────── */
+.theme-pro .pro-card-highlight {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.theme-pro .pro-card-highlight:hover {
+  transform: translateY(-4px);
+  border-color: rgba(6, 182, 212, 0.25);
+  box-shadow: 
+    0 20px 40px -15px rgba(0, 0, 0, 0.8),
+    0 0 30px var(--feat-glow, rgba(6, 182, 212, 0.05));
+}
+
+.theme-pro .pro-card-highlight::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--pro-primary), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 2;
+}
+
+.theme-pro .pro-card-highlight:hover::before {
+  opacity: 1;
+}
+
+.theme-pro .pro-card-highlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(350px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), var(--feat-glow, rgba(6, 182, 212, 0.07)), transparent 80%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.theme-pro .pro-card-highlight:hover::after {
+  opacity: 1;
+}
+
+/* ── Particle Dots Pattern ──────────────────────────────────────────────── */
+.theme-pro .pro-dots-bg {
+  background-image: radial-gradient(circle, rgba(6, 182, 212, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, #000 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, #000 40%, transparent 100%);
+}
+
+/* ── Divider with gradient glow ─────────────────────────────────────────── */
+.theme-pro .pro-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--pro-primary), transparent);
+  opacity: 0.3;
+  border: none;
+  margin: 0;
+}
+
+/* ── Social Icon Premium Hover ──────────────────────────────────────────── */
+.theme-pro .pro-social-icon {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.theme-pro .pro-social-icon:hover {
+  background: color-mix(in srgb, var(--pro-primary) 12%, transparent) !important;
+  border-color: color-mix(in srgb, var(--pro-primary) 40%, transparent) !important;
+  color: var(--pro-primary) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--pro-primary) 20%, transparent);
+}
+
+/* ── Footer gradient shimmer top border ─────────────────────────────────── */
+@keyframes pro-shimmer-move {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 200% 0;  }
+}
+
+.theme-pro .pro-footer-shimmer {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--pro-primary) 30%,
+    var(--pro-secondary) 50%,
+    var(--pro-accent) 70%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: pro-shimmer-move 4s linear infinite;
+}
+
+/* ── Timeline dot pulse ──────────────────────────────────────────────────── */
+@keyframes pro-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pro-primary) 40%, transparent); }
+  50%       { box-shadow: 0 0 0 8px color-mix(in srgb, var(--pro-primary) 0%, transparent); }
+}
+
+.theme-pro .pro-timeline-dot-animate {
+  animation: pro-dot-pulse 2.5s ease-in-out infinite;
+}
+
+/* ── Glowing section heading ─────────────────────────────────────────────── */
+.theme-pro .pro-heading-glow {
+  text-shadow: 
+    0 0 40px color-mix(in srgb, var(--pro-primary) 15%, transparent),
+    0 0 80px color-mix(in srgb, var(--pro-secondary) 8%, transparent);
+}
+
+/* ── Floating label chip ─────────────────────────────────────────────────── */
+@keyframes pro-chip-float {
+  0%, 100% { transform: translateY(0px);  }
+  50%       { transform: translateY(-4px); }
+}
+
+.theme-pro .pro-chip-float {
+  animation: pro-chip-float 4s ease-in-out infinite;
+}
+
+.theme-pro .pro-chip-float:nth-child(2) { animation-delay: 1s;   }
+.theme-pro .pro-chip-float:nth-child(3) { animation-delay: 2s;   }
+.theme-pro .pro-chip-float:nth-child(4) { animation-delay: 0.5s; }
+
+/* ── Process step counter glow ───────────────────────────────────────────── */
+.theme-pro .pro-step-num {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--pro-primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pro-primary) 35%, transparent);
+  color: var(--pro-primary);
+  font-size: 0.7rem;
+  font-weight: 800;
+  font-family: "JetBrains Mono", monospace;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--pro-primary) 15%, transparent);
+}
+
+/* ── Pricing feature check icon glow ────────────────────────────────────── */
+.theme-pro .pro-check-icon {
+  transition: all 0.3s ease;
+}
+
+.theme-pro .pro-card:hover .pro-check-icon {
+  background: color-mix(in srgb, var(--pro-secondary) 15%, transparent);
+  border-color: color-mix(in srgb, var(--pro-secondary) 40%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--pro-secondary) 20%, transparent);
+}
+
+/* ── Newsletter input premium style ─────────────────────────────────────── */
+.theme-pro .pro-input {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--pro-fg);
+  border-radius: var(--pro-radius);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.theme-pro .pro-input:focus {
+  border-color: color-mix(in srgb, var(--pro-primary) 50%, transparent);
+  box-shadow: 
+    0 0 0 3px color-mix(in srgb, var(--pro-primary) 10%, transparent),
+    0 0 20px color-mix(in srgb, var(--pro-primary) 8%, transparent);
+  background: rgba(6, 182, 212, 0.03);
+}
+
+.theme-pro .pro-input::placeholder {
+  color: var(--pro-fg-subtle);
+}
+
+/* ── Responsive improvements ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .theme-pro .pro-ambient-orb-1,
+  .theme-pro .pro-ambient-orb-2,
+  .theme-pro .pro-ambient-orb-3 {
+    filter: blur(60px);
+    opacity: 0.7;
+  }
+  
+  .theme-pro .pro-cursor-dot,
+  .theme-pro .pro-cursor-ring {
+    display: none !important;
+  }
+
+  /* Force all scroll reveal containers & paused animation sections to be visible on mobile */
+  .theme-pro .pro-section-reveal,
+  .theme-pro .pro-reveal,
+  .theme-pro .pro-reveal-left,
+  .theme-pro .pro-reveal-right {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+
+  .theme-pro .app-anim-paused {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}
+
+/* ── Reduced motion support ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .theme-pro .pro-ambient-orb,
+  .theme-pro .pro-text-gradient-animate,
+  .theme-pro .pro-badge-glow::before,
+  .theme-pro .pro-card-premium::before,
+  .theme-pro .pro-pricing-popular::before,
+  .theme-pro .pro-stat-value,
+  .theme-pro .pro-aurora::before,
+  .theme-pro .pro-aurora::after,
+  .theme-pro .pro-footer-shimmer,
+  .theme-pro .pro-timeline-dot-animate,
+  .theme-pro .pro-chip-float,
+  .theme-pro .animate-ken-burns,
+  .theme-pro .animate-float,
+  .theme-pro .animate-float-delayed {
+    animation: none !important;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HERO 3D ENHANCEMENT SYSTEM
+   GPU-accelerated transforms — 60fps smooth — no layout thrash
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 3D Perspective Stage ─────────────────────────────────────────────────── */
+.theme-pro .pro-3d-stage {
+  perspective: 1200px;
+  perspective-origin: 50% 40%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* ── 3D Mockup Frame — the main hero device card ─────────────────────────── */
+.theme-pro .pro-hero-mockup-3d {
+  transform-style: preserve-3d;
+  transform: perspective(1000px) rotateX(4deg) rotateY(-8deg) translateZ(0px);
+  transition:
+    transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+  box-shadow:
+    0 40px 80px -20px rgba(0, 0, 0, 0.9),
+    0 0 60px rgba(6, 182, 212, 0.08),
+    0 0 120px rgba(6, 182, 212, 0.04),
+    /* Deep 3D depth shadow */
+    20px 40px 80px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.theme-pro .pro-hero-mockup-3d:hover {
+  transform: perspective(1000px) rotateX(1deg) rotateY(-2deg) translateZ(20px) scale(1.015);
+  box-shadow:
+    0 60px 120px -20px rgba(0, 0, 0, 0.95),
+    0 0 80px rgba(6, 182, 212, 0.18),
+    0 0 160px rgba(16, 185, 129, 0.08),
+    30px 60px 100px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+/* RTL version flips the Y rotation */
+[dir="rtl"] .theme-pro .pro-hero-mockup-3d {
+  transform: perspective(1000px) rotateX(4deg) rotateY(8deg) translateZ(0px);
+}
+[dir="rtl"] .theme-pro .pro-hero-mockup-3d:hover {
+  transform: perspective(1000px) rotateX(1deg) rotateY(2deg) translateZ(20px) scale(1.015);
+}
+
+/* ── 3D JS-driven tilt (class toggled by mouse events in TSX) ──────────────── */
+.theme-pro .pro-tilt {
+  transition: transform 0.12s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+
+/* ── Depth Layers Inside Mockup ──────────────────────────────────────────── */
+.theme-pro .pro-depth-layer-1 {
+  transform: translateZ(10px);
+  will-change: transform;
+}
+.theme-pro .pro-depth-layer-2 {
+  transform: translateZ(20px);
+  will-change: transform;
+}
+.theme-pro .pro-depth-layer-3 {
+  transform: translateZ(35px);
+  will-change: transform;
+}
+
+/* ── Floating Badge Cards (the little corner cards) ─────────────────────── */
+@keyframes pro-float-3d {
+  0%  { transform: translateY(0px)  translateZ(0px) rotate3d(1, 0.5, 0, 0deg);   }
+  35% { transform: translateY(-10px) translateZ(8px) rotate3d(1, 0.5, 0, 2deg);  }
+  65% { transform: translateY(-6px)  translateZ(4px) rotate3d(1, 0.5, 0, -1deg); }
+  100%{ transform: translateY(0px)  translateZ(0px) rotate3d(1, 0.5, 0, 0deg);  }
+}
+
+@keyframes pro-float-3d-alt {
+  0%  { transform: translateY(0px)  translateZ(0px) rotate3d(0.5, 1, 0, 0deg);   }
+  40% { transform: translateY(-8px)  translateZ(6px) rotate3d(0.5, 1, 0, -2deg); }
+  70% { transform: translateY(-12px) translateZ(10px) rotate3d(0.5, 1, 0, 1.5deg); }
+  100%{ transform: translateY(0px)  translateZ(0px) rotate3d(0.5, 1, 0, 0deg);  }
+}
+
+.theme-pro .pro-float-card {
+  animation: pro-float-3d 7s ease-in-out infinite;
+  will-change: transform;
+  transform-style: preserve-3d;
+  /* 3D card shadow stack */
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(6, 182, 212, 0.08),
+    /* Simulated 3D side depth */
+    4px 6px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.theme-pro .pro-float-card-alt {
+  animation: pro-float-3d-alt 8s ease-in-out infinite;
+  animation-delay: 1.5s;
+  will-change: transform;
+  transform-style: preserve-3d;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(16, 185, 129, 0.08),
+    -4px 6px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ── Glass Panel Enhancement ─────────────────────────────────────────────── */
+.theme-pro .pro-glass-panel {
+  background: rgba(8, 13, 22, 0.72);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    0 24px 48px rgba(0, 0, 0, 0.5);
+}
+
+/* ── 3D Metric Chips ─────────────────────────────────────────────────────── */
+@keyframes pro-metric-pop {
+  0%   { transform: translateY(0)    scale(1)    translateZ(0); }
+  30%  { transform: translateY(-4px) scale(1.04) translateZ(8px); }
+  70%  { transform: translateY(-2px) scale(1.02) translateZ(4px); }
+  100% { transform: translateY(0)    scale(1)    translateZ(0); }
+}
+
+.theme-pro .pro-metric-chip {
+  animation: pro-metric-pop 5s ease-in-out infinite;
+  will-change: transform;
+  transform-style: preserve-3d;
+  background: rgba(8, 13, 22, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 12px rgba(6, 182, 212, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.theme-pro .pro-metric-chip:hover {
+  border-color: rgba(6, 182, 212, 0.3);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(6, 182, 212, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Stagger metric chip animations */
+.theme-pro .pro-metric-chip:nth-child(1) { animation-delay: 0s;    }
+.theme-pro .pro-metric-chip:nth-child(2) { animation-delay: 1.2s;  }
+.theme-pro .pro-metric-chip:nth-child(3) { animation-delay: 2.4s;  }
+
+/* ── 3D CTA Buttons ──────────────────────────────────────────────────────── */
+.theme-pro .pro-btn-3d {
+  position: relative;
+  transform: translateY(0) translateZ(0);
+  transition:
+    transform  0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter     0.25s ease;
+  will-change: transform, box-shadow;
+}
+
+.theme-pro .pro-btn-3d:hover {
+  transform: translateY(-4px) translateZ(8px) scale(1.03);
+  filter: brightness(1.05);
+}
+
+.theme-pro .pro-btn-3d:active {
+  transform: translateY(-1px) translateZ(2px) scale(0.98);
+  transition-duration: 0.1s;
+}
+
+/* ── Magnetic CTA Buttons ────────────────────────────────────────────────── */
+.theme-pro .pro-btn.pro-magnetic {
+  transform: translate3d(var(--mx, 0), var(--my, 0), 0) translateY(0) translateZ(0);
+  transition:
+    transform  0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    filter     0.25s ease;
+  will-change: transform, box-shadow;
+}
+
+.theme-pro .pro-btn.pro-magnetic:hover {
+  /* Combine magnetic offset with 3D lift */
+  transform: translate3d(var(--mx, 0), calc(var(--my, 0) - 4px), 8px) scale(1.03);
+  filter: brightness(1.08);
+}
+
+.theme-pro .pro-btn.pro-magnetic:active {
+  transform: translate3d(var(--mx, 0), var(--my, 0), 2px) scale(0.98);
+  transition-duration: 0.1s;
+}
+
+.theme-pro .pro-btn-primary.pro-btn-3d {
+  box-shadow:
+    0 4px 12px rgba(6, 182, 212, 0.3),
+    0 0 0 1px rgba(6, 182, 212, 0.15);
+}
+
+.theme-pro .pro-btn-primary.pro-btn-3d:hover {
+  box-shadow:
+    0 12px 30px rgba(6, 182, 212, 0.45),
+    0 0 0 1px rgba(6, 182, 212, 0.3),
+    0 0 60px rgba(6, 182, 212, 0.15);
+}
+
+.theme-pro .pro-btn-secondary.pro-btn-3d {
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.theme-pro .pro-btn-secondary.pro-btn-3d:hover {
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 0 30px rgba(6, 182, 212, 0.08);
+}
+
+/* ── Progress Bar Animation in Slide Header ──────────────────────────────── */
+@keyframes pro-slide-progress {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.theme-pro .pro-slide-progress {
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, var(--pro-primary), var(--pro-secondary));
+  transform-origin: left center;
+  animation: pro-slide-progress 6s linear forwards;
+  will-change: transform;
+}
+
+[dir="rtl"] .theme-pro .pro-slide-progress {
+  transform-origin: right center;
+}
+
+/* ── Stagger Entrance Animations ─────────────────────────────────────────── */
+@keyframes pro-hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(24px) translateZ(-20px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+    filter: blur(0);
+  }
+}
+
+.theme-pro .pro-hero-enter {
+  animation: pro-hero-enter 0.8s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.theme-pro .pro-hero-enter-d1 { animation-delay: 0.05s; }
+.theme-pro .pro-hero-enter-d2 { animation-delay: 0.15s; }
+.theme-pro .pro-hero-enter-d3 { animation-delay: 0.25s; }
+.theme-pro .pro-hero-enter-d4 { animation-delay: 0.38s; }
+.theme-pro .pro-hero-enter-d5 { animation-delay: 0.50s; }
+.theme-pro .pro-hero-enter-d6 { animation-delay: 0.65s; }
+
+/* ── Slide Transition (text swap) ─────────────────────────────────────────── */
+@keyframes pro-slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.theme-pro .pro-slide-content {
+  animation: pro-slide-in-up 0.5s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+/* ── Glowing Border Pulse on Mockup ──────────────────────────────────────── */
+@keyframes pro-border-glow-pulse {
+  0%  { box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.12), 0 40px 80px rgba(0,0,0,0.9); }
+  50% { box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.28), 0 40px 80px rgba(0,0,0,0.9), 0 0 50px rgba(6,182,212,0.10); }
+  100%{ box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.12), 0 40px 80px rgba(0,0,0,0.9); }
+}
+
+.theme-pro .pro-mockup-glow-pulse {
+  animation: pro-border-glow-pulse 4s ease-in-out infinite;
+}
+
+/* ── Live Status Indicator (pulsing dot) ─────────────────────────────────── */
+@keyframes pro-live-ping {
+  0%   { transform: scale(1);   opacity: 1; }
+  70%  { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(1);   opacity: 0; }
+}
+
+.theme-pro .pro-live-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+  flex-shrink: 0;
+}
+
+.theme-pro .pro-live-dot::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: #22c55e;
+  opacity: 0.4;
+  animation: pro-live-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* ── Parallax Wrapper (JS scroll-driven offset) ──────────────────────────── */
+.theme-pro .pro-parallax-layer {
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+
+/* ── Scan Line Sweep on Image ─────────────────────────────────────────────── */
+@keyframes pro-scan {
+  0%   { background-position: 0 -100%; }
+  100% { background-position: 0 200%; }
+}
+
+.theme-pro .pro-image-scan::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 40%,
+    rgba(6, 182, 212, 0.04) 50%,
+    transparent 60%
+  );
+  background-size: 100% 200%;
+  animation: pro-scan 5s linear infinite;
+  pointer-events: none;
+}
+
+/* ── Magnetic Nav Arrow Buttons ───────────────────────────────────────────── */
+.theme-pro .pro-nav-arrow {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform  0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease,
+    background  0.3s ease,
+    border-color 0.3s ease;
+  will-change: transform;
+}
+
+.theme-pro .pro-nav-arrow:hover {
+  transform: scale(1.12) translateZ(4px);
+  box-shadow:
+    0 0 20px rgba(6, 182, 212, 0.25),
+    0 8px 20px rgba(0, 0, 0, 0.5);
+  background: rgba(6, 182, 212, 0.1);
+  border-color: rgba(6, 182, 212, 0.5);
+}
+
+.theme-pro .pro-nav-arrow:active {
+  transform: scale(0.95);
+  transition-duration: 0.1s;
+}
+
+/* ── Floating Orb Accents (behind mockup) ────────────────────────────────── */
+@keyframes pro-orb-hero-1 {
+  0%   { transform: translate(0, 0)     scale(1);    }
+  33%  { transform: translate(15px, -20px) scale(1.08); }
+  66%  { transform: translate(-10px, 10px) scale(0.95); }
+  100% { transform: translate(0, 0)     scale(1);    }
+}
+
+@keyframes pro-orb-hero-2 {
+  0%   { transform: translate(0, 0)    scale(1);    }
+  50%  { transform: translate(-20px, 15px) scale(1.1); }
+  100% { transform: translate(0, 0)    scale(1);    }
+}
+
+.theme-pro .pro-hero-orb-1 {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(6, 182, 212, 0.15), transparent);
+  filter: blur(60px);
+  animation: pro-orb-hero-1 12s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.theme-pro .pro-hero-orb-2 {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(16, 185, 129, 0.12), transparent);
+  filter: blur(50px);
+  animation: pro-orb-hero-2 15s ease-in-out infinite;
+  animation-delay: -4s;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* ── Responsive 3D effects ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .theme-pro .pro-hero-mockup-3d {
+    /* Reduce 3D intensity on mobile for performance */
+    transform: perspective(1000px) rotateX(2deg) rotateY(-4deg) translateZ(0px);
+  }
+
+  .theme-pro .pro-hero-mockup-3d:hover {
+    transform: perspective(1000px) rotateX(1deg) rotateY(-1deg) translateZ(10px) scale(1.01);
+  }
+
+  [dir="rtl"] .theme-pro .pro-hero-mockup-3d {
+    transform: perspective(1000px) rotateX(2deg) rotateY(4deg) translateZ(0px);
+  }
+
+  .theme-pro .pro-float-card,
+  .theme-pro .pro-float-card-alt {
+    /* Simpler float on mobile */
+    animation-name: pro-float;
+  }
+
+  .theme-pro .pro-hero-enter {
+    animation-duration: 0.5s;
+  }
+}
+
+/* ── Reduced Motion Overrides for 3D System ──────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .theme-pro .pro-hero-mockup-3d,
+  .theme-pro .pro-hero-mockup-3d:hover,
+  [dir="rtl"] .theme-pro .pro-hero-mockup-3d,
+  [dir="rtl"] .theme-pro .pro-hero-mockup-3d:hover {
+    transform: none !important;
+  }
+
+  .theme-pro .pro-float-card,
+  .theme-pro .pro-float-card-alt,
+  .theme-pro .pro-metric-chip,
+  .theme-pro .pro-live-dot::before,
+  .theme-pro .pro-slide-progress,
+  .theme-pro .pro-hero-enter,
+  .theme-pro .pro-slide-content,
+  .theme-pro .pro-image-scan::after,
+  .theme-pro .pro-hero-orb-1,
+  .theme-pro .pro-hero-orb-2 {
+    animation: none !important;
+  }
+
+  .theme-pro .pro-btn-3d,
+  .theme-pro .pro-btn-3d:hover,
+  .theme-pro .pro-btn-3d:active,
+  .theme-pro .pro-nav-arrow,
+  .theme-pro .pro-nav-arrow:hover {
+    transform: none !important;
+  }
+}
+
+/* ── Infinite Marquee Loop for logo-cloud ─────────────────────────────────── */
+.theme-pro .pro-marquee-mask {
+  mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent);
+}
+
+@keyframes pro-marquee-ltr {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.3333%); }
+}
+
+@keyframes pro-marquee-rtl {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(33.3333%); }
+}
+
+html[dir="ltr"] .theme-pro .animate-marquee {
+  animation: pro-marquee-ltr 30s linear infinite;
+}
+
+html[dir="rtl"] .theme-pro .animate-marquee {
+  animation: pro-marquee-rtl 30s linear infinite;
+}
+
+.theme-pro .animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.theme-pro .pro-brand-logo {
+  filter: grayscale(1) opacity(0.4);
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.theme-pro .pro-brand-logo:hover {
+  filter: grayscale(0) opacity(1);
+  transform: scale(1.08);
+}
+
+/* ── Dual Track Marquee — CSS-only control ───────────────────────────────── */
+.theme-pro .pro-logo-track-1 {
+  animation: pro-marquee-ltr 25s linear infinite;
+}
+
+.theme-pro .pro-logo-track-2 {
+  animation: pro-marquee-rtl 40s linear infinite;
+}
+
+/* Pause on hover of the wrapper */
+.theme-pro .pro-logo-track-wrap:hover .pro-logo-track-1,
+.theme-pro .pro-logo-track-wrap:hover .pro-logo-track-2 {
+  animation-play-state: paused;
+}
+
+
+/* ── Service Pillar Card Hover Effects ─────────────────────────────────────── */
+.theme-pro .pro-service-pillar-card {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+  will-change: transform;
+}
+
+.theme-pro .pro-service-pillar-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(6, 182, 212, 0.35);
+  box-shadow: 
+    0 24px 48px -20px rgba(0, 0, 0, 0.9),
+    0 0 40px rgba(6, 182, 212, 0.08);
+}
+
+.theme-pro .pro-pillar-icon {
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-pro .pro-service-pillar-card:hover .pro-pillar-icon {
+  transform: scale(1.2) rotate(12deg);
+}
+
+/* ── Process Roadmap Dynamic Backdrops ────────────────────────────────────── */
+.theme-pro .pro-timeline-dot {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.4s ease;
+}
+
+.theme-pro .pro-timeline-dot:hover {
+  transform: scale(1.15);
+  border-color: var(--pro-secondary);
+}
+
+.theme-pro .pro-step-num {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s ease;
+}
+
+.theme-pro .pro-card-highlight:hover .pro-step-num {
+  transform: scale(1.1) rotate(-6deg);
+  background-color: var(--pro-primary);
+  color: var(--pro-bg);
+}
+
+.theme-pro .pro-slider-mask {
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+@keyframes pro-particle-drift {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.15; }
+  50% { transform: translateY(-40px) translateX(20px) scale(1.2); opacity: 0.45; }
+  100% { transform: translateY(-80px) translateX(0) scale(1); opacity: 0.15; }
+}
+
+.theme-pro .animate-particle-drift {
+  animation: pro-particle-drift 10s ease-in-out infinite alternate;
+}
+
+/* ── Almarai font for buttons & UI elements ─────────────────────────────── */
+.theme-pro .pro-btn,
+.theme-pro button,
+.theme-pro [role="button"],
+.theme-pro .pro-cta-btn {
+  font-family: var(--font-ui, 'Almarai', sans-serif);
+  font-weight: 700;
+}
+
+/* ── Font weight scale ───────────────────────────────────────────────────── */
+.theme-pro .fw-300 { font-weight: 300; }
+.theme-pro .fw-400 { font-weight: 400; }
+.theme-pro .fw-600 { font-weight: 600; }
+.theme-pro .fw-700 { font-weight: 700; }
+.theme-pro .fw-900 { font-weight: 900; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TEAM SECTION — 3D Tilt Cards + Profile Overlay
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Team Card 3D Tilt ───────────────────────────────────────────────────── */
+.theme-pro .pro-team-card {
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.1s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  background: rgba(8, 13, 22, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--pro-radius-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+}
+
+.theme-pro .pro-team-card:hover {
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.8),
+    0 0 40px rgba(6, 182, 212, 0.08);
+}
+
+/* Gradient border on hover */
+.theme-pro .pro-team-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(6,182,212,0.3), rgba(16,185,129,0.15), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 0;
+  pointer-events: none;
+}
+.theme-pro .pro-team-card:hover::before { opacity: 1; }
+
+/* Hover reveal overlay */
+.theme-pro .pro-team-card .pro-team-hover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(2,4,10,0.95) 40%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.25rem;
+  z-index: 2;
+}
+.theme-pro .pro-team-card:hover .pro-team-hover-overlay { opacity: 1; }
+
+/* ── Shimmer Button ──────────────────────────────────────────────────────── */
+@keyframes pro-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.theme-pro .pro-shimmer-btn {
+  position: relative;
+  font-family: var(--font-ui, 'Almarai', sans-serif);
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  color: var(--pro-primary);
+  background: rgba(6, 182, 212, 0.08);
+  letter-spacing: 0.05em;
+  transition: border-color 0.3s ease, background 0.3s ease;
+  overflow: hidden;
+}
+
+.theme-pro .pro-shimmer-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(6, 182, 212, 0.2) 50%,
+    transparent 80%
+  );
+  background-size: 200% auto;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.theme-pro .pro-shimmer-btn:hover {
+  border-color: rgba(6, 182, 212, 0.6);
+  background: rgba(6, 182, 212, 0.12);
+}
+
+.theme-pro .pro-shimmer-btn:hover::after {
+  opacity: 1;
+  animation: pro-shimmer 1.2s linear infinite;
+}
+
+/* ── Stat Shimmer Effect ─────────────────────────────────────────────────── */
+@keyframes pro-stat-shimmer {
+  0%   { background-position: -400% center; }
+  100% { background-position: 400% center; }
+}
+
+.theme-pro .pro-stat-counting {
+  background: linear-gradient(
+    105deg,
+    var(--pro-primary) 0%,
+    var(--pro-secondary) 30%,
+    rgba(255, 255, 255, 0.9) 50%,
+    var(--pro-secondary) 70%,
+    var(--pro-primary) 100%
+  );
+  background-size: 400% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pro-stat-shimmer 1.5s linear infinite;
+}
+
+/* ── Profile Overlay ─────────────────────────────────────────────────────── */
+.theme-pro .pro-profile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.theme-pro .pro-profile-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 4, 10, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.theme-pro .pro-profile-panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 20px;
+  background: rgba(8, 13, 22, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 40px 80px rgba(0, 0, 0, 0.8),
+    0 0 60px rgba(6, 182, 212, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(6, 182, 212, 0.3) transparent;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+}
+
+.theme-pro .pro-profile-panel::-webkit-scrollbar {
+  width: 4px;
+}
+.theme-pro .pro-profile-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.theme-pro .pro-profile-panel::-webkit-scrollbar-thumb {
+  background: rgba(6, 182, 212, 0.3);
+  border-radius: 4px;
+}
+
+/* Panel entry animation */
+@keyframes pro-overlay-in {
+  from { transform: scale(0.94); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+@keyframes pro-overlay-out {
+  from { transform: scale(1);    opacity: 1; }
+  to   { transform: scale(0.94); opacity: 0; }
+}
+
+.theme-pro .pro-profile-panel.entering {
+  animation: pro-overlay-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.theme-pro .pro-profile-panel.exiting {
+  animation: pro-overlay-out 0.3s ease forwards;
+}
+
+/* Animated gradient border for profile avatar */
+@keyframes pro-avatar-border {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.theme-pro .pro-avatar-gradient-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-pro .pro-avatar-gradient-ring::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    var(--pro-primary),
+    var(--pro-secondary),
+    var(--pro-accent),
+    var(--pro-primary)
+  );
+  animation: pro-avatar-border 4s linear infinite;
+  z-index: 0;
+}
+
+.theme-pro .pro-avatar-gradient-ring > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Mission/Vision animated underline ───────────────────────────────────── */
+.theme-pro .pro-mission-block {
+  position: relative;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.theme-pro .pro-mission-block::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--pro-primary), var(--pro-secondary));
+  border-radius: 2px;
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.theme-pro .pro-mission-block.revealed::after {
+  width: 100%;
+}
+
+html[dir="rtl"] .theme-pro .pro-mission-block::after {
+  left: auto;
+  right: 0;
+}
+
+/* ── Testimonials Progress Bar ───────────────────────────────────────────── */
+.theme-pro .pro-testimonial-progress {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 1.5rem;
+}
+
+.theme-pro .pro-testimonial-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pro-primary), var(--pro-secondary));
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Testimonials Fade Transition ────────────────────────────────────────── */
+@keyframes pro-testimonial-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes pro-testimonial-out {
+  from { opacity: 1; transform: translateY(0);     }
+  to   { opacity: 0; transform: translateY(-20px); }
+}
+
+.theme-pro .pro-testimonial-entering {
+  animation: pro-testimonial-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.theme-pro .pro-testimonial-exiting {
+  animation: pro-testimonial-out 0.35s ease forwards;
+  pointer-events: none;
+}
+
+/* ── Star stagger animation ──────────────────────────────────────────────── */
+@keyframes pro-star-pop {
+  0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+  60%  { transform: scale(1.3) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg);   opacity: 1; }
+}
+
+.theme-pro .pro-star-animated {
+  animation: pro-star-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Services Card Expand ────────────────────────────────────────────────── */
+.theme-pro .pro-service-card-expand {
+  position: relative;
+  overflow: hidden;
+  border-top: 2px solid transparent;
+  transition: border-color 0.4s ease, background 0.3s ease;
+}
+
+.theme-pro .pro-service-card-expand:hover {
+  border-top-color: rgba(6, 182, 212, 0.5);
+}
+
+.theme-pro .pro-service-expand-body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+.theme-pro .pro-service-card-expand:hover .pro-service-expand-body,
+.theme-pro .pro-service-card-expand:focus-within .pro-service-expand-body {
+  max-height: 200px;
+  opacity: 1;
+}
+
+/* ── Reduced motion fallbacks ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .theme-pro .pro-team-card,
+  .theme-pro .pro-profile-panel,
+  .theme-pro .pro-testimonial-entering,
+  .theme-pro .pro-testimonial-exiting,
+  .theme-pro .pro-star-animated,
+  .theme-pro .pro-shimmer-btn::after,
+  .theme-pro .pro-stat-counting,
+  .theme-pro .pro-avatar-gradient-ring::before {
+    animation: none !important;
+    transition: opacity 0.2s ease !important;
+  }
+  .theme-pro .pro-mission-block.revealed::after { width: 100%; transition: none; }
+}
+
+

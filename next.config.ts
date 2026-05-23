@@ -1,7 +1,24 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import os from "os";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
+
+function getLocalIpAddresses(): string[] {
+  const interfaces = os.networkInterfaces();
+  const ips: string[] = [];
+  for (const name of Object.keys(interfaces)) {
+    const netInterface = interfaces[name];
+    if (netInterface) {
+      for (const net of netInterface) {
+        if (net.family === "IPv4" && !net.internal) {
+          ips.push(net.address);
+        }
+      }
+    }
+  }
+  return ips;
+}
 
 // Derive the Supabase storage hostname from the public URL so deploys to any
 // Supabase project work without editing config.
@@ -19,6 +36,7 @@ const supabaseHost = supabaseHostname();
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  allowedDevOrigins: ["localhost", "127.0.0.1", ...getLocalIpAddresses()],
   poweredByHeader: false,
   compress: true,
   images: {
