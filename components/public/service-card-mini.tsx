@@ -25,10 +25,10 @@ export function ServiceCardMini({
     <Link
       href={`/services/${service.slug}`}
       prefetch={true}
-      className="group flex gap-3 rounded-lg border bg-card p-3 transition hover:border-primary/40 hover:shadow-sm"
+      className="group flex gap-3 p-3 transition pro-card pro-card-highlight border-0 h-full w-full bg-transparent overflow-hidden"
     >
       {/* Thumbnail — uses thumbnail_url, falls back to cover_image, then to an icon */}
-      <div className="relative h-14 w-14 shrink-0 rounded-md overflow-hidden bg-muted border">
+      <div className="relative h-14 w-14 shrink-0 rounded-md overflow-hidden bg-muted/20 border-0" style={{ border: "1px solid var(--pro-border-soft)" }}>
         {service.thumbnail_url || service.cover_image ? (
           <Image
             src={(service.thumbnail_url || service.cover_image) as string}
@@ -48,20 +48,20 @@ export function ServiceCardMini({
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <h4 className="font-semibold truncate group-hover:text-primary">{name}</h4>
+              <h4 className="font-semibold truncate group-hover:text-primary transition-colors" style={{ color: "var(--pro-fg, #f8fafc)" }}>{name}</h4>
               {service.is_featured && (
-                <Badge variant="default" className="gap-1 h-5 px-1.5 text-[10px]">
+                <Badge className="gap-1 h-5 px-1.5 text-[10px] border-0 text-black" style={{ background: "var(--pro-accent, #fbbf24)" }}>
                   <Sparkles className="h-2.5 w-2.5" />
                   {isAr ? "مميزة" : "Featured"}
                 </Badge>
               )}
             </div>
             {desc && (
-              <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{desc}</p>
+              <p className="text-xs line-clamp-2 mt-0.5" style={{ color: "var(--pro-fg-muted, #94a3b8)" }}>{desc}</p>
             )}
             <div className="flex items-center gap-3 mt-1.5 text-xs">
               {service.estimated_price_min && (
-                <span className="font-medium text-primary">
+                <span className="font-medium" style={{ color: "var(--pro-primary, #06b6d4)" }}>
                   {isAr ? "من " : "From "}
                   {formatCurrency(
                     service.estimated_price_min,
@@ -71,7 +71,7 @@ export function ServiceCardMini({
                 </span>
               )}
               {service.estimated_duration_days && (
-                <span className="inline-flex items-center gap-0.5 text-muted-foreground">
+                <span className="inline-flex items-center gap-0.5" style={{ color: "var(--pro-fg-subtle, #64748b)" }}>
                   <Clock className="h-3 w-3" />
                   {service.estimated_duration_days} {isAr ? "يوم" : "d"}
                 </span>

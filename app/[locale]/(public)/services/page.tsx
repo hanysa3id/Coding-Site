@@ -8,7 +8,7 @@ import {
 } from "@/lib/queries/services";
 import { ServiceCardMini } from "@/components/public/service-card-mini";
 import { SearchBar } from "@/components/public/search-bar";
-import { FolderTree, ChevronDown } from "lucide-react";
+import { FolderTree, ChevronDown, Sparkles, Layers } from "lucide-react";
 import type { Category, Service } from "@/types/database";
 import type { Metadata } from "next";
 
@@ -82,10 +82,36 @@ export default async function ServicesPage({
   const featured = services.filter((s) => s.is_featured).slice(0, 6);
 
   return (
-    <div className="container py-12">
-      <header className="mb-10 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold">{tc("services")}</h1>
-        <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+    <div className="container py-16">
+      {/* ── Hero Header ─────────────────────────────────────────────────────── */}
+      <header className="mb-14 text-center relative">
+        {/* Ambient glow behind heading */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 -top-8 flex justify-center"
+        >
+          <div
+            className="h-48 w-96 rounded-full opacity-20 blur-3xl"
+            style={{
+              background:
+                "radial-gradient(ellipse, var(--pro-primary, #06b6d4), transparent 70%)",
+            }}
+          />
+        </div>
+
+        <div className="inline-flex items-center gap-2 pro-badge pro-badge-glow mb-4">
+          <Layers className="h-3.5 w-3.5" />
+          {isAr ? "خدماتنا" : "Our Services"}
+        </div>
+
+        <h1 className="pro-heading-glow pro-text-gradient-animate mb-4">
+          {tc("services")}
+        </h1>
+
+        <p
+          className="mt-3 max-w-2xl mx-auto text-lg"
+          style={{ color: "var(--pro-fg-muted, #94a3b8)" }}
+        >
           {isAr
             ? "تصفح كل خدماتنا منظّمة حسب القسم — اضغط على أي خدمة لمعرفة التفاصيل"
             : "Browse all our services organized by category — click any service for details"}
@@ -102,17 +128,36 @@ export default async function ServicesPage({
       {/* ── Search results ────────────────────────────────────────────────── */}
       {isSearching ? (
         <div>
-          <p className="text-sm text-muted-foreground mb-6">
+          <p
+            className="text-sm mb-6"
+            style={{ color: "var(--pro-fg-muted, #94a3b8)" }}
+          >
             {isAr
               ? `${services.length} نتيجة لـ "${query}"`
               : `${services.length} result${services.length !== 1 ? "s" : ""} for "${query}"`}
           </p>
           {services.length === 0 ? (
-            <p className="text-center text-muted-foreground py-12">
-              {isAr ? "لا توجد خدمات تطابق بحثك" : "No services match your search"}
-            </p>
+            <div className="text-center py-20">
+              <div
+                className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
+                style={{
+                  background:
+                    "color-mix(in srgb, var(--pro-primary, #06b6d4) 8%, transparent)",
+                  border:
+                    "1px solid color-mix(in srgb, var(--pro-primary, #06b6d4) 20%, transparent)",
+                }}
+              >
+                <FolderTree
+                  className="h-7 w-7"
+                  style={{ color: "var(--pro-primary, #06b6d4)" }}
+                />
+              </div>
+              <p style={{ color: "var(--pro-fg-muted, #94a3b8)" }}>
+                {isAr ? "لا توجد خدمات تطابق بحثك" : "No services match your search"}
+              </p>
+            </div>
           ) : (
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {services.map((s) => (
                 <ServiceCardMini key={s.id} service={s} locale={locale} />
               ))}
@@ -120,7 +165,10 @@ export default async function ServicesPage({
           )}
         </div>
       ) : services.length === 0 ? (
-        <p className="text-center text-muted-foreground py-12">
+        <p
+          className="text-center py-12"
+          style={{ color: "var(--pro-fg-muted, #94a3b8)" }}
+        >
           {isAr ? "لا توجد خدمات معروضة حالياً" : "No services available yet"}
         </p>
       ) : (
@@ -132,12 +180,26 @@ export default async function ServicesPage({
                 <a
                   key={cat.id}
                   href={`#cat-${cat.slug}`}
-                  className="inline-flex items-center gap-1.5 rounded-full border bg-card px-4 py-1.5 text-sm font-medium hover:bg-muted transition"
+                  className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 hover:-translate-y-0.5"
+                  style={{
+                    background:
+                      "color-mix(in srgb, var(--pro-primary, #06b6d4) 6%, transparent)",
+                    border:
+                      "1px solid color-mix(in srgb, var(--pro-primary, #06b6d4) 20%, transparent)",
+                    color: "var(--pro-fg-muted, #94a3b8)",
+                  }}
                 >
                   <FolderTree className="h-3.5 w-3.5" />
                   {isAr ? cat.name_ar : cat.name_en}
-                  <span className="text-xs text-muted-foreground">
-                    ({allServicesUnder(cat.id).length})
+                  <span
+                    className="text-xs px-1.5 py-0.5 rounded-full"
+                    style={{
+                      background:
+                        "color-mix(in srgb, var(--pro-primary, #06b6d4) 15%, transparent)",
+                      color: "var(--pro-primary, #06b6d4)",
+                    }}
+                  >
+                    {allServicesUnder(cat.id).length}
                   </span>
                 </a>
               ))}
@@ -146,11 +208,18 @@ export default async function ServicesPage({
 
           {/* Featured services strip */}
           {featured.length > 0 && (
-            <section className="mb-14">
-              <h2 className="text-xl font-bold mb-4 inline-flex items-center gap-2">
-                ⭐ {isAr ? "الخدمات المميزة" : "Featured services"}
-              </h2>
-              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <section className="mb-16">
+              <div className="flex items-center gap-3 mb-6">
+                <div
+                  className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest"
+                  style={{ color: "var(--pro-accent, #fbbf24)" }}
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {isAr ? "الخدمات المميزة" : "Featured services"}
+                </div>
+                <div className="flex-1 h-px" style={{ background: "linear-gradient(to right, color-mix(in srgb, var(--pro-accent, #fbbf24) 30%, transparent), transparent)" }} />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {featured.map((s) => (
                   <ServiceCardMini key={s.id} service={s} locale={locale} />
                 ))}
@@ -166,9 +235,16 @@ export default async function ServicesPage({
 
               return (
                 <section key={rootCat.id} id={`cat-${rootCat.slug}`} className="scroll-mt-20">
-                  <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-primary/20">
+                  {/* Category heading with gradient underline */}
+                  <div className="flex items-center gap-4 mb-8 pb-5" style={{ borderBottom: "1px solid color-mix(in srgb, var(--pro-primary, #06b6d4) 20%, transparent)" }}>
                     {rootCat.image_url && (
-                      <div className="relative h-14 w-14 shrink-0 rounded-lg overflow-hidden bg-muted">
+                      <div
+                        className="relative h-14 w-14 shrink-0 rounded-xl overflow-hidden"
+                        style={{
+                          border: "1px solid color-mix(in srgb, var(--pro-primary, #06b6d4) 25%, transparent)",
+                          boxShadow: "0 0 20px color-mix(in srgb, var(--pro-primary, #06b6d4) 10%, transparent)",
+                        }}
+                      >
                         <Image
                           src={rootCat.image_url}
                           alt=""
@@ -178,24 +254,31 @@ export default async function ServicesPage({
                         />
                       </div>
                     )}
-                    <div>
-                      <h2 className="text-2xl md:text-3xl font-bold">
+                    <div className="flex-1">
+                      <h2 className="text-2xl md:text-3xl font-bold" style={{ color: "var(--pro-fg, #f8fafc)" }}>
                         {isAr ? rootCat.name_ar : rootCat.name_en}
                       </h2>
                       {(isAr ? rootCat.description_ar : rootCat.description_en) && (
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-sm mt-1" style={{ color: "var(--pro-fg-muted, #94a3b8)" }}>
                           {isAr ? rootCat.description_ar : rootCat.description_en}
                         </p>
                       )}
                     </div>
-                    <Badge variant="secondary" className="ms-auto">
+                    <span
+                      className="text-xs font-bold px-3 py-1.5 rounded-full"
+                      style={{
+                        background: "color-mix(in srgb, var(--pro-primary, #06b6d4) 10%, transparent)",
+                        border: "1px solid color-mix(in srgb, var(--pro-primary, #06b6d4) 25%, transparent)",
+                        color: "var(--pro-primary, #06b6d4)",
+                      }}
+                    >
                       {allServicesUnder(rootCat.id).length}{" "}
                       {isAr ? "خدمة" : "services"}
-                    </Badge>
+                    </span>
                   </div>
 
                   {directServices.length > 0 && (
-                    <div className="mb-8 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                       {directServices.map((s) => (
                         <ServiceCardMini key={s.id} service={s} locale={locale} />
                       ))}
@@ -208,9 +291,15 @@ export default async function ServicesPage({
                     const subDesc = isAr ? sub.description_ar : sub.description_en;
                     return (
                       <div key={sub.id} className="mb-8">
-                        <div className="flex items-start gap-3 mb-3 ps-2 border-s-4 border-primary/40">
+                        <div
+                          className="flex items-start gap-3 mb-4 ps-4 py-2 rounded-lg"
+                          style={{
+                            borderInlineStart: "3px solid color-mix(in srgb, var(--pro-primary, #06b6d4) 50%, transparent)",
+                            background: "color-mix(in srgb, var(--pro-primary, #06b6d4) 4%, transparent)",
+                          }}
+                        >
                           {sub.image_url && (
-                            <div className="relative h-10 w-10 shrink-0 rounded-md overflow-hidden bg-muted">
+                            <div className="relative h-10 w-10 shrink-0 rounded-lg overflow-hidden bg-muted">
                               <Image
                                 src={sub.image_url}
                                 alt=""
@@ -221,21 +310,27 @@ export default async function ServicesPage({
                             </div>
                           )}
                           <div className="min-w-0">
-                            <h3 className="text-lg font-semibold inline-flex items-center gap-2">
-                              <ChevronDown className="h-4 w-4 text-primary" />
+                            <h3 className="text-lg font-semibold inline-flex items-center gap-2" style={{ color: "var(--pro-fg, #f8fafc)" }}>
+                              <ChevronDown className="h-4 w-4" style={{ color: "var(--pro-primary, #06b6d4)" }} />
                               {isAr ? sub.name_ar : sub.name_en}
-                              <span className="text-xs font-normal text-muted-foreground">
-                                ({subServices.length})
+                              <span
+                                className="text-xs font-normal px-2 py-0.5 rounded-full"
+                                style={{
+                                  background: "color-mix(in srgb, var(--pro-secondary, #10b981) 10%, transparent)",
+                                  color: "var(--pro-secondary, #10b981)",
+                                }}
+                              >
+                                {subServices.length}
                               </span>
                             </h3>
                             {subDesc && (
-                              <p className="text-xs text-muted-foreground mt-0.5">
+                              <p className="text-xs mt-0.5" style={{ color: "var(--pro-fg-subtle, #64748b)" }}>
                                 {subDesc}
                               </p>
                             )}
                           </div>
                         </div>
-                        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 ps-6">
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 ps-4">
                           {subServices.map((s) => (
                             <ServiceCardMini key={s.id} service={s} locale={locale} />
                           ))}
@@ -247,20 +342,21 @@ export default async function ServicesPage({
               );
             })}
 
-            {/* Uncategorized services (orphaned when their category was deleted) */}
+            {/* Uncategorized services */}
             {uncategorized.length > 0 && (
               <section className="scroll-mt-20">
-                <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-muted-foreground/20">
-                  <div>
-                    <h2 className="text-2xl md:text-3xl font-bold">
+                <div
+                  className="flex items-center gap-4 mb-8 pb-5"
+                  style={{ borderBottom: "1px solid color-mix(in srgb, var(--pro-fg-subtle, #64748b) 20%, transparent)" }}
+                >
+                  <div className="flex-1">
+                    <h2 className="text-2xl md:text-3xl font-bold" style={{ color: "var(--pro-fg, #f8fafc)" }}>
                       {isAr ? "خدمات أخرى" : "Other services"}
                     </h2>
                   </div>
-                  <Badge variant="secondary" className="ms-auto">
-                    {uncategorized.length} {isAr ? "خدمة" : "services"}
-                  </Badge>
+                  <Badge variant="secondary">{uncategorized.length} {isAr ? "خدمة" : "services"}</Badge>
                 </div>
-                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {uncategorized.map((s) => (
                     <ServiceCardMini key={s.id} service={s} locale={locale} />
                   ))}

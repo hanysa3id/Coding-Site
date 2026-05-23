@@ -1,9 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { Link } from "@/i18n/routing";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { SearchBar } from "@/components/public/search-bar";
+import { ExternalLink, FolderOpen, Layers2 } from "lucide-react";
 import type { PortfolioProject } from "@/types/database";
 import type { Metadata } from "next";
 
@@ -50,10 +50,35 @@ export default async function PortfolioPage({
   const { data: projects } = await dbQuery;
 
   return (
-    <div className="container py-12">
-      <header className="mb-10 text-center">
-        <h1 className="text-4xl font-bold">{tc("portfolio")}</h1>
-        <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+    <div className="container py-16">
+      {/* ── Hero Header ─────────────────────────────────────────────────────── */}
+      <header className="mb-14 text-center relative">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 -top-8 flex justify-center"
+        >
+          <div
+            className="h-48 w-96 rounded-full opacity-20 blur-3xl"
+            style={{
+              background:
+                "radial-gradient(ellipse, var(--pro-secondary, #10b981), transparent 70%)",
+            }}
+          />
+        </div>
+
+        <div className="inline-flex items-center gap-2 pro-badge pro-badge-glow mb-4">
+          <Layers2 className="h-3.5 w-3.5" />
+          {isAr ? "أعمالنا" : "Our Work"}
+        </div>
+
+        <h1 className="pro-heading-glow pro-text-gradient-animate mb-4">
+          {tc("portfolio")}
+        </h1>
+
+        <p
+          className="mt-3 max-w-2xl mx-auto text-lg"
+          style={{ color: "var(--pro-fg-muted, #94a3b8)" }}
+        >
           {isAr ? "نماذج من أعمالنا السابقة" : "Samples of our previous work"}
         </p>
       </header>
@@ -66,7 +91,10 @@ export default async function PortfolioPage({
       </div>
 
       {isSearching && (
-        <p className="text-sm text-muted-foreground mb-6 text-center">
+        <p
+          className="text-sm mb-6 text-center"
+          style={{ color: "var(--pro-fg-muted, #94a3b8)" }}
+        >
           {isAr
             ? `${projects?.length ?? 0} نتيجة لـ "${query}"`
             : `${projects?.length ?? 0} result${(projects?.length ?? 0) !== 1 ? "s" : ""} for "${query}"`}
@@ -74,42 +102,114 @@ export default async function PortfolioPage({
       )}
 
       {!projects || projects.length === 0 ? (
-        <p className="text-center text-muted-foreground py-12">
-          {isSearching
-            ? isAr
-              ? "لا توجد مشاريع تطابق بحثك"
-              : "No projects match your search"
-            : isAr
-            ? "لا توجد مشاريع معروضة حالياً"
-            : "No projects to display yet"}
-        </p>
+        <div className="text-center py-24">
+          <div
+            className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6"
+            style={{
+              background:
+                "color-mix(in srgb, var(--pro-secondary, #10b981) 8%, transparent)",
+              border:
+                "1px solid color-mix(in srgb, var(--pro-secondary, #10b981) 20%, transparent)",
+            }}
+          >
+            <FolderOpen
+              className="h-9 w-9"
+              style={{ color: "var(--pro-secondary, #10b981)" }}
+            />
+          </div>
+          <p
+            className="text-lg"
+            style={{ color: "var(--pro-fg-muted, #94a3b8)" }}
+          >
+            {isSearching
+              ? isAr
+                ? "لا توجد مشاريع تطابق بحثك"
+                : "No projects match your search"
+              : isAr
+              ? "لا توجد مشاريع معروضة حالياً"
+              : "No projects to display yet"}
+          </p>
+        </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {(projects as PortfolioProject[]).map((p) => (
-            <Link key={p.id} href={`/portfolio/${p.slug}`} prefetch={true}>
-              <Card className="h-full overflow-hidden transition hover:shadow-md">
+          {(projects as PortfolioProject[]).map((p, index) => (
+            <Link
+              key={p.id}
+              href={`/${locale}/portfolio/${p.slug}`}
+              prefetch={true}
+              className="group block pro-card pro-card-highlight rounded-2xl overflow-hidden transition-all duration-500"
+              style={{
+                animationDelay: `${index * 60}ms`,
+                background: "rgba(8, 13, 22, 0.65)",
+              }}
+            >
+              {/* Cover image */}
+              <div className="relative aspect-video overflow-hidden">
                 {p.cover_image ? (
-                  <div className="relative aspect-video">
-                    <Image
-                      src={p.cover_image}
-                      alt={isAr ? p.title_ar : p.title_en}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover"
+                  <Image
+                    src={p.cover_image}
+                    alt={isAr ? p.title_ar : p.title_en}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                ) : (
+                  <div
+                    className="w-full h-full flex items-center justify-center"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, color-mix(in srgb, var(--pro-primary, #06b6d4) 8%, transparent), color-mix(in srgb, var(--pro-secondary, #10b981) 8%, transparent))",
+                    }}
+                  >
+                    <FolderOpen
+                      className="h-12 w-12 opacity-30"
+                      style={{ color: "var(--pro-primary, #06b6d4)" }}
                     />
                   </div>
-                ) : (
-                  <div className="aspect-video bg-muted" />
                 )}
-                <CardHeader>
-                  <CardTitle className="text-lg">
-                    {isAr ? p.title_ar : p.title_en}
-                  </CardTitle>
-                  {p.client_name && (
-                    <p className="text-sm text-muted-foreground">{p.client_name}</p>
-                  )}
-                </CardHeader>
-              </Card>
+                {/* Hover overlay */}
+                <div
+                  className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: "rgba(2, 4, 10, 0.6)" }}
+                >
+                  <div
+                    className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold"
+                    style={{
+                      background: "var(--pro-grad, linear-gradient(135deg, #06b6d4, #10b981))",
+                      color: "#fff",
+                    }}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    {isAr ? "عرض المشروع" : "View Project"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Card body */}
+              <div className="p-5">
+                <h3
+                  className="font-bold text-lg leading-snug mb-1 group-hover:transition-colors duration-300"
+                  style={{ color: "var(--pro-fg, #f8fafc)" }}
+                >
+                  {isAr ? p.title_ar : p.title_en}
+                </h3>
+                {p.client_name && (
+                  <p
+                    className="text-sm"
+                    style={{ color: "var(--pro-fg-muted, #94a3b8)" }}
+                  >
+                    {p.client_name}
+                  </p>
+                )}
+                {/* Gradient accent line */}
+                <div
+                  className="mt-4 h-0.5 w-0 group-hover:w-full transition-all duration-500 rounded-full"
+                  style={{
+                    background:
+                      "var(--pro-grad, linear-gradient(135deg, #06b6d4, #10b981))",
+                  }}
+                />
+              </div>
             </Link>
           ))}
         </div>

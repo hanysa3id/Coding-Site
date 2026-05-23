@@ -36,8 +36,14 @@ export default async function ContactPage({
 
   return (
     <div className="container py-12">
-      <header className="mb-12 text-center">
-        <h1 className="text-4xl font-bold">{tc("contact")}</h1>
+      <header className="mb-12 text-center relative">
+        <div className="inline-flex items-center gap-2 pro-badge pro-badge-glow mb-4">
+          <MessageCircle className="h-3.5 w-3.5" />
+          {isAr ? "تواصل معنا" : "Contact Us"}
+        </div>
+        <h1 className="pro-heading-glow pro-text-gradient-animate text-4xl sm:text-5xl font-bold tracking-tight mb-4">
+          {tc("contact")}
+        </h1>
         <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
           {isAr
             ? "نسعد بالتواصل معك — اختر الطريقة الأنسب"
@@ -46,10 +52,10 @@ export default async function ContactPage({
       </header>
 
       <div className="mx-auto max-w-4xl grid gap-6 md:grid-cols-3">
-        <Card>
+        <Card className="pro-card pro-card-highlight border-0 bg-transparent h-full">
           <CardContent className="pt-6 text-center space-y-3">
-            <MessageCircle className="h-10 w-10 mx-auto text-green-500" />
-            <h2 className="font-bold">WhatsApp</h2>
+            <MessageCircle className="h-10 w-10 mx-auto" style={{ color: "var(--pro-secondary, #10b981)" }} />
+            <h2 className="font-bold" style={{ color: "var(--pro-fg, #f8fafc)" }}>WhatsApp</h2>
             <p className="text-sm text-muted-foreground">
               {isAr ? "محادثة فورية ومجانية" : "Free instant chat"}
             </p>
@@ -58,13 +64,14 @@ export default async function ContactPage({
         </Card>
 
         {contact?.email && (
-          <Card>
+          <Card className="pro-card pro-card-highlight border-0 bg-transparent h-full">
             <CardContent className="pt-6 text-center space-y-3">
-              <Mail className="h-10 w-10 mx-auto text-primary" />
-              <h2 className="font-bold">{isAr ? "البريد" : "Email"}</h2>
+              <Mail className="h-10 w-10 mx-auto" style={{ color: "var(--pro-primary, #06b6d4)" }} />
+              <h2 className="font-bold" style={{ color: "var(--pro-fg, #f8fafc)" }}>{isAr ? "البريد" : "Email"}</h2>
               <a
                 href={`mailto:${contact.email}`}
-                className="text-sm text-primary hover:underline break-all"
+                className="text-sm hover:underline break-all"
+                style={{ color: "var(--pro-primary, #06b6d4)" }}
                 dir="ltr"
               >
                 {contact.email}
@@ -74,13 +81,14 @@ export default async function ContactPage({
         )}
 
         {contact?.phone && (
-          <Card>
+          <Card className="pro-card pro-card-highlight border-0 bg-transparent h-full">
             <CardContent className="pt-6 text-center space-y-3">
-              <Phone className="h-10 w-10 mx-auto text-primary" />
-              <h2 className="font-bold">{isAr ? "الهاتف" : "Phone"}</h2>
+              <Phone className="h-10 w-10 mx-auto" style={{ color: "var(--pro-primary, #06b6d4)" }} />
+              <h2 className="font-bold" style={{ color: "var(--pro-fg, #f8fafc)" }}>{isAr ? "الهاتف" : "Phone"}</h2>
               <a
                 href={`tel:${contact.phone.replace(/\s/g, "")}`}
-                className="text-sm text-primary hover:underline"
+                className="text-sm hover:underline"
+                style={{ color: "var(--pro-primary, #06b6d4)" }}
                 dir="ltr"
               >
                 {contact.phone}

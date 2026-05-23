@@ -59,7 +59,7 @@ export default async function AboutPage({
       titleEn: "Our mission",
       textAr: about.mission_ar || FALLBACK_ABOUT.mission_ar,
       textEn: about.mission_en || FALLBACK_ABOUT.mission_en,
-      accent: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+      accent: "pro-primary-accent",
     },
     {
       icon: Eye,
@@ -67,7 +67,7 @@ export default async function AboutPage({
       titleEn: "Our vision",
       textAr: about.vision_ar || FALLBACK_ABOUT.vision_ar,
       textEn: about.vision_en || FALLBACK_ABOUT.vision_en,
-      accent: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
+      accent: "pro-secondary-accent",
     },
   ];
 
@@ -75,11 +75,11 @@ export default async function AboutPage({
     <div className="container py-16 space-y-20">
       {/* Hero */}
       <header className="text-center max-w-3xl mx-auto space-y-4">
-        <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm text-primary font-medium">
+        <div className="inline-flex items-center gap-2 pro-badge pro-badge-glow mb-4">
           <Users className="h-4 w-4" />
           {isAr ? "من نحن" : "About us"}
         </div>
-        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
+        <h1 className="pro-heading-glow pro-text-gradient-animate text-4xl sm:text-5xl font-bold tracking-tight">
           {isAr ? "نحن فريق متخصص" : "We're a specialized team"}
         </h1>
         <p className="text-muted-foreground text-lg leading-relaxed">
@@ -94,7 +94,7 @@ export default async function AboutPage({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           {about.stats.map((stat, i) => (
             <div key={i} className="space-y-1">
-              <p className="text-4xl font-bold text-primary tabular-nums">{stat.value}</p>
+              <p className="text-4xl font-bold tabular-nums pro-stat-value" style={{ color: "var(--pro-primary, #06b6d4)" }}>{stat.value}</p>
               <p className="text-sm text-muted-foreground">{isAr ? stat.label_ar : stat.label_en}</p>
             </div>
           ))}
@@ -106,12 +106,18 @@ export default async function AboutPage({
         {cards.map((c) => {
           const Icon = c.icon;
           return (
-            <Card key={c.titleEn} className="border-0 shadow-sm bg-muted/30">
+            <Card key={c.titleEn} className="pro-card pro-card-highlight border-0 bg-transparent">
               <CardContent className="pt-6 space-y-4">
-                <div className={`inline-flex rounded-xl p-3 ${c.accent}`}>
+                <div 
+                  className="inline-flex rounded-xl p-3"
+                  style={{
+                    background: c.accent === "pro-primary-accent" ? "color-mix(in srgb, var(--pro-primary) 15%, transparent)" : "color-mix(in srgb, var(--pro-secondary) 15%, transparent)",
+                    color: c.accent === "pro-primary-accent" ? "var(--pro-primary)" : "var(--pro-secondary)"
+                  }}
+                >
                   <Icon className="h-6 w-6" />
                 </div>
-                <h2 className="text-xl font-bold">{isAr ? c.titleAr : c.titleEn}</h2>
+                <h2 className="text-xl font-bold" style={{ color: "var(--pro-fg, #f8fafc)" }}>{isAr ? c.titleAr : c.titleEn}</h2>
                 <p className="text-muted-foreground leading-relaxed">
                   {isAr ? c.textAr : c.textEn}
                 </p>
@@ -132,8 +138,11 @@ export default async function AboutPage({
           </div>
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
             {team.map((member) => (
-              <div key={member.id} className="group text-center space-y-4">
-                <div className="relative mx-auto h-28 w-28 rounded-full overflow-hidden bg-muted ring-4 ring-muted group-hover:ring-primary/30 transition-all duration-300">
+              <div key={member.id} className="group text-center space-y-4 pro-card p-6 rounded-2xl bg-transparent border-0 hover:bg-transparent">
+                <div 
+                  className="relative mx-auto h-28 w-28 rounded-full overflow-hidden pro-avatar-ring transition-all duration-300"
+                  style={{ border: "2px solid var(--pro-border-soft)" }}
+                >
                   {member.avatar_url ? (
                     <Image
                       src={member.avatar_url}
@@ -149,8 +158,8 @@ export default async function AboutPage({
                   )}
                 </div>
                 <div className="space-y-1">
-                  <p className="font-semibold text-lg">{isAr ? member.name_ar : member.name_en}</p>
-                  <p className="text-sm text-primary font-medium">{isAr ? member.role_ar : member.role_en}</p>
+                  <p className="font-semibold text-lg" style={{ color: "var(--pro-fg, #f8fafc)" }}>{isAr ? member.name_ar : member.name_en}</p>
+                  <p className="text-sm font-medium" style={{ color: "var(--pro-primary, #06b6d4)" }}>{isAr ? member.role_ar : member.role_en}</p>
                   {(isAr ? member.bio_ar : member.bio_en) && (
                     <p className="text-sm text-muted-foreground leading-relaxed mt-2">
                       {isAr ? member.bio_ar : member.bio_en}

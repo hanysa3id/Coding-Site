@@ -95,9 +95,15 @@ export default async function BlogIndexPage({
 
   return (
     <div className="container py-12">
-      <header className="mb-8 text-center">
-        <h1 className="text-4xl font-bold">{tc("blog")}</h1>
-        <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+      <header className="mb-12 text-center relative">
+        <div className="inline-flex items-center gap-2 pro-badge pro-badge-glow mb-4">
+          <Star className="h-3.5 w-3.5" />
+          {isAr ? "المدونة" : "Our Blog"}
+        </div>
+        <h1 className="pro-heading-glow pro-text-gradient-animate text-4xl sm:text-5xl font-bold tracking-tight mb-4">
+          {tc("blog")}
+        </h1>
+        <p className="mt-3 text-muted-foreground max-w-2xl mx-auto text-lg">
           {isAr ? "مقالات تقنية وأفكار من فريقنا" : "Tech articles and insights from our team"}
         </p>
       </header>
@@ -112,11 +118,12 @@ export default async function BlogIndexPage({
         <nav className="mb-10 flex flex-wrap justify-center gap-1.5">
           <Link
             href="/blog"
-            className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition ${
+            className={`inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
               !activeCategory
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-card hover:bg-muted"
+                ? "pro-badge-glow"
+                : "bg-card hover:bg-muted text-muted-foreground"
             }`}
+            style={!activeCategory ? { border: "1px solid color-mix(in srgb, var(--pro-primary, #06b6d4) 30%, transparent)" } : { border: "1px solid var(--pro-border-soft)" }}
           >
             {isAr ? "كل الأقسام" : "All"}
           </Link>
@@ -126,11 +133,12 @@ export default async function BlogIndexPage({
               <Link
                 key={c.id}
                 href={`/blog?category=${c.slug}`}
-                className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition ${
+                className={`inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
                   activeCategory?.id === c.id
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card hover:bg-muted"
+                    ? "pro-badge-glow"
+                    : "bg-card hover:bg-muted text-muted-foreground"
                 }`}
+                style={activeCategory?.id === c.id ? { border: "1px solid color-mix(in srgb, var(--pro-primary, #06b6d4) 30%, transparent)" } : { border: "1px solid var(--pro-border-soft)" }}
               >
                 {isAr ? c.name_ar : c.name_en}
               </Link>
@@ -176,8 +184,8 @@ export default async function BlogIndexPage({
           {/* Featured strip */}
           {featured.length > 0 && (
             <section className="mb-12">
-              <h2 className="mb-4 text-lg font-semibold inline-flex items-center gap-2">
-                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+              <h2 className="mb-4 text-lg font-semibold inline-flex items-center gap-2" style={{ color: "var(--pro-accent, #fbbf24)" }}>
+                <Star className="h-4 w-4" style={{ fill: "var(--pro-accent, #fbbf24)", color: "var(--pro-accent, #fbbf24)" }} />
                 {isAr ? "مقالات مميزة" : "Featured"}
               </h2>
               <div className="grid gap-6 md:grid-cols-3">
@@ -221,7 +229,7 @@ function PostCard({
   const isAr = locale === "ar";
   return (
     <Link href={`/blog/${post.slug}`}>
-      <Card className="h-full overflow-hidden transition hover:shadow-md group">
+      <Card className="pro-card pro-card-highlight border-0 bg-transparent h-full overflow-hidden transition group">
         {post.cover_image ? (
           <div className="relative aspect-video bg-muted overflow-hidden">
             <Image
@@ -232,7 +240,7 @@ function PostCard({
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
             {featured && (
-              <Badge className="absolute top-3 start-3 gap-1 bg-amber-500 hover:bg-amber-500 text-white">
+              <Badge className="absolute top-3 start-3 gap-1 border-0 text-black" style={{ background: "var(--pro-accent, #fbbf24)" }}>
                 <Star className="h-3 w-3 fill-current" />
                 {isAr ? "مميز" : "Featured"}
               </Badge>
@@ -242,7 +250,7 @@ function PostCard({
           <div className="aspect-video bg-muted" />
         )}
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg leading-snug line-clamp-2">
+          <CardTitle className="text-lg leading-snug line-clamp-2" style={{ color: "var(--pro-fg, #f8fafc)" }}>
             {isAr ? post.title_ar : post.title_en}
           </CardTitle>
         </CardHeader>
