@@ -104,6 +104,9 @@ export const landingServicePillarSchema = z.object({
   icon_name: z.string().min(1).default("Code2"),
   glow_color: z.string().min(1).default("rgba(6, 182, 212, 0.25)"),
   items: z.array(landingServicePillarItemSchema).default([]).optional(),
+  link_text_ar: z.string().nullable().optional(),
+  link_text_en: z.string().nullable().optional(),
+  link_url: z.string().nullable().optional(),
 });
 export type LandingServicePillar = z.infer<typeof landingServicePillarSchema>;
 

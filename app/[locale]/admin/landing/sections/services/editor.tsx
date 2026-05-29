@@ -411,6 +411,26 @@ function PillarCard({
           rows={3}
         />
 
+        <div className="grid gap-4 sm:grid-cols-2 mt-4 pt-4 border-t border-border">
+          <BilingualInput
+            labelAr="نص الزر (عربي)"
+            labelEn="Button Text (Ar)"
+            valAr={pillar.link_text_ar || ""}
+            valEn={pillar.link_text_en || ""}
+            onChangeAr={(v) => onChange({ link_text_ar: v })}
+            onChangeEn={(v) => onChange({ link_text_en: v })}
+          />
+          <div className="space-y-1 mt-2">
+            <Label className="text-sm font-semibold">{isAr ? "رابط الزر" : "Button URL"}</Label>
+            <Input 
+              dir="ltr"
+              value={pillar.link_url || ""} 
+              onChange={(e) => onChange({ link_url: e.target.value })}
+              placeholder="/contact"
+            />
+          </div>
+        </div>
+
         <div className="pt-4 border-t border-border mt-6">
           <div className="flex items-center justify-between mb-4">
             <div>

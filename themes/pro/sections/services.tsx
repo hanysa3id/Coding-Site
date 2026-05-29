@@ -400,10 +400,12 @@ export function ProServices({
 
                 {/* Footer link */}
                 <Link
-                  href="/contact"
+                  href={pillar.link_url || "/contact"}
                   className="inline-flex items-center gap-2 text-xs font-semibold text-[color:var(--pro-primary)] hover:text-white transition-colors mt-auto"
                 >
-                  {isAr ? "اطلب هذه الباقة" : "Enquire for this track"}
+                  {isAr 
+                    ? (pillar.link_text_ar || "اطلب هذه الباقة")
+                    : (pillar.link_text_en || "Enquire for this track")}
                   <ArrowRight className="h-3 w-3 rtl:rotate-180" />
                 </Link>
               </div>
