@@ -43,6 +43,14 @@ export function PricingEditor({
       <div className="space-y-6">
         <h3 className="font-semibold text-lg">{locale === "ar" ? "المحتوى النصي" : "Text Content"}</h3>
         <BilingualInput
+          labelAr="العنوان الفرعي / التصنيف العلوي"
+          labelEn="Subtitle / Top Badge"
+          valAr={overrides.subtitle_ar ?? ""}
+          valEn={overrides.subtitle_en ?? ""}
+          onChangeAr={(v) => updateOverride("subtitle_ar", v)}
+          onChangeEn={(v) => updateOverride("subtitle_en", v)}
+        />
+        <BilingualInput
           labelAr="العنوان الرئيسي"
           labelEn="Heading"
           valAr={overrides.title_ar ?? ""}
@@ -51,14 +59,14 @@ export function PricingEditor({
           onChangeEn={(v) => updateOverride("title_en", v)}
         />
         <BilingualInput
-          labelAr="الوصف (اختياري)"
-          labelEn="Subtitle (Optional)"
-          valAr={overrides.subtitle_ar ?? ""}
-          valEn={overrides.subtitle_en ?? ""}
-          onChangeAr={(v) => updateOverride("subtitle_ar", v)}
-          onChangeEn={(v) => updateOverride("subtitle_en", v)}
+          labelAr="الوصف"
+          labelEn="Description"
+          valAr={overrides.description_ar ?? ""}
+          valEn={overrides.description_en ?? ""}
+          onChangeAr={(v) => updateOverride("description_ar", v)}
+          onChangeEn={(v) => updateOverride("description_en", v)}
           type="textarea"
-          rows={2}
+          rows={3}
         />
       </div>
     </SectionEditorShell>
