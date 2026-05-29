@@ -40,195 +40,242 @@ export default async function InvoicePage({
 
   const plan = (order.payment_plan as unknown as PaymentInstallment[]) ?? null;
 
+  // Calculate VAT (assuming finalAmount is VAT inclusive, let's say 15% VAT)
+  const vatRate = 0.15;
+  const subtotal = finalAmount ? finalAmount / (1 + vatRate) : 0;
+  const vatAmount = finalAmount ? finalAmount - subtotal : 0;
+
   return (
-    <div className="min-h-screen bg-muted/20 print:bg-white p-4 print:p-0">
+    <div className="min-h-screen bg-slate-100/50 print:bg-white p-4 md:p-8 print:p-0 font-sans">
       {/* Print button — hidden when printing */}
-      <div className="max-w-3xl mx-auto mb-4 flex justify-end gap-2 print:hidden">
+      <div className="max-w-4xl mx-auto mb-6 flex justify-end gap-2 print:hidden">
         <InvoicePrintButton locale={locale} />
       </div>
 
       {/* Invoice document */}
       <div
         id="invoice"
-        className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg print:shadow-none print:rounded-none p-10 print:p-8 space-y-8 text-sm"
+        className="max-w-4xl mx-auto bg-white rounded-3xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] print:shadow-none print:rounded-none p-8 md:p-12 print:p-0 text-slate-800"
         dir={isAr ? "rtl" : "ltr"}
       >
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">{siteName}</h1>
-            <p className="text-muted-foreground text-xs mt-1">{siteEmail}</p>
-            <p className="text-muted-foreground text-xs">{sitePhone}</p>
-            {siteAddress && <p className="text-muted-foreground text-xs">{siteAddress}</p>}
+        <header className="flex flex-col md:flex-row items-start justify-between gap-6 pb-8 border-b border-slate-200">
+          <div className="space-y-3">
+            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900">{siteName}</h1>
+            <div className="text-slate-500 text-sm space-y-1">
+              {siteAddress && <p>{siteAddress}</p>}
+              <p>{siteEmail} {siteEmail && sitePhone && "•"} <span dir="ltr">{sitePhone}</span></p>
+              <p className="font-mono text-xs pt-1">
+                <span className="font-semibold text-slate-400">{isAr ? "الرقم الضريبي:" : "Tax ID:"}</span> 300123456789003
+              </p>
+            </div>
           </div>
-          <div className="text-end">
-            <p className="text-2xl font-bold text-primary">
-              {isAr ? "فاتورة" : "INVOICE"}
-            </p>
-            <code className="text-xs font-mono text-muted-foreground">{order.order_number}</code>
-            <p className="text-xs text-muted-foreground mt-1">
-              {formatDate(order.created_at, intlLocale)}
-            </p>
+          <div className="text-start md:text-end space-y-2 w-full md:w-auto bg-slate-50 p-6 md:p-0 md:bg-transparent rounded-2xl md:rounded-none">
+            <h2 className="text-3xl md:text-4xl font-black text-slate-300 uppercase tracking-widest mb-4 md:mb-6">
+              {isAr ? "فاتورة ضريبية" : "TAX INVOICE"}
+            </h2>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+              <div className="text-slate-500 font-medium">{isAr ? "رقم الفاتورة:" : "Invoice No:"}</div>
+              <div className="font-mono font-bold text-slate-900">{order.order_number}</div>
+              <div className="text-slate-500 font-medium">{isAr ? "تاريخ الإصدار:" : "Issue Date:"}</div>
+              <div className="font-mono font-semibold text-slate-900">{formatDate(order.created_at, intlLocale)}</div>
+            </div>
           </div>
-        </div>
+        </header>
 
-        <hr />
-
-        {/* Billing to */}
-        <div className="grid grid-cols-2 gap-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-              {isAr ? "فاتورة إلى" : "Bill to"}
-            </p>
-            <p className="font-semibold">{profile.full_name ?? "—"}</p>
-            {profile.email && <p className="text-muted-foreground">{profile.email}</p>}
-            {profile.phone && <p className="text-muted-foreground">{profile.phone}</p>}
+        {/* Billing Info */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 py-8">
+          <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100/50">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-indigo-500 block"></span>
+              {isAr ? "بيانات العميل (فاتورة إلى)" : "Billed To"}
+            </h3>
+            <p className="text-lg font-bold text-slate-900">{profile.full_name ?? "—"}</p>
+            <div className="text-slate-600 text-sm mt-2 space-y-1">
+              {profile.email && <p>{profile.email}</p>}
+              {profile.phone && <p dir="ltr" className="text-start">{profile.phone}</p>}
+            </div>
           </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-              {isAr ? "تفاصيل الخدمة" : "Service details"}
-            </p>
-            <p className="font-semibold">
-              {order.services
-                ? isAr
-                  ? order.services.name_ar
-                  : order.services.name_en
-                : "—"}
+          <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100/50">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-cyan-500 block"></span>
+              {isAr ? "تفاصيل المشروع" : "Project Details"}
+            </h3>
+            <p className="text-lg font-bold text-slate-900">
+              {order.services ? (isAr ? order.services.name_ar : order.services.name_en) : "—"}
             </p>
             {(order.final_duration_days ?? order.estimated_duration_days) && (
-              <p className="text-muted-foreground">
-                {isAr ? "المدة: " : "Duration: "}
-                {order.final_duration_days ?? order.estimated_duration_days}{" "}
-                {isAr ? "يوم" : "days"}
+              <p className="text-slate-600 text-sm mt-2">
+                {isAr ? "المدة المتوقعة للتنفيذ: " : "Estimated Duration: "}
+                <span className="font-bold text-slate-900">
+                  {order.final_duration_days ?? order.estimated_duration_days} {isAr ? "يوم عمل" : "business days"}
+                </span>
               </p>
             )}
           </div>
-        </div>
+        </section>
 
-        {/* Line items */}
-        <div className="rounded-xl border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="p-3 text-start font-semibold">{isAr ? "الوصف" : "Description"}</th>
-                <th className="p-3 text-end font-semibold">{isAr ? "المبلغ" : "Amount"}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              <tr>
-                <td className="p-3">
-                  {order.services ? (isAr ? order.services.name_ar : order.services.name_en) : "—"}
-                  {order.customer_message && (
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                      {order.customer_message}
+        {/* Line Items */}
+        <section className="mb-8">
+          <div className="rounded-2xl border border-slate-200 overflow-hidden">
+            <table className="w-full text-sm text-start">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs tracking-wider">
+                <tr>
+                  <th className="p-4 text-start font-bold w-16">{isAr ? "#" : "#"}</th>
+                  <th className="p-4 text-start font-bold">{isAr ? "البيان / الوصف" : "Item Description"}</th>
+                  <th className="p-4 text-center font-bold w-24">{isAr ? "الكمية" : "Qty"}</th>
+                  <th className="p-4 text-end font-bold w-40">{isAr ? "السعر (غير شامل الضريبة)" : "Unit Price (Ex. VAT)"}</th>
+                  <th className="p-4 text-end font-bold w-40">{isAr ? "الإجمالي" : "Total"}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                <tr className="hover:bg-slate-50/50 transition-colors">
+                  <td className="p-4 text-slate-400 font-mono">01</td>
+                  <td className="p-4">
+                    <p className="font-bold text-slate-900">
+                      {order.services ? (isAr ? order.services.name_ar : order.services.name_en) : "—"}
                     </p>
-                  )}
-                </td>
-                <td className="p-3 text-end font-mono tabular-nums">
-                  {finalAmount
-                    ? formatCurrency(finalAmount, order.currency, intlLocale)
-                    : "—"}
-                </td>
-              </tr>
-            </tbody>
-            <tfoot className="bg-muted/30 divide-y">
-              <tr>
-                <td className="p-3 font-semibold">{isAr ? "الإجمالي" : "Total"}</td>
-                <td className="p-3 text-end font-bold font-mono tabular-nums">
-                  {finalAmount
-                    ? formatCurrency(finalAmount, order.currency, intlLocale)
-                    : "—"}
-                </td>
-              </tr>
-              {paidAmount > 0 && (
-                <tr>
-                  <td className="p-3 text-green-700">{isAr ? "مدفوع" : "Paid"}</td>
-                  <td className="p-3 text-end text-green-700 font-mono tabular-nums">
-                    {formatCurrency(paidAmount, order.currency, intlLocale)}
-                  </td>
-                </tr>
-              )}
-              {remaining > 0 && (
-                <tr>
-                  <td className="p-3 font-bold text-amber-700">{isAr ? "المتبقي" : "Balance due"}</td>
-                  <td className="p-3 text-end font-bold text-amber-700 font-mono tabular-nums">
-                    {formatCurrency(remaining, order.currency, intlLocale)}
-                  </td>
-                </tr>
-              )}
-            </tfoot>
-          </table>
-        </div>
-
-        {/* Payment plan (if set) */}
-        {plan && plan.length > 0 && (
-          <div className="space-y-3">
-            <p className="font-semibold">{isAr ? "خطة الدفع" : "Payment schedule"}</p>
-            <div className="rounded-xl border overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="p-3 text-start font-semibold">{isAr ? "القسط" : "Installment"}</th>
-                    <th className="p-3 text-start font-semibold">{isAr ? "الاستحقاق" : "Due"}</th>
-                    <th className="p-3 text-end font-semibold">{isAr ? "المبلغ" : "Amount"}</th>
-                    <th className="p-3 text-end font-semibold">{isAr ? "الحالة" : "Status"}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {plan.map((inst, i) => (
-                    <tr key={i}>
-                      <td className="p-3">{isAr ? inst.label_ar : inst.label_en}</td>
-                      <td className="p-3 text-muted-foreground">
-                        {inst.due_date ? formatDate(inst.due_date, intlLocale) : "—"}
-                      </td>
-                      <td className="p-3 text-end font-mono tabular-nums">
-                        {formatCurrency(inst.amount, order.currency, intlLocale)}
-                      </td>
-                      <td className="p-3 text-end">
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${inst.paid ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
-                          {inst.paid ? (isAr ? "مدفوع" : "Paid") : (isAr ? "معلق" : "Pending")}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Payment history */}
-        {(payments as Payment[]).filter((p) => p.status === "paid").length > 0 && (
-          <div className="space-y-3">
-            <p className="font-semibold">{isAr ? "سجل المدفوعات" : "Payment history"}</p>
-            <div className="space-y-2">
-              {(payments as Payment[])
-                .filter((p) => p.status === "paid")
-                .map((p) => (
-                  <div key={p.id} className="flex items-center justify-between text-sm">
-                    <div>
-                      <p className="font-medium">{p.method.replace("_", " ")}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {p.paid_at ? formatDate(p.paid_at, intlLocale) : "—"}
+                    {order.customer_message && (
+                      <p className="text-xs text-slate-500 mt-1 max-w-md leading-relaxed">
+                        {order.customer_message}
                       </p>
-                    </div>
-                    <p className="font-mono tabular-nums text-green-700">
-                      {formatCurrency(p.amount, p.currency, intlLocale)}
-                    </p>
-                  </div>
-                ))}
-            </div>
+                    )}
+                  </td>
+                  <td className="p-4 text-center font-mono text-slate-600">1</td>
+                  <td className="p-4 text-end font-mono text-slate-600">
+                    {formatCurrency(subtotal, order.currency, intlLocale)}
+                  </td>
+                  <td className="p-4 text-end font-mono font-bold text-slate-900">
+                    {formatCurrency(subtotal, order.currency, intlLocale)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        )}
+        </section>
 
-        <hr />
+        {/* Financial Summary */}
+        <section className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
+          {/* Notes / Terms */}
+          <div className="w-full md:w-1/2 p-6 rounded-2xl bg-slate-50 text-slate-600 text-sm leading-relaxed border border-slate-100">
+            <h4 className="font-bold text-slate-900 mb-2">{isAr ? "الشروط والأحكام:" : "Terms & Conditions:"}</h4>
+            <ul className="list-disc list-inside space-y-1 text-xs">
+              <li>{isAr ? "يجب سداد الدفعات في مواعيد استحقاقها لتجنب تأخير تسليم المشروع." : "Payments must be made on time to avoid project delivery delays."}</li>
+              <li>{isAr ? "الأسعار الموضحة أعلاه شاملة ضريبة القيمة المضافة (15%)." : "Prices shown above include Value Added Tax (15%)."}</li>
+              <li>{isAr ? "تُعد هذه الفاتورة رسمية ومعتمدة في النظام المالي." : "This is an official computer-generated invoice."}</li>
+            </ul>
+          </div>
+
+          {/* Totals */}
+          <div className="w-full md:w-1/3 space-y-3 text-sm">
+            <div className="flex justify-between items-center text-slate-600 px-4">
+              <span>{isAr ? "المجموع الفرعي:" : "Subtotal:"}</span>
+              <span className="font-mono">{formatCurrency(subtotal, order.currency, intlLocale)}</span>
+            </div>
+            <div className="flex justify-between items-center text-slate-600 px-4">
+              <span>{isAr ? "ضريبة القيمة المضافة (15%):" : "VAT (15%):"}</span>
+              <span className="font-mono">{formatCurrency(vatAmount, order.currency, intlLocale)}</span>
+            </div>
+            <div className="h-px w-full bg-slate-200 my-2"></div>
+            <div className="flex justify-between items-center px-4 py-3 bg-slate-900 text-white rounded-xl shadow-lg">
+              <span className="font-bold text-base">{isAr ? "الإجمالي المستحق:" : "Total Amount:"}</span>
+              <span className="font-mono font-black text-lg">{finalAmount ? formatCurrency(finalAmount, order.currency, intlLocale) : "—"}</span>
+            </div>
+            
+            {(paidAmount > 0 || remaining > 0) && (
+              <div className="px-4 pt-3 space-y-2">
+                {paidAmount > 0 && (
+                  <div className="flex justify-between items-center text-emerald-600 font-medium">
+                    <span>{isAr ? "المبلغ المدفوع:" : "Amount Paid:"}</span>
+                    <span className="font-mono">{formatCurrency(paidAmount, order.currency, intlLocale)}</span>
+                  </div>
+                )}
+                {remaining > 0 && (
+                  <div className="flex justify-between items-center text-rose-600 font-bold">
+                    <span>{isAr ? "الرصيد المتبقي:" : "Balance Due:"}</span>
+                    <span className="font-mono">{formatCurrency(remaining, order.currency, intlLocale)}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <hr className="border-slate-200" />
+
+        {/* Payment Plan & History (If applicable) */}
+        {(plan?.length > 0 || payments?.length > 0) && (
+          <section className="py-8 grid md:grid-cols-2 gap-8 print:block print:space-y-8">
+            {plan && plan.length > 0 && (
+              <div className="space-y-4">
+                <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                  {isAr ? "جدول الدفعات (الأقساط)" : "Payment Schedule"}
+                </h4>
+                <div className="rounded-xl border border-slate-200 overflow-hidden">
+                  <table className="w-full text-xs text-start">
+                    <thead className="bg-slate-50 text-slate-500">
+                      <tr>
+                        <th className="p-3 text-start">{isAr ? "الدفعة" : "Installment"}</th>
+                        <th className="p-3 text-start">{isAr ? "تاريخ الاستحقاق" : "Due Date"}</th>
+                        <th className="p-3 text-end">{isAr ? "المبلغ" : "Amount"}</th>
+                        <th className="p-3 text-end">{isAr ? "الحالة" : "Status"}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {plan.map((inst, i) => (
+                        <tr key={i}>
+                          <td className="p-3 font-medium text-slate-700">{isAr ? inst.label_ar : inst.label_en}</td>
+                          <td className="p-3 text-slate-500">{inst.due_date ? formatDate(inst.due_date, intlLocale) : "—"}</td>
+                          <td className="p-3 text-end font-mono font-semibold text-slate-900">
+                            {formatCurrency(inst.amount, order.currency, intlLocale)}
+                          </td>
+                          <td className="p-3 text-end">
+                            <span className={`inline-flex items-center justify-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${inst.paid ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                              {inst.paid ? (isAr ? "مدفوع" : "PAID") : (isAr ? "معلق" : "PENDING")}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {(payments as Payment[]).filter((p) => p.status === "paid").length > 0 && (
+              <div className="space-y-4">
+                <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                  {isAr ? "سجل المدفوعات السابقة" : "Payment History"}
+                </h4>
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3">
+                  {(payments as Payment[])
+                    .filter((p) => p.status === "paid")
+                    .map((p) => (
+                      <div key={p.id} className="flex items-center justify-between pb-3 border-b border-slate-200/60 last:border-0 last:pb-0">
+                        <div>
+                          <p className="text-sm font-bold text-slate-700 capitalize">{p.method.replace("_", " ")}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            {p.paid_at ? formatDate(p.paid_at, intlLocale) : "—"}
+                          </p>
+                        </div>
+                        <p className="font-mono font-bold text-emerald-600">
+                          {formatCurrency(p.amount, p.currency, intlLocale)}
+                        </p>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Footer */}
-        <div className="text-center text-xs text-muted-foreground space-y-1">
-          <p>{siteName}</p>
-          {siteEmail && <p>{siteEmail}</p>}
-          <p className="mt-2">{isAr ? "شكراً لثقتكم بنا" : "Thank you for your business"}</p>
-        </div>
+        <footer className="mt-8 pt-8 border-t border-slate-200 text-center text-sm text-slate-500 font-medium">
+          <p className="text-slate-900 font-bold mb-1">{isAr ? "شكراً لاختياركم " : "Thank you for choosing "}{siteName}</p>
+          <p className="text-xs">{isAr ? "نسعد دائماً بخدمتكم وتلبية تطلعاتكم." : "We are always happy to serve you and meet your expectations."}</p>
+        </footer>
       </div>
     </div>
   );

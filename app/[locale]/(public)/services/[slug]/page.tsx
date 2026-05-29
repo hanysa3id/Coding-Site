@@ -204,23 +204,26 @@ export default async function ServiceDetailPage({
             )}
           </div>
 
-          <div className="flex flex-wrap gap-3 pt-4">
-            <Button asChild size="lg">
-              <Link href={`/orders/new?service=${service.id}`}>
-                {isAr ? "اطلب الخدمة الآن" : "Order this service"}
-                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-              </Link>
-            </Button>
-            <WhatsAppButton
-              variant="hero"
-              phoneNumber={waNumber}
-              context={{
-                type: "service",
-                serviceName: isAr ? service.name_ar : service.name_en,
-                estimatedPrice: priceLabel ?? undefined,
-              }}
-              label={isAr ? "استفسار عبر واتس آب" : "Inquire via WhatsApp"}
-            />
+          <div className="flex flex-wrap gap-4 pt-4">
+            <Link 
+              href={`/orders/new?service=${service.id}`}
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring h-12 px-8 bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-white shadow-[0_0_24px_rgba(6,182,212,0.4)] hover:shadow-[0_0_32px_rgba(6,182,212,0.6)] hover:-translate-y-0.5 border-0"
+            >
+              {isAr ? "اطلب الخدمة الآن" : "Order this service"}
+              <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            </Link>
+            <div className="hover:-translate-y-0.5 transition-transform drop-shadow-[0_0_20px_rgba(37,211,102,0.2)] hover:drop-shadow-[0_0_28px_rgba(37,211,102,0.4)]">
+              <WhatsAppButton
+                variant="hero"
+                phoneNumber={waNumber}
+                context={{
+                  type: "service",
+                  serviceName: isAr ? service.name_ar : service.name_en,
+                  estimatedPrice: priceLabel ?? undefined,
+                }}
+                label={isAr ? "استفسار عبر واتس آب" : "Inquire via WhatsApp"}
+              />
+            </div>
           </div>
         </div>
 
@@ -270,45 +273,47 @@ export default async function ServiceDetailPage({
       {(features.length > 0 || deliverables.length > 0) && (
         <section className="grid gap-6 md:grid-cols-2 mb-12">
           {features.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="inline-flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  {isAr ? "مميزات الخدمة" : "Service features"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2.5">
+            <div className="relative overflow-hidden bg-slate-900/40 border border-white/5 p-8 rounded-3xl hover:border-cyan-500/30 transition-colors shadow-2xl group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-cyan-500/10 transition-colors" />
+              <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="h-12 w-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+                    <Sparkles className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white">{isAr ? "مميزات الخدمة" : "Service features"}</h3>
+                </div>
+                <ul className="space-y-4">
                   {features.map((f, i) => (
-                    <li key={i} className="flex gap-2 text-sm">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                      <span>{f}</span>
+                    <li key={i} className="flex gap-3 text-base text-slate-300">
+                      <CheckCircle2 className="h-5 w-5 text-cyan-500 shrink-0 mt-0.5 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]" />
+                      <span className="leading-relaxed">{f}</span>
                     </li>
                   ))}
                 </ul>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {deliverables.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="inline-flex items-center gap-2">
-                  <Gift className="h-5 w-5 text-green-600" />
-                  {isAr ? "ما الذي ستحصل عليه" : "What you'll get"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2.5">
+            <div className="relative overflow-hidden bg-slate-900/40 border border-white/5 p-8 rounded-3xl hover:border-emerald-500/30 transition-colors shadow-2xl group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-500/10 transition-colors" />
+              <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                    <Gift className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white">{isAr ? "ما الذي ستحصل عليه" : "What you'll get"}</h3>
+                </div>
+                <ul className="space-y-4">
                   {deliverables.map((d, i) => (
-                    <li key={i} className="flex gap-2 text-sm">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
-                      <span>{d}</span>
+                    <li key={i} className="flex gap-3 text-base text-slate-300">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5 drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]" />
+                      <span className="leading-relaxed">{d}</span>
                     </li>
                   ))}
                 </ul>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
         </section>
       )}
@@ -487,22 +492,26 @@ export default async function ServiceDetailPage({
             ? "اطلب الخدمة الآن أو تواصل معنا للاستفسار"
             : "Order now or contact us with any questions"}
         </p>
-        <div className="flex flex-wrap gap-3 justify-center pt-2">
-          <Button asChild size="lg">
-            <Link href={`/orders/new?service=${service.id}`}>
-              {isAr ? "اطلب الخدمة الآن" : "Order this service"}
-            </Link>
-          </Button>
-          <WhatsAppButton
-            variant="hero"
-            phoneNumber={waNumber}
-            context={{
-              type: "service",
-              serviceName: isAr ? service.name_ar : service.name_en,
-              estimatedPrice: priceLabel ?? undefined,
-            }}
-            label={isAr ? "استفسار عبر واتس آب" : "Inquire via WhatsApp"}
-          />
+        <div className="flex flex-wrap gap-4 justify-center pt-4">
+          <Link 
+            href={`/orders/new?service=${service.id}`}
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring h-12 px-8 bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-white shadow-[0_0_24px_rgba(6,182,212,0.4)] hover:shadow-[0_0_32px_rgba(6,182,212,0.6)] hover:-translate-y-0.5 border-0"
+          >
+            {isAr ? "اطلب الخدمة الآن" : "Order this service"}
+            <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+          </Link>
+          <div className="hover:-translate-y-0.5 transition-transform drop-shadow-[0_0_20px_rgba(37,211,102,0.2)] hover:drop-shadow-[0_0_28px_rgba(37,211,102,0.4)]">
+            <WhatsAppButton
+              variant="hero"
+              phoneNumber={waNumber}
+              context={{
+                type: "service",
+                serviceName: isAr ? service.name_ar : service.name_en,
+                estimatedPrice: priceLabel ?? undefined,
+              }}
+              label={isAr ? "استفسار عبر واتس آب" : "Inquire via WhatsApp"}
+            />
+          </div>
         </div>
       </section>
     </article>

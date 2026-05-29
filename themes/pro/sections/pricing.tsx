@@ -5,6 +5,7 @@ import { Check, HelpCircle, ShieldCheck } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import type { LandingSettings } from "@/lib/validators/settings";
 import { resolveSectionContent } from "@/lib/landing/section-resolver";
+import { cn } from "@/lib/utils";
 
 export function ProPricing({ locale, landing }: { locale: string; landing?: LandingSettings | null }) {
   const isAr = locale === "ar";

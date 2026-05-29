@@ -17,72 +17,7 @@ type DisplayMember = {
   avatar_url: string | null;
 };
 
-const FALLBACK_TEAM: DisplayMember[] = [
-  {
-    id: "pro-fb-1",
-    name_ar: "هاني ع.",
-    name_en: "Hany A.",
-    role_ar: "مؤسس و قائد التقنية",
-    role_en: "Founder & CTO",
-    avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&h=400&q=80",
-  },
-  {
-    id: "pro-fb-2",
-    name_ar: "سارة م.",
-    name_en: "Sara M.",
-    role_ar: "مديرة تصميم واجهات المستخدم",
-    role_en: "UX/UI Design Director",
-    avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&h=400&q=80",
-  },
-  {
-    id: "pro-fb-3",
-    name_ar: "كريم ر.",
-    name_en: "Karim R.",
-    role_ar: "مهندس برمجيات أول",
-    role_en: "Senior Lead Engineer",
-    avatar_url: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&h=400&q=80",
-  },
-  {
-    id: "pro-fb-4",
-    name_ar: "نور ع.",
-    name_en: "Nour A.",
-    role_ar: "مطورة واجهات أمامية",
-    role_en: "Frontend Architect",
-    avatar_url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&h=400&q=80",
-  },
-  {
-    id: "pro-fb-5",
-    name_ar: "أحمد س.",
-    name_en: "Ahmed S.",
-    role_ar: "مهندس بنية خلفية",
-    role_en: "Backend & Systems Lead",
-    avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&h=400&q=80",
-  },
-  {
-    id: "pro-fb-6",
-    name_ar: "ليلى ح.",
-    name_en: "Layla H.",
-    role_ar: "مديرة تسويق رقمي",
-    role_en: "Growth & SEO Marketing Lead",
-    avatar_url: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&h=400&q=80",
-  },
-  {
-    id: "pro-fb-7",
-    name_ar: "يوسف خ.",
-    name_en: "Yousef K.",
-    role_ar: "مهندس استضافات سحابية",
-    role_en: "Cloud DevOps Architect",
-    avatar_url: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&h=400&q=80",
-  },
-  {
-    id: "pro-fb-8",
-    name_ar: "هبة س.",
-    name_en: "Heba S.",
-    role_ar: "مديرة نجاح وتنسيق المشاريع",
-    role_en: "Operations & Delivery Lead",
-    avatar_url: "https://images.unsplash.com/photo-1534751516642-a131ffd103fd?auto=format&fit=crop&w=400&h=400&q=80",
-  },
-];
+// FALLBACK_TEAM removed. Relying only on Admin data.
 
 /* ── 3D Tilt Card Component ───────────────────────────────────────────────── */
 function TeamCard({
@@ -155,7 +90,8 @@ function TeamCard({
             src={member.avatar_url}
             alt={name}
             fill
-            sizes="112px"
+            sizes="(max-width: 768px) 112px, 200px"
+            quality={95}
             className="object-cover"
           />
         ) : (
@@ -330,7 +266,7 @@ function ProfileOverlay({
             }}>
               <div style={{ height: "96px", width: "96px", borderRadius: "50%", overflow: "hidden", background: "#0d1117", position: "relative" }}>
                 {member.avatar_url ? (
-                  <Image src={member.avatar_url} alt={name} fill sizes="96px" style={{ objectFit: "cover" }} />
+                  <Image src={member.avatar_url} alt={name} fill sizes="(max-width: 768px) 96px, 200px" quality={95} style={{ objectFit: "cover" }} />
                 ) : (
                   <div style={{
                     position: "absolute", inset: 0,
@@ -416,10 +352,9 @@ export function ProTeam({
     avatar_url: m.avatar_url,
   }));
 
-  const visibleTeam: DisplayMember[] =
-    realMembers.length >= MIN
-      ? realMembers
-      : [...realMembers, ...FALLBACK_TEAM].slice(0, MIN);
+  const visibleTeam: DisplayMember[] = realMembers;
+
+  if (visibleTeam.length === 0) return null;
 
   const [selectedMember, setSelectedMember] = useState<DisplayMember | null>(null);
 
