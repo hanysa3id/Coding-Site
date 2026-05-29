@@ -26,16 +26,35 @@ export default async function ServicesSectionAdminPage() {
         : defaultServicePillars;
 
   const supabase = await createClient();
-  const { data: dbServices } = await supabase
-    .from("services")
-    .select("id, pillar_bucket, name_ar, name_en, short_description_ar, short_description_en")
-    .eq("is_visible", true)
-    .order("sort_order");
+  const [{ data: dbServices }, { data: dbCategories }] = await Promise.all([
+    supabase
+      .from("services")
+      .select("id, category_id, name_ar, name_en, short_description_ar, short_description_en")
+      .eq("is_visible", true)
+      .order("sort_order"),
+    supabase.from("categories").select("id, name_ar, name_en"),
+  ]);
+
+  const KEYWORDS = {
+    build: /(program|development|code|web|app|mobile|design|ui|ux|graphic|برمج|تصميم|تطوير|موقع|تطبيق|واجهة)/i,
+    grow: /(market|seo|social|ads|content|campaign|تسويق|سوشيال|إعلان|محتوى|حمل)/i,
+    maintain: /(host|server|infra|support|train|qa|test|maintenance|استضاف|دعم|تدريب|اختبار|صيانة|خادم|بنية)/i,
+  };
+
+  function classify(s: any, c: any) {
+    const haystack = [s.name_ar, s.name_en, c?.name_ar ?? "", c?.name_en ?? ""].join(" ");
+    if (KEYWORDS.grow.test(haystack)) return "grow";
+    if (KEYWORDS.maintain.test(haystack)) return "maintain";
+    return "build";
+  }
 
   seededPillars = seededPillars.map((pillar) => {
     if (!pillar.items || pillar.items.length === 0) {
       const bucketServices = (dbServices || [])
-        .filter((s) => s.pillar_bucket === pillar.bucket)
+        .filter((s) => {
+          const cat = (dbCategories || []).find((c) => c.id === s.category_id);
+          return classify(s, cat) === pillar.bucket;
+        })
         .slice(0, 20);
       
       return {
