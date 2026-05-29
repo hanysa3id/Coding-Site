@@ -1759,6 +1759,62 @@ html[dir="rtl"] .theme-pro .animate-marquee {
 }
 
 
+/* ── Portfolio Marquee — Edge-fade, hover-pause, RTL-aware ───────────────── */
+.theme-pro .pro-portfolio-marquee {
+  --portfolio-fade: 90px;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--portfolio-fade),
+    #000 calc(100% - var(--portfolio-fade)),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--portfolio-fade),
+    #000 calc(100% - var(--portfolio-fade)),
+    transparent 100%
+  );
+  overflow: hidden;
+}
+
+.theme-pro .pro-portfolio-track {
+  width: max-content;
+  will-change: transform;
+}
+
+@keyframes pro-portfolio-ltr {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-33.3333%); }
+}
+
+@keyframes pro-portfolio-rtl {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(33.3333%); }
+}
+
+html[dir="ltr"] .theme-pro .pro-portfolio-track {
+  animation: pro-portfolio-ltr 50s linear infinite;
+}
+
+html[dir="rtl"] .theme-pro .pro-portfolio-track {
+  animation: pro-portfolio-rtl 50s linear infinite;
+}
+
+/* Pause on hover anywhere over the marquee strip */
+.theme-pro .pro-portfolio-marquee:hover .pro-portfolio-track {
+  animation-play-state: paused;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .theme-pro .pro-portfolio-track {
+    animation: none !important;
+  }
+}
+
+
 /* ── Service Pillar Card Hover Effects ─────────────────────────────────────── */
 .theme-pro .pro-service-pillar-card {
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
