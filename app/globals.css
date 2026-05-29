@@ -268,35 +268,11 @@
   text-align: right;
 }
 
-/* ── Flexbox: reverse row direction for most flex containers ──────────────── */
-.admin-rtl .flex:not(.flex-col):not(.flex-col-reverse):not([class*="flex-col"]) {
-  flex-direction: row-reverse;
-}
-
-/* Restore for explicitly vertical stacks */
-.admin-rtl .flex-col,
-.admin-rtl .flex-col-reverse {
-  flex-direction: column;
-}
-
-/* Restore for grid children that use flex internally */
-.admin-rtl .grid > .flex {
-  flex-direction: row-reverse;
-}
-
 /* ── Tabs (radix-ui) ─────────────────────────────────────────────────────── */
 .admin-rtl [role="tablist"] {
   direction: rtl;
 }
 .admin-rtl [role="tab"] {
-  text-align: right;
-}
-
-/* ── Sidebar & nav items ─────────────────────────────────────────────────── */
-.admin-rtl nav .space-y-0\.5 a {
-  flex-direction: row-reverse;
-}
-.admin-rtl aside nav p {
   text-align: right;
 }
 
@@ -309,19 +285,7 @@
 }
 .admin-rtl [role="option"],
 .admin-rtl [role="menuitem"] {
-  flex-direction: row-reverse;
   text-align: right;
-}
-
-/* ── Badges & pills ──────────────────────────────────────────────────────── */
-.admin-rtl .inline-flex:not(.flex-col) {
-  flex-direction: row-reverse;
-}
-
-/* ── Button inner layout ─────────────────────────────────────────────────── */
-.admin-rtl button > .flex,
-.admin-rtl a > .flex {
-  flex-direction: row-reverse;
 }
 
 /* ── Numbers stay LTR (tabular-nums, monospace) ──────────────────────────── */
