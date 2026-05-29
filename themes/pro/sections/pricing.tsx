@@ -93,7 +93,7 @@ export function ProPricing({ locale, landing }: { locale: string; landing?: Land
               >
                 {/* Popular badge */}
                 {isPopular && (
-                  <span className="absolute top-4 right-4 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-[9px] font-bold text-cyan-400 uppercase tracking-widest">
+                  <span className="absolute top-4 ltr:right-4 rtl:left-4 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-[9px] font-bold text-cyan-400 uppercase tracking-widest whitespace-nowrap z-10">
                     {isAr ? "الباقة الأكثر اختياراً" : "Most Selected Track"}
                   </span>
                 )}
