@@ -167,7 +167,7 @@ export function ProPricing({ locale, landing }: { locale: string; landing?: Land
               <div
                 key={plan.id || index}
                 className={cn(
-                  "pro-card flex flex-col relative",
+                  "pro-card p-8 flex flex-col justify-between relative text-start",
                   isPopular 
                     ? "pro-card-premium border-[color:var(--pro-primary)]/50 shadow-[0_0_40px_-10px_rgba(6,182,212,0.2)] lg:-mt-4 lg:mb-4 scale-[1.02]" 
                     : "border-white/5 hover:border-white/20"
@@ -194,7 +194,7 @@ export function ProPricing({ locale, landing }: { locale: string; landing?: Land
                   {/* Pricing Rate display */}
                   <div className="py-2 text-start">
                     {(billing === "yearly" ? priceYearly : priceMonthly) !== null ? (
-                      <div className="flex items-baseline gap-1">
+                      <div className="flex items-baseline gap-1" dir="ltr">
                         <span className="text-sm font-bold text-slate-400">
                           {isAr ? "$" : "$"}
                         </span>
