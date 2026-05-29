@@ -79,6 +79,23 @@ export function SiteSettingsForm({
         </div>
       </div>
 
+      {/* Tax / legal identifiers — shown on official invoices */}
+      <div className="grid gap-4 md:grid-cols-2 pt-2 border-t border-border">
+        <div className="space-y-2 md:col-span-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            {isAr ? "البيانات الرسمية (تظهر على الفاتورة)" : "Legal Identifiers (shown on invoices)"}
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label>{isAr ? "الرقم الضريبي / رقم القيمة المضافة" : "Tax ID / VAT Number"}</Label>
+          <Input {...register("tax_id")} dir="ltr" placeholder="300123456789003" />
+        </div>
+        <div className="space-y-2">
+          <Label>{isAr ? "السجل التجاري" : "Commercial Registration"}</Label>
+          <Input {...register("commercial_registration")} dir="ltr" placeholder="1010000000" />
+        </div>
+      </div>
+
       <div className="grid gap-6 md:grid-cols-2 pt-2">
         <div className="space-y-2">
           <Label className="font-semibold">

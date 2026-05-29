@@ -223,6 +223,9 @@ export const siteSettingsSchema = z.object({
   description_en: z.string().nullable().optional(),
   logo_url: z.string().url().nullable().optional().or(z.literal("")),
   favicon_url: z.string().url().nullable().optional().or(z.literal("")),
+  // Optional legal / tax identifiers shown on official documents (invoices).
+  tax_id: z.string().nullable().optional(),
+  commercial_registration: z.string().nullable().optional(),
 });
 export type SiteSettings = z.infer<typeof siteSettingsSchema>;
 
