@@ -17,9 +17,8 @@ export default async function AdminLayout({
 
   return (
     <div
-      className="min-h-screen flex flex-col"
+      className={`min-h-screen flex flex-col${isAr ? " admin-rtl" : ""}`}
       dir={isAr ? "rtl" : "ltr"}
-      style={isAr ? { textAlign: "right" } : undefined}
     >
       <AdminHeader profile={profile} />
       <div className="flex flex-1">

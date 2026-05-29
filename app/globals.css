@@ -215,6 +215,148 @@
   }
 }
 
+/* ============================================================================
+ * Admin Panel — RTL (Arabic) global overrides
+ *
+ * Scoped under .admin-rtl so the public Pro theme (which manages its own
+ * RTL styles) is never affected. The admin layout adds this class when
+ * locale === "ar".
+ * ============================================================================ */
+
+/* ── Text & content alignment ───────────────────────────────────────────── */
+.admin-rtl h1,
+.admin-rtl h2,
+.admin-rtl h3,
+.admin-rtl h4,
+.admin-rtl h5,
+.admin-rtl h6 {
+  text-align: right;
+}
+
+.admin-rtl p:not([class*="font-mono"]):not(.tabular-nums) {
+  text-align: right;
+  max-width: none;
+}
+
+.admin-rtl label {
+  text-align: right;
+  display: block;
+}
+
+/* ── Inputs & form elements — RTL text entry ──────────────────────────────── */
+.admin-rtl input:not([dir="ltr"]),
+.admin-rtl textarea:not([dir="ltr"]),
+.admin-rtl select:not([dir="ltr"]) {
+  text-align: right;
+  direction: rtl;
+}
+
+/* ── Tables ─────────────────────────────────────────────────────────────── */
+.admin-rtl table {
+  direction: rtl;
+}
+.admin-rtl th,
+.admin-rtl td {
+  text-align: right;
+}
+.admin-rtl th.text-end,
+.admin-rtl td.text-end {
+  text-align: left;
+}
+.admin-rtl th.text-start,
+.admin-rtl td.text-start {
+  text-align: right;
+}
+
+/* ── Flexbox: reverse row direction for most flex containers ──────────────── */
+.admin-rtl .flex:not(.flex-col):not(.flex-col-reverse):not([class*="flex-col"]) {
+  flex-direction: row-reverse;
+}
+
+/* Restore for explicitly vertical stacks */
+.admin-rtl .flex-col,
+.admin-rtl .flex-col-reverse {
+  flex-direction: column;
+}
+
+/* Restore for grid children that use flex internally */
+.admin-rtl .grid > .flex {
+  flex-direction: row-reverse;
+}
+
+/* ── Tabs (radix-ui) ─────────────────────────────────────────────────────── */
+.admin-rtl [role="tablist"] {
+  direction: rtl;
+}
+.admin-rtl [role="tab"] {
+  text-align: right;
+}
+
+/* ── Sidebar & nav items ─────────────────────────────────────────────────── */
+.admin-rtl nav .space-y-0\.5 a {
+  flex-direction: row-reverse;
+}
+.admin-rtl aside nav p {
+  text-align: right;
+}
+
+/* ── Dropdown / popover menus (Radix) ────────────────────────────────────── */
+.admin-rtl [role="listbox"],
+.admin-rtl [role="menu"],
+.admin-rtl [role="dialog"] {
+  direction: rtl;
+  text-align: right;
+}
+.admin-rtl [role="option"],
+.admin-rtl [role="menuitem"] {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+/* ── Badges & pills ──────────────────────────────────────────────────────── */
+.admin-rtl .inline-flex:not(.flex-col) {
+  flex-direction: row-reverse;
+}
+
+/* ── Button inner layout ─────────────────────────────────────────────────── */
+.admin-rtl button > .flex,
+.admin-rtl a > .flex {
+  flex-direction: row-reverse;
+}
+
+/* ── Numbers stay LTR (tabular-nums, monospace) ──────────────────────────── */
+.admin-rtl .tabular-nums,
+.admin-rtl .font-mono {
+  direction: ltr;
+  unicode-bidi: embed;
+  display: inline-block;
+}
+
+/* ── Scroll containers ───────────────────────────────────────────────────── */
+.admin-rtl .overflow-x-auto {
+  direction: rtl;
+}
+.admin-rtl .overflow-x-auto table {
+  direction: rtl;
+}
+
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+.admin-rtl [aria-label="pagination"],
+.admin-rtl nav[aria-label] {
+  direction: rtl;
+}
+
+/* ── Toast / Sonner ──────────────────────────────────────────────────────── */
+.admin-rtl [data-sonner-toaster] {
+  direction: rtl;
+}
+
+/* ── Card / section spacing fixes ────────────────────────────────────────── */
+.admin-rtl .space-y-2 > *,
+.admin-rtl .space-y-4 > *,
+.admin-rtl .space-y-6 > * {
+  text-align: right;
+}
 
 /* ============================================================================
  * Theme Builder runtime — global classes shared by every theme.
