@@ -91,17 +91,19 @@ export function ProPricing({ locale, landing }: { locale: string; landing?: Land
                     : "border-white/5 hover:border-white/20"
                 )}
               >
-                {/* Popular badge */}
-                {isPopular && (
-                  <span className="absolute top-4 ltr:right-4 rtl:left-4 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-[9px] font-bold text-cyan-400 uppercase tracking-widest whitespace-nowrap z-10">
-                    {isAr ? "الباقة الأكثر اختياراً" : "Most Selected Track"}
-                  </span>
-                )}
-
                 <div className="space-y-6">
                   {/* Plan details */}
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-white">
+                  <div className="space-y-3">
+                    {/* Popular badge inline */}
+                    <div className="h-7 flex items-center">
+                      {isPopular && (
+                        <span className="inline-flex px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-[10px] font-bold text-cyan-400 uppercase tracking-widest whitespace-nowrap">
+                          {isAr ? "الباقة الأكثر اختياراً" : "Most Selected Track"}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <h3 className="text-2xl font-bold text-white">
                       {name}
                     </h3>
                     <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
