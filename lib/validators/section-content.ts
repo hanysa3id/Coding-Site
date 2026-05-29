@@ -9,6 +9,7 @@ export const sectionItemSchema = z.object({
   description_ar: optionalStr,
   description_en: optionalStr,
   icon: optionalStr,
+  icon_name: optionalStr,
   image_url: optionalStr,
   badge_ar: optionalStr,
   badge_en: optionalStr,

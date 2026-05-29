@@ -34,7 +34,7 @@ function supabaseHostname(): string | null {
 
 const supabaseHost = supabaseHostname();
 
-const nextConfig: NextConfig = {
+const nextConfig: any = {
   reactStrictMode: true,
   allowedDevOrigins: ["localhost", "127.0.0.1", ...getLocalIpAddresses()],
   poweredByHeader: false,

@@ -26,49 +26,13 @@ function classify(s: { name_ar: string; name_en: string }, c?: Category): Bucket
   return "build";
 }
 
-const defaultPillars: Record<
-  Bucket,
-  {
-    titleAr: string;
-    titleEn: string;
-    descAr: string;
-    descEn: string;
-    glow: string;
-    icon_name: string;
-  }
-> = {
-  build: {
-    titleAr: "🚀 هندسة وبناء المنتجات (Build)",
-    titleEn: "🚀 Build & Engineer",
-    descAr: "برمجة وبناء وتصميم الأنظمة والمنصات الرقمية بأقوى البنى الهندسية المعاصرة.",
-    descEn: "Building robust backend systems, frontend client apps, and high-converting UI blueprints.",
-    glow: "rgba(6, 182, 212, 0.25)",
-    icon_name: "Code2",
-  },
-  grow: {
-    titleAr: "📈 تسويق ومضاعفة النمو (Grow)",
-    titleEn: "📈 Scale & Grow",
-    descAr: "إدارة وتخطيط الحملات الإعلانية ومحركات البحث لزيادة عدد عملائك ومبيعاتك.",
-    descEn: "Performance marketing, conversion funnel architecture, ads management, and brand scaling.",
-    glow: "rgba(16, 185, 129, 0.25)",
-    icon_name: "TrendingUp",
-  },
-  maintain: {
-    titleAr: "🛠 تشغيل وصيانة مستمرة (Maintain)",
-    titleEn: "🛠 Support & Maintain",
-    descAr: "استضافات سحابية آمنة، اختبارات حقيقية للجودة ودعم فني متواصل 24/7.",
-    descEn: "DevOps cloud scaling, QA automation, secure staging audits, and permanent code support.",
-    glow: "rgba(251, 191, 36, 0.25)",
-    icon_name: "CloudLightning",
-  },
-};
-
 const ICONS_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Code2, Palette, TrendingUp, Share2, CloudLightning, ShieldAlert, GraduationCap
 };
 
 import { resolveSectionContent } from "@/lib/landing/section-resolver";
 import type { LandingSettings } from "@/lib/validators/settings";
+import { defaultServicePillars } from "@/lib/landing/defaults";
 
 export function ProServices({
   locale,
@@ -314,19 +278,10 @@ export function ProServices({
     const bucket = classify(s, cat);
     groups[bucket].push(s);
   });
-  // Compute dynamic pillars from settings or defaults
+  // Compute dynamic pillars from settings or shared defaults
   const dynamicPillarsRaw = (landing?.services_pillars && landing.services_pillars.length > 0)
     ? landing.services_pillars
-    : Object.entries(defaultPillars).map(([bucket, data]) => ({
-        id: bucket,
-        bucket: bucket as Bucket,
-        title_ar: data.titleAr,
-        title_en: data.titleEn,
-        description_ar: data.descAr,
-        description_en: data.descEn,
-        icon_name: data.icon_name,
-        glow_color: data.glow,
-      }));
+    : defaultServicePillars;
 
   return (
     <section id="services" className="relative py-20 overflow-hidden pro-section-reveal pro-anim-fade-up">

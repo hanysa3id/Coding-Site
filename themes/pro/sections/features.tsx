@@ -4,49 +4,7 @@ import { Zap, ShieldCheck, Cpu, Layers } from "lucide-react";
 import { MouseEvent } from "react";
 import type { LandingSettings } from "@/lib/validators/settings";
 import { resolveSectionContent } from "@/lib/landing/section-resolver";
-
-const defaultFeatures = [
-  {
-    id: "f1",
-    title_ar: "أداء فائق السرعة وبلا انقطاع",
-    title_en: "Ultra-Fast Performance",
-    description_ar: "مواقع سريعة الاستجابة تحقق أعلى تقييمات في Core Web Vitals لضمان أفضل تجربة للمستخدم وأعلى تصدر بمحركات البحث.",
-    description_en: "Engineered for maximum loading speed, passing Core Web Vitals checks out-of-the-box to enhance search ranks.",
-    badge_en: "LCP < 1.2s",
-    badge_ar: "أقل من ثانية",
-    icon_name: "Zap",
-  },
-  {
-    id: "f2",
-    title_ar: "بنية هندسية متكاملة",
-    title_en: "Clean Code Architecture",
-    description_ar: "نعتمد على لغات برمجية حديثة وبنى هندسية مرنة وقابلة للتطوير المستقبلي بيسر.",
-    description_en: "Enterprise-grade component mapping built with robust TypeScript modular structures.",
-    badge_en: "TypeScript",
-    badge_ar: "كود نظيف",
-    icon_name: "Cpu",
-  },
-  {
-    id: "f3",
-    title_ar: "أمان وحماية قصوى للمعلومات",
-    title_en: "Continuous Security Audits",
-    description_ar: "نطبق أعلى بروتوكولات الأمان العالمية مع فحوصات واختبارات حية دورية لحماية مشروعك وبيانات عملائك.",
-    description_en: "Robust compliance frameworks, standard authentication encryption protocols, and zero data leakage pipelines.",
-    badge_en: "SSL Protected",
-    badge_ar: "حماية 100%",
-    icon_name: "ShieldCheck",
-  },
-  {
-    id: "f4",
-    title_ar: "واجهات مرنة وتجربة بصرية فريدة",
-    title_en: "Fully Adaptive Cross-Device",
-    description_ar: "تصميمات متوافقة ومتجاوبة بنسبة 100% مع كافة الشاشات وأجهزة الهواتف والأجهزة اللوحية لتوفير واجهة مستخدم مريحة.",
-    description_en: "Layout scaling optimized automatically for mobile devices, screens, tablets, and high-DPI displays.",
-    badge_en: "100% Responsive",
-    badge_ar: "متجاوب بالكامل",
-    icon_name: "Layers",
-  },
-];
+import { defaultFeatureItems as defaultFeatures } from "@/lib/landing/defaults";
 
 const ICONS_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Zap, ShieldCheck, Cpu, Layers,

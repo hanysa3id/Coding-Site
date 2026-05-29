@@ -4,57 +4,7 @@ import { ClipboardList, LayoutTemplate, Braces, ShieldAlert, Cloud, LineChart } 
 import { MouseEvent } from "react";
 import type { LandingSettings } from "@/lib/validators/settings";
 import { resolveSectionContent } from "@/lib/landing/section-resolver";
-
-const defaultSteps = [
-  {
-    id: "step-1",
-    icon_name: "ClipboardList",
-    title_ar: "التخطيط ودرء المخاطر",
-    title_en: "Strategy & Risk Assessment",
-    description_ar: "نجتمع لمناقشة أهدافك وتحليل المتطلبات لتحديد نطاق عمل وهيكل واضح وتفادي العقبات مبكراً.",
-    description_en: "Initial brainstorming sessions, target definition, architectural planning, and technology selection.",
-  },
-  {
-    id: "step-2",
-    icon_name: "LayoutTemplate",
-    title_ar: "التصميم وتجربة المستخدم",
-    title_en: "UX/UI Wireframing & Prototypes",
-    description_ar: "تصميم واجهات المستخدم البصرية وإعداد هياكل تفاعلية توضح رحلة المستخدم بالتفصيل قبل البرمجة.",
-    description_en: "Interactive digital blueprint mockups designed explicitly to maximize visual user conversion paths.",
-  },
-  {
-    id: "step-3",
-    icon_name: "Braces",
-    title_ar: "البرمجة والتطوير الفعلي",
-    title_en: "Development & Engineering",
-    description_ar: "كتابة كود برمجي متناسق ونظيف متوافق مع خوارزميات البحث السريع ومناسب للتطوير والتوسع المستقبلي.",
-    description_en: "Modern client framework styling, server logic coding, database indexing, and strict clean standards.",
-  },
-  {
-    id: "step-4",
-    icon_name: "ShieldAlert",
-    title_ar: "فحص الجودة والأمان",
-    title_en: "Quality Audits & Security Checks",
-    description_ar: "إخضاع الكود والمنصة لاختبارات جودة وأمان صارمة وتصحيح الثغرات البرمجية لضمان سلامة موقعك.",
-    description_en: "Automated end-to-end integration tests, safety audits, and cross-browser responsive sanity reviews.",
-  },
-  {
-    id: "step-5",
-    icon_name: "Cloud",
-    title_ar: "الإطلاق والتهيئة السحابية",
-    title_en: "Cloud Deploy & Server Setup",
-    description_ar: "تهيئة السيرفرات السحابية وإعداد شبكات توزيع المحتوى العالمية CDN لإطلاق آمن وسريع للمشروع.",
-    description_en: "DevOps production pipelines launch, SSL certification binding, and high-availability setups.",
-  },
-  {
-    id: "step-6",
-    icon_name: "LineChart",
-    title_ar: "التحليل والتطوير المستمر",
-    title_en: "Continuous Scaling & SEO Optimize",
-    description_ar: "تتبع سلوك الزوار وتحليل الأرقام وتحسين سرعة الصفحة لرفع الترتيب بمحركات البحث ومضاعفة المبيعات.",
-    description_en: "Weekly analytics audits, SEO keywords tweaks, performance monitoring, and organic traffic upgrades.",
-  },
-];
+import { defaultProcessSteps as defaultSteps } from "@/lib/landing/defaults";
 
 const ICONS_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   ClipboardList, LayoutTemplate, Braces, ShieldAlert, Cloud, LineChart,

@@ -9,7 +9,7 @@ import { getLandingSettings } from "@/lib/settings/get";
 const SECTIONS = [
   { id: "hero", icon: Sparkles, ar: "البطل (Hero)", en: "Hero", path: "hero", desc: "العنوان، الأزرار، الخلفية" },
   { id: "logo_cloud", icon: Layers, ar: "شعارات العملاء", en: "Logo cloud", path: "brands", desc: "عنوان قسم شركاء النجاح" },
-  { id: "features", icon: Layers, ar: "المميزات / Bento", en: "Features / Bento", path: "features", desc: "نصوص ومميزات الخدمة" },
+  { id: "features", icon: Layers, ar: "لماذا نحن مختلفون", en: "Why Are We Different", path: "features", desc: "تعديل عنوان وبطاقات المميزات الأربع" },
   { id: "stats", icon: BarChart3, ar: "الإحصائيات", en: "Stats", path: "stats", desc: "عناوين الإحصائيات" },
   { id: "services", icon: Layers, ar: "باقات الخدمات", en: "Service Pillars", path: "services", desc: "Build / Grow / Maintain — تحرير الباقات الثلاث" },
   { id: "process", icon: Layers, ar: "منهجية العمل", en: "Process / How We Work", path: "process", desc: "إضافة وتعديل خطوات منهجية العمل" },

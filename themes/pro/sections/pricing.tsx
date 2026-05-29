@@ -5,6 +5,7 @@ import { Check, HelpCircle, ShieldCheck } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import type { LandingSettings } from "@/lib/validators/settings";
 import { resolveSectionContent } from "@/lib/landing/section-resolver";
+import { defaultPricingPlans } from "@/lib/landing/defaults";
 import { cn } from "@/lib/utils";
 
 export function ProPricing({ locale, landing }: { locale: string; landing?: LandingSettings | null }) {
@@ -20,92 +21,9 @@ export function ProPricing({ locale, landing }: { locale: string; landing?: Land
     description_en: "Choose the roadmap designed explicitly for your current operations. Zero hidden fees, cancellation policy details.",
   });
 
-  const defaultPlans = [
-    {
-      id: "dp-1",
-      name_ar: "باقة التشغيل والبدء",
-      name_en: "Startup Launch",
-      description_ar: "مثالية لإطلاق أول مشروع ويب أو صفحة هبوط لشركتك الناشئة.",
-      description_en: "Perfect for launching a custom high-performance landing page or MVP.",
-      price_monthly: 499,
-      price_yearly: 399,
-      features_ar: [
-        "تصميم وتطوير صفحة هبوط مخصصة",
-        "لوحة تحكم إدارة محتوى مصغرة",
-        "تهيئة مجانية لأمان SSL وسرعة CDN",
-        "دعم فني وتعديلات مجانية لمدة شهر",
-        "تكامل مباشر مع الواتساب وبوابات الاتصال",
-      ],
-      features_en: [
-        "Single-page responsive design & code",
-        "Sleek CMS control dashboard",
-        "Free SSL validation & CDN routing",
-        "1 month technical maintenance warranty",
-        "WhatsApp call-to-action triggers",
-      ],
-      is_popular: false,
-      cta_label_ar: "اختر باقة البدء",
-      cta_label_en: "Get Startup Track",
-    },
-    {
-      id: "dp-2",
-      name_ar: "باقة الأعمال والنمو",
-      name_en: "Business Scale",
-      description_ar: "منظومة رقمية متكاملة لشركات الخدمات الراغبة بالنمو السريع والتوسع.",
-      description_en: "Comprehensive digital systems for expanding agencies and platforms.",
-      price_monthly: 1299,
-      price_yearly: 999,
-      features_ar: [
-        "موقع متعدد الصفحات ونظام إدارة محتوى كامل",
-        "تصميمات واجهات مخصصة UX/UI متميزة",
-        "تكامل بوابات دفع فيزا / ماستر / المحافظ",
-        "تحليل وحملات تسويقية SEO وإدارة إعلانات",
-        "دعم فني وحل مشاكل متواصل لمدة 3 أشهر",
-        "اختبارات جودة QA وفحص أمان شامل للموقع",
-      ],
-      features_en: [
-        "Multi-page dynamic custom architecture",
-        "Advanced custom UX/UI blueprints",
-        "Visa, Card & Wallet payments gateway",
-        "Performance SEO and conversion setup",
-        "3 months senior support warranty",
-        "Automated QA checks & security scans",
-      ],
-      is_popular: true,
-      cta_label_ar: "ابدأ باقة النمو",
-      cta_label_en: "Choose Growth Track",
-    },
-    {
-      id: "dp-3",
-      name_ar: "باقة المؤسسات المخصصة",
-      name_en: "Enterprise Custom",
-      description_ar: "أنظمة برمجية مصممة خصيصاً لتلبية متطلبات الشركات الكبيرة والمؤسسات.",
-      description_en: "Custom architecture engineered to support high enterprise demands.",
-      price_monthly: null,
-      price_yearly: null,
-      features_ar: [
-        "برمجة وبناء وتطوير مخصص بنسبة 100%",
-        "إدارة وتوسيع السيرفرات السحابية DevOps",
-        "فريق عمل مخصص وتطوير مستمر للمشروع",
-        "دعم فني مخصص واتفاقية SLA مضمونة",
-        "تحليل تسويقي شامل وخطط مضاعفة الأرباح",
-      ],
-      features_en: [
-        "100% custom engineered software code",
-        "Cloud infrastructure scaling & DevOps support",
-        "Dedicated senior development squad",
-        "SLA maintenance contract and 24/7 hotline",
-        "Omnichannel marketing conversion audits",
-      ],
-      is_popular: false,
-      cta_label_ar: "احجز استشارة خاصة",
-      cta_label_en: "Book Custom Scoping Session",
-    },
-  ];
-
   const dynamicPlans = (landing?.pricing_plans && landing.pricing_plans.length > 0)
     ? landing.pricing_plans
-    : defaultPlans;
+    : defaultPricingPlans;
 
   return (
     <section id="pricing" className="relative py-20 overflow-hidden">
