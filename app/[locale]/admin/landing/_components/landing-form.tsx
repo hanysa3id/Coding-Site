@@ -365,60 +365,52 @@ export function LandingForm({
                 <div
                   key={s.id}
                   className={cn(
-                    "flex items-start gap-3 rounded-lg border p-3 transition-colors",
+                    "flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors",
                     inTheme ? "" : "opacity-50",
                     visible && inTheme && "bg-muted/20"
                   )}
                 >
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <span
+                      className={cn(
+                        "grid place-items-center h-9 w-9 shrink-0 rounded-lg border",
+                        inTheme
+                          ? "bg-gradient-to-br from-violet-100 to-sky-100 border-violet-200 text-violet-700"
+                          : "bg-muted text-muted-foreground"
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {visible ? (
+                          <Eye className="h-3.5 w-3.5 text-emerald-600" />
+                        ) : (
+                          <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+                        )}
+                        <Label className="font-medium">{isAr ? s.ar : s.en}</Label>
+                        <code className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                          {s.id}
+                        </code>
+                        {!inTheme && (
+                          <Badge variant="outline" className="text-[10px]">
+                            {isAr ? "غير موجود" : "not in this theme"}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                        {isAr ? s.description_ar : s.description_en}
+                      </p>
+                    </div>
+                  </div>
                   <Switch
                     checked={visible}
                     onCheckedChange={(v) =>
                       update("sections", { ...data.sections, [s.id]: v })
                     }
                     disabled={!inTheme}
+                    className="shrink-0"
                   />
-                  <span
-                    className={cn(
-                      "grid place-items-center h-9 w-9 shrink-0 rounded-lg border",
-                      inTheme
-                        ? "bg-gradient-to-br from-violet-100 to-sky-100 border-violet-200 text-violet-700"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {visible ? (
-                        <Eye className="h-3.5 w-3.5 text-emerald-600" />
-                      ) : (
-                        <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
-                      )}
-                      <Label className="font-medium">{isAr ? s.ar : s.en}</Label>
-                      <code className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                        {s.id}
-                      </code>
-                      {!inTheme && (
-                        <Badge variant="outline" className="text-[10px]">
-                          {isAr ? "غير موجود في هذا الـ theme" : "not in this theme"}
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                      {isAr ? s.description_ar : s.description_en}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground/70 mt-1.5">
-                      {isAr ? "متاح في: " : "Available in: "}
-                      {s.themes.map((t, i) => (
-                        <span key={t}>
-                          {i > 0 && ", "}
-                          <span className={t === themeId ? "font-semibold text-foreground" : ""}>
-                            {t}
-                          </span>
-                        </span>
-                      ))}
-                    </p>
-                  </div>
                 </div>
               );
             })}

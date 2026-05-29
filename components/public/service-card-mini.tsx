@@ -25,41 +25,43 @@ export function ServiceCardMini({
     <Link
       href={`/services/${service.slug}`}
       prefetch={true}
-      className="group relative flex flex-col gap-0 overflow-hidden rounded-2xl transition-all duration-300 h-full w-full"
+      className="group relative flex flex-col gap-0 overflow-hidden rounded-2xl transition-all duration-500 h-full w-full hover:-translate-y-1"
       style={{
-        background: "linear-gradient(145deg, rgba(8,13,22,0.92) 0%, rgba(13,21,34,0.88) 100%)",
-        border: "1px solid rgba(255,255,255,0.06)",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.4)",
+        background: "linear-gradient(145deg, rgba(8,13,22,0.85) 0%, rgba(13,21,34,0.7) 100%)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 4px 20px -5px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.02)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
       }}
     >
       {/* Top gradient line — appears on hover */}
       <span
-        className="absolute inset-x-0 top-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        className="absolute inset-x-0 top-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{
           background: service.is_featured
             ? "linear-gradient(90deg, var(--pro-accent, #fbbf24), var(--pro-primary, #06b6d4))"
             : "linear-gradient(90deg, var(--pro-primary, #06b6d4), var(--pro-secondary, #10b981))",
+          boxShadow: "0 2px 10px var(--pro-primary, #06b6d4)",
         }}
         aria-hidden
       />
 
       {/* Subtle hover glow */}
       <span
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(6,182,212,0.07), transparent 70%)",
+          background: "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(6,182,212,0.15), transparent 70%)",
         }}
         aria-hidden
       />
 
-      <div className="flex gap-3.5 p-4 relative z-10">
+      <div className="flex gap-4 p-5 relative z-10">
         {/* Thumbnail */}
         <div
-          className="relative h-[4.5rem] w-[4.5rem] shrink-0 rounded-xl overflow-hidden transition-all duration-300 group-hover:scale-105"
+          className="relative h-16 w-16 shrink-0 rounded-xl overflow-hidden transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]"
           style={{
-            border: "1px solid rgba(255,255,255,0.08)",
-            background: "rgba(6,182,212,0.06)",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            background: "linear-gradient(135deg, rgba(6,182,212,0.1), rgba(16,185,129,0.05))",
           }}
         >
           {service.thumbnail_url || service.cover_image ? (
@@ -67,18 +69,13 @@ export function ServiceCardMini({
               src={(service.thumbnail_url || service.cover_image) as string}
               alt=""
               fill
-              sizes="72px"
-              className="object-cover"
+              sizes="80px"
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
             />
           ) : (
-            <div
-              className="flex h-full w-full items-center justify-center"
-              style={{
-                background: "linear-gradient(135deg, rgba(6,182,212,0.12), rgba(16,185,129,0.08))",
-              }}
-            >
+            <div className="flex h-full w-full items-center justify-center">
               <Briefcase
-                className="h-6 w-6"
+                className="h-7 w-7 transition-colors duration-300"
                 style={{ color: "var(--pro-primary, #06b6d4)" }}
               />
             </div>
@@ -86,23 +83,23 @@ export function ServiceCardMini({
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+        <div className="flex-1 min-w-0 flex flex-col justify-center gap-2">
           {/* Name + Featured badge */}
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
                 <h4
-                  className="font-bold text-[0.9rem] leading-tight truncate transition-colors duration-200 group-hover:text-[var(--pro-primary,#06b6d4)]"
+                  className="font-bold text-base leading-tight transition-colors duration-300 group-hover:text-[var(--pro-primary,#06b6d4)]"
                   style={{ color: "var(--pro-fg, #f8fafc)" }}
                 >
                   {name}
                 </h4>
                 {service.is_featured && (
                   <Badge
-                    className="gap-1 h-4.5 px-1.5 text-[9px] border-0 text-black shrink-0"
+                    className="gap-1 px-2 py-0.5 text-[10px] border-0 text-black shrink-0 font-bold tracking-wide shadow-[0_0_10px_rgba(251,191,36,0.3)]"
                     style={{ background: "var(--pro-accent, #fbbf24)" }}
                   >
-                    <Sparkles className="h-2 w-2" />
+                    <Sparkles className="h-2.5 w-2.5" />
                     {isAr ? "مميزة" : "Featured"}
                   </Badge>
                 )}
@@ -111,7 +108,7 @@ export function ServiceCardMini({
               {/* Description */}
               {desc && (
                 <p
-                  className="text-[0.78rem] line-clamp-2 mt-0.5 leading-snug"
+                  className="text-[0.82rem] line-clamp-2 leading-relaxed"
                   style={{ color: "var(--pro-fg-muted, #94a3b8)" }}
                 >
                   {desc}
@@ -121,25 +118,28 @@ export function ServiceCardMini({
 
             {/* Arrow */}
             <div
-              className="shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-all duration-200 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5"
+              className="shrink-0 mt-1 opacity-0 -translate-x-2 rtl:translate-x-2 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0 rtl:group-hover:translate-x-0"
               style={{ color: "var(--pro-primary, #06b6d4)" }}
             >
               {isAr ? (
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-5 w-5" />
               ) : (
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-5 w-5" />
               )}
             </div>
           </div>
 
           {/* Price + Duration row */}
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap mt-1">
             {service.estimated_price_min && (
               <span
-                className="inline-flex items-center gap-0.5 text-[0.8rem] font-bold"
-                style={{ color: "var(--pro-primary, #06b6d4)" }}
+                className="inline-flex items-center gap-1 text-[0.85rem] font-bold px-2 py-0.5 rounded-md"
+                style={{ 
+                  color: "var(--pro-primary, #06b6d4)",
+                  background: "color-mix(in srgb, var(--pro-primary, #06b6d4) 10%, transparent)",
+                }}
               >
-                {isAr ? "من " : "From "}
+                {isAr ? "يبدأ من " : "Starts at "}
                 {formatCurrency(
                   service.estimated_price_min,
                   service.currency,
@@ -149,29 +149,20 @@ export function ServiceCardMini({
             )}
             {service.estimated_duration_days && (
               <span
-                className="inline-flex items-center gap-1 text-[0.75rem] px-2 py-0.5 rounded-full"
+                className="inline-flex items-center gap-1.5 text-[0.75rem] font-medium px-2 py-0.5 rounded-md"
                 style={{
                   color: "var(--pro-fg-subtle, #64748b)",
-                  background: "rgba(255,255,255,0.04)",
+                  background: "rgba(255,255,255,0.03)",
                   border: "1px solid rgba(255,255,255,0.06)",
                 }}
               >
-                <Clock className="h-3 w-3" />
-                {service.estimated_duration_days} {isAr ? "يوم" : "d"}
+                <Clock className="h-3 w-3" style={{ color: "var(--pro-secondary, #10b981)" }} />
+                {service.estimated_duration_days} {isAr ? "يوم عمل" : "days"}
               </span>
             )}
           </div>
         </div>
       </div>
-
-      {/* Bottom border glow on hover */}
-      <span
-        className="absolute inset-x-4 bottom-0 h-px opacity-0 group-hover:opacity-60 transition-opacity duration-300"
-        style={{
-          background: "linear-gradient(90deg, transparent, var(--pro-primary, #06b6d4), transparent)",
-        }}
-        aria-hidden
-      />
     </Link>
   );
 }
