@@ -192,7 +192,7 @@ export default async function BlogPostPage({
       )}
 
       <div
-        className="prose prose-lg max-w-none dark:prose-invert prose-headings:scroll-mt-24 prose-img:rounded-xl"
+        className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground prose-strong:text-foreground prose-a:text-primary prose-blockquote:text-muted-foreground prose-blockquote:border-border prose-hr:border-border prose-headings:scroll-mt-24 prose-img:rounded-xl"
         dir={isAr ? "rtl" : "ltr"}
       >
         {content ? (
