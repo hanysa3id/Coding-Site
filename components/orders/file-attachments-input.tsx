@@ -55,17 +55,16 @@ export function FileAttachmentsInput({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Button
+      <div className="flex items-center gap-3">
+        <button
           type="button"
-          variant="outline"
-          size="sm"
           onClick={() => inputRef.current?.click()}
           disabled={disabled || value.length >= maxFiles}
+          className="pro-btn pro-btn-secondary py-1.5 px-3 text-xs border-transparent hover:border-white/10 disabled:opacity-50"
         >
-          <Paperclip className="h-4 w-4" />
+          <Paperclip className="h-3.5 w-3.5" />
           {isAr ? "إرفاق ملفات" : "Attach files"}
-        </Button>
+        </button>
         <span className="text-xs text-muted-foreground">
           {value.length} / {maxFiles}
         </span>

@@ -251,68 +251,63 @@ export function VoiceRecorder({
     <div className="rounded-lg border bg-muted/20 p-4 space-y-3">
       <div className="flex items-center gap-3 flex-wrap">
         {state === "idle" && (
-          <Button
+          <button
             type="button"
             onClick={startRecording}
             disabled={disabled}
-            variant="outline"
-            size="sm"
+            className="pro-btn pro-btn-secondary py-1.5 px-3 text-xs border-transparent hover:border-white/10"
           >
-            <Mic className="h-4 w-4" />
+            <Mic className="h-3.5 w-3.5" />
             {isAr ? "بدء التسجيل الصوتي" : "Start voice note"}
-          </Button>
+          </button>
         )}
 
         {state === "recording" && (
           <>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="relative flex h-3 w-3">
+            <div className="flex items-center gap-2 text-sm bg-red-500/10 text-red-500 px-3 py-1.5 rounded-full border border-red-500/20">
+              <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
               </span>
-              <span className="font-mono">{formatTime(elapsed)}</span>
-              <span className="text-muted-foreground">
+              <span className="font-mono font-bold tracking-widest">{formatTime(elapsed)}</span>
+              <span className="opacity-70 font-mono text-xs">
                 / {formatTime(maxSeconds)}
               </span>
             </div>
-            <Button
+            <button
               type="button"
               onClick={stopRecording}
-              variant="destructive"
-              size="sm"
+              className="pro-btn bg-red-500/20 text-red-500 hover:bg-red-500/30 border border-red-500/20 py-1.5 px-3 text-xs"
             >
-              <Square className="h-4 w-4" />
+              <Square className="h-3.5 w-3.5" />
               {isAr ? "إيقاف" : "Stop"}
-            </Button>
+            </button>
           </>
         )}
 
         {state === "recorded" && value && (
           <>
-            <Button
+            <button
               type="button"
               onClick={togglePlay}
-              variant="outline"
-              size="sm"
               disabled={disabled}
+              className="pro-btn pro-btn-secondary py-1.5 px-3 text-xs border-transparent hover:border-white/10"
             >
-              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
               {isPlaying ? (isAr ? "إيقاف مؤقت" : "Pause") : isAr ? "تشغيل" : "Play"}
-            </Button>
-            <span className="text-xs text-muted-foreground">
+            </button>
+            <span className="text-xs text-muted-foreground font-mono bg-white/5 px-2 py-1 rounded-md">
               {formatBytes(value.size)}
             </span>
-            <Button
+            <button
               type="button"
               onClick={clearRecording}
-              variant="ghost"
-              size="sm"
               disabled={disabled}
-              className="text-destructive"
+              className="pro-btn pro-btn-ghost text-red-400 hover:text-red-500 hover:bg-red-500/10 py-1.5 px-3 text-xs"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-3.5 w-3.5" />
               {isAr ? "حذف وإعادة" : "Delete & redo"}
-            </Button>
+            </button>
           </>
         )}
       </div>
