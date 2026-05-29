@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,6 +29,7 @@ import {
   Globe,
   Image as ImageIcon,
   Megaphone,
+  LayoutTemplate,
 } from "lucide-react";
 import {
   landingSettingsSchema,
@@ -1395,6 +1397,87 @@ export function LandingForm({
               );
             })}
           </div>
+        </TabsContent>
+
+        {/* ─── SERVICES PILLARS REDIRECT ──────────────────────────── */}
+        <TabsContent value="services_pillars" className="pt-6">
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center p-10 text-center space-y-4">
+              <div className="p-3 bg-violet-100 text-violet-700 rounded-full dark:bg-violet-950/50 dark:text-violet-400">
+                <LayoutTemplate className="h-8 w-8" />
+              </div>
+              <div className="space-y-2 max-w-md">
+                <h3 className="text-lg font-semibold">
+                  {isAr ? "إدارة باقات الخدمات (Build / Grow / Maintain)" : "Manage Service Pillars"}
+                </h3>
+                <p className="text-sm text-muted-foreground font-light leading-relaxed">
+                  {isAr
+                    ? "تم نقل إدارة باقات الخدمات إلى صفحة محتوى الأقسام المخصصة لتتيح لك إضافة، تحرير، إعادة ترتيب، وتصميم كل باقة بشكل كامل."
+                    : "Service Pillars management has been moved to the dedicated Sections Content editor to allow full CRUD, custom icon/color configurations, and reordering."}
+                </p>
+              </div>
+              <a
+                href={`/${locale}/admin/landing/sections/services`}
+                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+              >
+                {isAr ? "الانتقال إلى محرر باقات الخدمات" : "Go to Service Pillars Editor"}
+              </a>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ─── PRICING PLANS REDIRECT ──────────────────────────── */}
+        <TabsContent value="pricing_plans" className="pt-6">
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center p-10 text-center space-y-4">
+              <div className="p-3 bg-violet-100 text-violet-700 rounded-full dark:bg-violet-950/50 dark:text-violet-400">
+                <LayoutTemplate className="h-8 w-8" />
+              </div>
+              <div className="space-y-2 max-w-md">
+                <h3 className="text-lg font-semibold">
+                  {isAr ? "إدارة باقات وأسعار الخدمات" : "Manage Pricing Plans"}
+                </h3>
+                <p className="text-sm text-muted-foreground font-light leading-relaxed">
+                  {isAr
+                    ? "تم نقل إدارة باقات الأسعار إلى صفحة محتوى الأقسام المخصصة لتتمكن من إضافة باقات جديدة وتعديل أسعارها الشهرية/السنوية ومميزاتها بسهولة."
+                    : "Pricing plans management has been moved to the dedicated Sections Content editor. You can now add, edit, and delete plans and customize their monthly/yearly prices and features."}
+                </p>
+              </div>
+              <a
+                href={`/${locale}/admin/landing/sections/pricing`}
+                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+              >
+                {isAr ? "الانتقال إلى محرر باقات الأسعار" : "Go to Pricing Plans Editor"}
+              </a>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ─── PROCESS STEPS REDIRECT ──────────────────────────── */}
+        <TabsContent value="process_steps" className="pt-6">
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center p-10 text-center space-y-4">
+              <div className="p-3 bg-violet-100 text-violet-700 rounded-full dark:bg-violet-950/50 dark:text-violet-400">
+                <LayoutTemplate className="h-8 w-8" />
+              </div>
+              <div className="space-y-2 max-w-md">
+                <h3 className="text-lg font-semibold">
+                  {isAr ? "إدارة خطوات منهجية العمل" : "Manage Process Steps"}
+                </h3>
+                <p className="text-sm text-muted-foreground font-light leading-relaxed">
+                  {isAr
+                    ? "تم نقل إدارة خطوات منهجية العمل إلى صفحة محتوى الأقسام المخصصة لتتيح لك إضافة مراحل جديدة وتعديل أيقوناتها وترتيبها بسهولة."
+                    : "Process steps management has been moved to the dedicated Sections Content editor. You can now add new stages, pick custom icons, and drag/reorder them."}
+                </p>
+              </div>
+              <a
+                href={`/${locale}/admin/landing/sections/process`}
+                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+              >
+                {isAr ? "الانتقال إلى محرر خطوات العمل" : "Go to Process Steps Editor"}
+              </a>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
