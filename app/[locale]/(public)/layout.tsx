@@ -108,7 +108,8 @@ export default async function PublicLayout({
       )}
 
       <SiteHeader />
-      <main className="flex-1">{children}</main>
+      {/* pt-16 compensates for the fixed floating header (≈ 64px) */}
+      <main className="flex-1 pt-16">{children}</main>
       <SiteFooter />
       <WhatsAppFloatingButton locale={locale} />
 

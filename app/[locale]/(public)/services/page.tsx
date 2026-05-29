@@ -82,7 +82,7 @@ export default async function ServicesPage({
   const featured = services.filter((s) => s.is_featured).slice(0, 6);
 
   return (
-    <div className="container py-16">
+    <div className="container pb-16 pt-8">
       {/* ── Hero Header ─────────────────────────────────────────────────────── */}
       <header className="mb-14 text-center relative">
         {/* Ambient glow behind heading */}

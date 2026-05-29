@@ -13,9 +13,14 @@ export default async function AdminLayout({
 }) {
   const { locale } = await params;
   const profile = await requireStaff();
+  const isAr = locale === "ar";
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div
+      className="min-h-screen flex flex-col"
+      dir={isAr ? "rtl" : "ltr"}
+      style={isAr ? { textAlign: "right" } : undefined}
+    >
       <AdminHeader profile={profile} />
       <div className="flex flex-1">
         <AdminSidebar role={profile.role} locale={locale} />
