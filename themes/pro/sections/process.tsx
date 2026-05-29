@@ -71,14 +71,18 @@ export function ProProcess({ locale, landing }: { locale: string; landing?: Land
     items: defaultSteps,
   });
 
-  const stepsList = content.items?.map((item: any) => {
+  const dynamicSteps = (landing?.process_steps && landing.process_steps.length > 0)
+    ? landing.process_steps
+    : defaultSteps;
+
+  const stepsList = dynamicSteps.map((item: any) => {
     const Icon = ICONS_MAP[item.icon_name] || ClipboardList;
     return {
       title: isAr ? item.title_ar : item.title_en,
       desc: isAr ? item.description_ar : item.description_en,
       icon: Icon,
     };
-  }) || [];
+  });
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();

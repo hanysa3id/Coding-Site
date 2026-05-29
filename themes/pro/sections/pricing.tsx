@@ -19,54 +19,92 @@ export function ProPricing({ locale, landing }: { locale: string; landing?: Land
     description_en: "Choose the roadmap designed explicitly for your current operations. Zero hidden fees, cancellation policy details.",
   });
 
-  const plans = [
+  const defaultPlans = [
     {
-      name: isAr ? "باقة التشغيل والبدء" : "Startup Launch",
-      desc: isAr ? "مثالية لإطلاق أول مشروع ويب أو صفحة هبوط لشركتك الناشئة." : "Perfect for launching a custom high-performance landing page or MVP.",
-      priceMonthly: 499,
-      priceYearly: 399,
-      features: [
-        isAr ? "تصميم وتطوير صفحة هبوط مخصصة" : "Single-page responsive design & code",
-        isAr ? "لوحة تحكم إدارة محتوى مصغرة" : "Sleek CMS control dashboard",
-        isAr ? "تهيئة مجانية لأمان SSL وسرعة CDN" : "Free SSL validation & CDN routing",
-        isAr ? "دعم فني وتعديلات مجانية لمدة شهر" : "1 month technical maintenance warranty",
-        isAr ? "تكامل مباشر مع الواتساب وبوابات الاتصال" : "WhatsApp call-to-action triggers",
+      id: "dp-1",
+      name_ar: "باقة التشغيل والبدء",
+      name_en: "Startup Launch",
+      description_ar: "مثالية لإطلاق أول مشروع ويب أو صفحة هبوط لشركتك الناشئة.",
+      description_en: "Perfect for launching a custom high-performance landing page or MVP.",
+      price_monthly: 499,
+      price_yearly: 399,
+      features_ar: [
+        "تصميم وتطوير صفحة هبوط مخصصة",
+        "لوحة تحكم إدارة محتوى مصغرة",
+        "تهيئة مجانية لأمان SSL وسرعة CDN",
+        "دعم فني وتعديلات مجانية لمدة شهر",
+        "تكامل مباشر مع الواتساب وبوابات الاتصال",
       ],
-      popular: false,
-      ctaLabel: isAr ? "اختر باقة البدء" : "Get Startup Track",
+      features_en: [
+        "Single-page responsive design & code",
+        "Sleek CMS control dashboard",
+        "Free SSL validation & CDN routing",
+        "1 month technical maintenance warranty",
+        "WhatsApp call-to-action triggers",
+      ],
+      is_popular: false,
+      cta_label_ar: "اختر باقة البدء",
+      cta_label_en: "Get Startup Track",
     },
     {
-      name: isAr ? "باقة الأعمال والنمو" : "Business Scale",
-      desc: isAr ? "منظومة رقمية متكاملة لشركات الخدمات الراغبة بالنمو السريع والتوسع." : "Comprehensive digital systems for expanding agencies and platforms.",
-      priceMonthly: 1299,
-      priceYearly: 999,
-      features: [
-        isAr ? "موقع متعدد الصفحات ونظام إدارة محتوى كامل" : "Multi-page dynamic custom architecture",
-        isAr ? "تصميمات واجهات مخصصة UX/UI متميزة" : "Advanced custom UX/UI blueprints",
-        isAr ? "تكامل بوابات دفع فيزا / ماستر / المحافظ" : "Visa, Card & Wallet payments gateway",
-        isAr ? "تحليل وحملات تسويقية SEO وإدارة إعلانات" : "Performance SEO and conversion setup",
-        isAr ? "دعم فني وحل مشاكل متواصل لمدة 3 أشهر" : "3 months senior support warranty",
-        isAr ? "اختبارات جودة QA وفحص أمان شامل للموقع" : "Automated QA checks & security scans",
+      id: "dp-2",
+      name_ar: "باقة الأعمال والنمو",
+      name_en: "Business Scale",
+      description_ar: "منظومة رقمية متكاملة لشركات الخدمات الراغبة بالنمو السريع والتوسع.",
+      description_en: "Comprehensive digital systems for expanding agencies and platforms.",
+      price_monthly: 1299,
+      price_yearly: 999,
+      features_ar: [
+        "موقع متعدد الصفحات ونظام إدارة محتوى كامل",
+        "تصميمات واجهات مخصصة UX/UI متميزة",
+        "تكامل بوابات دفع فيزا / ماستر / المحافظ",
+        "تحليل وحملات تسويقية SEO وإدارة إعلانات",
+        "دعم فني وحل مشاكل متواصل لمدة 3 أشهر",
+        "اختبارات جودة QA وفحص أمان شامل للموقع",
       ],
-      popular: true,
-      ctaLabel: isAr ? "ابدأ باقة النمو" : "Choose Growth Track",
+      features_en: [
+        "Multi-page dynamic custom architecture",
+        "Advanced custom UX/UI blueprints",
+        "Visa, Card & Wallet payments gateway",
+        "Performance SEO and conversion setup",
+        "3 months senior support warranty",
+        "Automated QA checks & security scans",
+      ],
+      is_popular: true,
+      cta_label_ar: "ابدأ باقة النمو",
+      cta_label_en: "Choose Growth Track",
     },
     {
-      name: isAr ? "باقة المؤسسات المخصصة" : "Enterprise Custom",
-      desc: isAr ? "أنظمة برمجية مصممة خصيصاً لتلبية متطلبات الشركات الكبيرة والمؤسسات." : "Custom architecture engineered to support high enterprise demands.",
-      priceMonthly: null,
-      priceYearly: null,
-      features: [
-        isAr ? "برمجة وبناء وتطوير مخصص بنسبة 100%" : "100% custom engineered software code",
-        isAr ? "إدارة وتوسيع السيرفرات السحابية DevOps" : "Cloud infrastructure scaling & DevOps support",
-        isAr ? "فريق عمل مخصص وتطوير مستمر للمشروع" : "Dedicated senior development squad",
-        isAr ? "دعم فني مخصص واتفاقية SLA مضمونة" : "SLA maintenance contract and 24/7 hotline",
-        isAr ? "تحليل تسويقي شامل وخطط مضاعفة الأرباح" : "Omnichannel marketing conversion audits",
+      id: "dp-3",
+      name_ar: "باقة المؤسسات المخصصة",
+      name_en: "Enterprise Custom",
+      description_ar: "أنظمة برمجية مصممة خصيصاً لتلبية متطلبات الشركات الكبيرة والمؤسسات.",
+      description_en: "Custom architecture engineered to support high enterprise demands.",
+      price_monthly: null,
+      price_yearly: null,
+      features_ar: [
+        "برمجة وبناء وتطوير مخصص بنسبة 100%",
+        "إدارة وتوسيع السيرفرات السحابية DevOps",
+        "فريق عمل مخصص وتطوير مستمر للمشروع",
+        "دعم فني مخصص واتفاقية SLA مضمونة",
+        "تحليل تسويقي شامل وخطط مضاعفة الأرباح",
       ],
-      popular: false,
-      ctaLabel: isAr ? "احجز استشارة خاصة" : "Book Custom Scoping Session",
+      features_en: [
+        "100% custom engineered software code",
+        "Cloud infrastructure scaling & DevOps support",
+        "Dedicated senior development squad",
+        "SLA maintenance contract and 24/7 hotline",
+        "Omnichannel marketing conversion audits",
+      ],
+      is_popular: false,
+      cta_label_ar: "احجز استشارة خاصة",
+      cta_label_en: "Book Custom Scoping Session",
     },
   ];
+
+  const dynamicPlans = (landing?.pricing_plans && landing.pricing_plans.length > 0)
+    ? landing.pricing_plans
+    : defaultPlans;
 
   return (
     <section id="pricing" className="relative py-20 overflow-hidden">
@@ -113,23 +151,29 @@ export function ProPricing({ locale, landing }: { locale: string; landing?: Land
           </div>
         </div>
 
-        {/* Pricing plans list cards */}
-        <div className="grid gap-8 lg:grid-cols-3 items-stretch">
-          {plans.map((plan, i) => {
-            const hasPrice = plan.priceMonthly !== null;
-            const activePrice = billing === "yearly" ? plan.priceYearly : plan.priceMonthly;
-
+        {/* Pricing Cards */}
+        <div className="grid gap-8 lg:grid-cols-3 max-w-6xl mx-auto items-start">
+          {dynamicPlans.map((plan, index) => {
+            const isPopular = plan.is_popular;
+            const name = isAr ? plan.name_ar : plan.name_en;
+            const desc = isAr ? plan.description_ar : plan.description_en;
+            const priceMonthly = plan.price_monthly;
+            const priceYearly = plan.price_yearly;
+            const features = isAr ? plan.features_ar : plan.features_en;
+            const ctaLabel = isAr ? plan.cta_label_ar : plan.cta_label_en;
+            
             return (
               <div
-                key={i}
-                className={`pro-card p-8 flex flex-col justify-between relative text-start ${
-                  plan.popular 
-                    ? "pro-pricing-popular border-[color:var(--pro-primary)]/50 shadow-[0_0_40px_rgba(6,182,212,0.1)] bg-slate-950/80" 
-                    : "bg-slate-950/40"
-                }`}
+                key={plan.id || index}
+                className={cn(
+                  "pro-card flex flex-col relative",
+                  isPopular 
+                    ? "pro-card-premium border-[color:var(--pro-primary)]/50 shadow-[0_0_40px_-10px_rgba(6,182,212,0.2)] lg:-mt-4 lg:mb-4 scale-[1.02]" 
+                    : "border-white/5 hover:border-white/20"
+                )}
               >
                 {/* Popular badge */}
-                {plan.popular && (
+                {isPopular && (
                   <span className="absolute top-4 right-4 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-[9px] font-bold text-cyan-400 uppercase tracking-widest">
                     {isAr ? "الباقة الأكثر اختياراً" : "Most Selected Track"}
                   </span>
@@ -139,25 +183,25 @@ export function ProPricing({ locale, landing }: { locale: string; landing?: Land
                   {/* Plan details */}
                   <div className="space-y-2">
                     <h3 className="text-xl font-bold text-white">
-                      {plan.name}
+                      {name}
                     </h3>
                     <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
-                      {plan.desc}
+                      {desc}
                     </p>
                   </div>
 
                   {/* Pricing Rate display */}
                   <div className="py-2 text-start">
-                    {hasPrice ? (
+                    {(billing === "yearly" ? priceYearly : priceMonthly) !== null ? (
                       <div className="flex items-baseline gap-1">
                         <span className="text-sm font-bold text-slate-400">
                           {isAr ? "$" : "$"}
                         </span>
                         <span className="text-4xl md:text-5xl font-black font-mono text-white tracking-tight">
-                          {activePrice}
+                          {billing === "yearly" ? priceYearly : priceMonthly}
                         </span>
                         <span className="text-xs text-slate-400 font-bold uppercase tracking-wider ms-1">
-                          {isAr ? "/ شهرياً" : "/ Month"}
+                          {billing === "yearly" ? (isAr ? "/ سنوياً" : "/ Year") : (isAr ? "/ شهرياً" : "/ Month")}
                         </span>
                       </div>
                     ) : (
@@ -169,7 +213,7 @@ export function ProPricing({ locale, landing }: { locale: string; landing?: Land
 
                   {/* Plan specifications */}
                   <div className="border-t border-white/5 pt-6 space-y-4">
-                    {plan.features.map((feat, idx) => (
+                    {features.map((feat, idx) => (
                       <div key={idx} className="flex items-start gap-3">
                         <div className="pro-check-icon h-5 w-5 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-[color:var(--pro-secondary)] mt-0.5 shrink-0">
                           <Check className="h-3 w-3" />
@@ -186,13 +230,13 @@ export function ProPricing({ locale, landing }: { locale: string; landing?: Land
                 <Link
                   href="/contact"
                   className={`pro-btn mt-8 text-center text-xs font-black tracking-wider uppercase rounded-xl transition-all ${
-                    plan.popular
+                    isPopular
                       ? "pro-btn-primary text-slate-950 font-black hover:opacity-90"
                       : "pro-btn-secondary"
                   }`}
-                  style={plan.popular ? { color: "#000" } : {}}
+                  style={isPopular ? { color: "#000" } : {}}
                 >
-                  {plan.ctaLabel}
+                  {ctaLabel}
                 </Link>
 
               </div>

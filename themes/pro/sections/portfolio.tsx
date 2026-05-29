@@ -91,60 +91,63 @@ export function ProPortfolio({
           </div>
         </div>
 
-        {/* Portfolio Cards Grid */}
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {displayProjects.slice(0, 3).map((proj) => {
-            const title = isAr ? proj.title_ar : proj.title_en;
-            const desc = isAr ? proj.description_ar : proj.description_en;
+        {/* Portfolio Cards Marquee */}
+        <div className="pro-marquee-mask mt-12 w-full overflow-hidden">
+          <div className="flex w-max gap-8 animate-marquee group/track px-4">
+            {/* We duplicate the displayProjects multiple times to ensure seamless infinite scroll */}
+            {[...displayProjects, ...displayProjects, ...displayProjects].map((proj, idx) => {
+              const title = isAr ? proj.title_ar : proj.title_en;
+              const desc = isAr ? proj.description_ar : proj.description_en;
 
-            return (
-              <Link
-                key={proj.id}
-                href={`/portfolio/${proj.slug}`}
-                className="group block relative"
-              >
-                <article className="pro-card overflow-hidden h-full flex flex-col hover:border-[color:var(--pro-primary)]/40">
-                  
-                  {/* Image wrapper */}
-                  <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
-                    <img
-                      src={proj.cover_image ?? "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80"}
-                      alt={title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
+              return (
+                <Link
+                  key={`${proj.id}-${idx}`}
+                  href={`/portfolio/${proj.slug}`}
+                  className="group block relative w-[320px] sm:w-[400px] shrink-0"
+                >
+                  <article className="pro-card overflow-hidden h-full flex flex-col hover:border-[color:var(--pro-primary)]/40 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all">
                     
-                    {/* Visual Hover Tag overlay */}
-                    <div className="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                      <div className="h-11 w-11 rounded-xl bg-white/10 flex items-center justify-center text-white backdrop-blur-md">
-                        <ExternalLink className="h-5 w-5" />
+                    {/* Image wrapper */}
+                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+                      <img
+                        src={proj.cover_image ?? "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80"}
+                        alt={title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      
+                      {/* Visual Hover Tag overlay */}
+                      <div className="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="h-11 w-11 rounded-xl bg-white/10 flex items-center justify-center text-white backdrop-blur-md">
+                          <ExternalLink className="h-5 w-5" />
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Body description */}
-                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4 text-start">
-                    <div className="space-y-2">
-                      <span className="text-[9px] font-mono font-bold tracking-widest text-[color:var(--pro-primary)] uppercase">
-                        {proj.is_featured ? (isAr ? "// مشروع متميز" : "// Featured Work") : (isAr ? "// تطوير رقمي" : "// System Build")}
-                      </span>
-                      <h3 className="text-lg font-bold text-white group-hover:text-[color:var(--pro-primary)] transition-colors line-clamp-2">
-                        {title}
-                      </h3>
-                      <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
-                        {desc}
-                      </p>
+                    {/* Body description */}
+                    <div className="p-6 flex-1 flex flex-col justify-between space-y-4 text-start">
+                      <div className="space-y-2">
+                        <span className="text-[9px] font-mono font-bold tracking-widest text-[color:var(--pro-primary)] uppercase">
+                          {proj.is_featured ? (isAr ? "// مشروع متميز" : "// Featured Work") : (isAr ? "// تطوير رقمي" : "// System Build")}
+                        </span>
+                        <h3 className="text-lg font-bold text-white group-hover:text-[color:var(--pro-primary)] transition-colors line-clamp-2">
+                          {title}
+                        </h3>
+                        <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                          {desc}
+                        </p>
+                      </div>
+
+                      <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[color:var(--pro-primary)] group-hover:text-white transition-colors mt-auto pt-4">
+                        <span>{isAr ? "اقرأ دراسة الحالة" : "Case Analysis"}</span>
+                        <ArrowRight className="h-3 w-3 rtl:rotate-180" />
+                      </div>
                     </div>
 
-                    <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[color:var(--pro-primary)] group-hover:text-white transition-colors">
-                      <span>{isAr ? "اقرأ دراسة الحالة" : "Case Analysis"}</span>
-                      <ArrowRight className="h-3 w-3 rtl:rotate-180" />
-                    </div>
-                  </div>
-
-                </article>
-              </Link>
-            );
-          })}
+                  </article>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

@@ -26,16 +26,15 @@ function classify(s: { name_ar: string; name_en: string }, c?: Category): Bucket
   return "build";
 }
 
-const PILLARS: Record<
+const defaultPillars: Record<
   Bucket,
   {
     titleAr: string;
     titleEn: string;
     descAr: string;
     descEn: string;
-    color: string;
     glow: string;
-    icon: React.ComponentType<{ className?: string }>;
+    icon_name: string;
   }
 > = {
   build: {
@@ -43,28 +42,29 @@ const PILLARS: Record<
     titleEn: "🚀 Build & Engineer",
     descAr: "برمجة وبناء وتصميم الأنظمة والمنصات الرقمية بأقوى البنى الهندسية المعاصرة.",
     descEn: "Building robust backend systems, frontend client apps, and high-converting UI blueprints.",
-    color: "from-cyan-500/20 to-blue-500/20",
     glow: "rgba(6, 182, 212, 0.25)",
-    icon: Code2,
+    icon_name: "Code2",
   },
   grow: {
     titleAr: "📈 تسويق ومضاعفة النمو (Grow)",
     titleEn: "📈 Scale & Grow",
     descAr: "إدارة وتخطيط الحملات الإعلانية ومحركات البحث لزيادة عدد عملائك ومبيعاتك.",
     descEn: "Performance marketing, conversion funnel architecture, ads management, and brand scaling.",
-    color: "from-emerald-500/20 to-teal-500/20",
     glow: "rgba(16, 185, 129, 0.25)",
-    icon: TrendingUp,
+    icon_name: "TrendingUp",
   },
   maintain: {
     titleAr: "🛠 تشغيل وصيانة مستمرة (Maintain)",
     titleEn: "🛠 Support & Maintain",
     descAr: "استضافات سحابية آمنة، اختبارات حقيقية للجودة ودعم فني متواصل 24/7.",
     descEn: "DevOps cloud scaling, QA automation, secure staging audits, and permanent code support.",
-    color: "from-amber-500/20 to-orange-500/20",
     glow: "rgba(251, 191, 36, 0.25)",
-    icon: CloudLightning,
+    icon_name: "CloudLightning",
   },
+};
+
+const ICONS_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Code2, Palette, TrendingUp, Share2, CloudLightning, ShieldAlert, GraduationCap
 };
 
 import { resolveSectionContent } from "@/lib/landing/section-resolver";
@@ -314,6 +314,20 @@ export function ProServices({
     const bucket = classify(s, cat);
     groups[bucket].push(s);
   });
+  // Compute dynamic pillars from settings or defaults
+  const dynamicPillarsRaw = (landing?.services_pillars && landing.services_pillars.length > 0)
+    ? landing.services_pillars
+    : Object.entries(defaultPillars).map(([bucket, data]) => ({
+        id: bucket,
+        bucket: bucket as Bucket,
+        title_ar: data.titleAr,
+        title_en: data.titleEn,
+        description_ar: data.descAr,
+        description_en: data.descEn,
+        icon_name: data.icon_name,
+        glow_color: data.glow,
+      }));
+
   return (
     <section id="services" className="relative py-20 overflow-hidden pro-section-reveal pro-anim-fade-up">
       <div className="container mx-auto max-w-7xl px-6 relative">
@@ -335,16 +349,15 @@ export function ProServices({
 
         {/* 3 Pillars Bento/Grid display */}
         <div className="grid gap-8 lg:grid-cols-3">
-          {(Object.keys(PILLARS) as Bucket[]).map((bucket) => {
-            const pillar = PILLARS[bucket];
-            const list = groups[bucket];
-            const IconComponent = pillar.icon;
+          {dynamicPillarsRaw.map((pillar) => {
+            const list = groups[pillar.bucket as Bucket] || [];
+            const IconComponent = ICONS_MAP[pillar.icon_name] || Code2;
 
             if (list.length === 0) return null;
 
             return (
               <div
-                key={bucket}
+                key={pillar.id}
                 className="pro-card pro-card-premium pro-service-pillar-card p-8 flex flex-col relative overflow-hidden group border border-white/5"
               >
                 {/* SVG Geometric Decor — smaller, stays at corner */}
@@ -360,22 +373,22 @@ export function ProServices({
                 <div className="flex items-center justify-between mb-5">
                   <div
                     className="h-12 w-12 rounded-xl flex items-center justify-center border border-white/10"
-                    style={{ background: `linear-gradient(135deg, rgba(255,255,255,0.02), ${pillar.glow})` }}
+                    style={{ background: `linear-gradient(135deg, rgba(255,255,255,0.02), ${pillar.glow_color})` }}
                   >
                     <IconComponent className="h-6 w-6 text-white pro-pillar-icon" />
                   </div>
                   <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-                    {bucket}
+                    {pillar.bucket}
                   </span>
                 </div>
 
                 {/* Title & Desc */}
                 <div className="text-start space-y-1 mb-5">
                   <h3 className="text-2xl font-black text-white group-hover:text-[color:var(--pro-primary)] transition-colors">
-                    {isAr ? pillar.titleAr : pillar.titleEn}
+                    {isAr ? pillar.title_ar : pillar.title_en}
                   </h3>
                   <p className="text-xs text-slate-400 leading-relaxed">
-                    {isAr ? pillar.descAr : pillar.descEn}
+                    {isAr ? pillar.description_ar : pillar.description_en}
                   </p>
                 </div>
 
@@ -390,7 +403,7 @@ export function ProServices({
                           className="pro-service-card-expand rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-start"
                         >
                           <div className="flex items-center gap-2.5">
-                            <span className="h-2 w-2 rounded-full shrink-0" style={{ background: pillar.glow }} />
+                            <span className="h-2 w-2 rounded-full shrink-0" style={{ background: pillar.glow_color }} />
                             <span className="text-sm font-bold text-white leading-tight">
                               {isAr ? service.name_ar : service.name_en}
                             </span>

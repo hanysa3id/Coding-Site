@@ -85,6 +85,44 @@ export const landingHeroSlideSchema = z.object({
 });
 export type LandingHeroSlide = z.infer<typeof landingHeroSlideSchema>;
 
+export const landingServicePillarSchema = z.object({
+  id: z.string().min(1),
+  bucket: z.enum(["build", "grow", "maintain"]),
+  title_ar: z.string().min(1),
+  title_en: z.string().min(1),
+  description_ar: z.string().min(1),
+  description_en: z.string().min(1),
+  icon_name: z.string().min(1).default("Code2"),
+  glow_color: z.string().min(1).default("rgba(6, 182, 212, 0.25)"),
+});
+export type LandingServicePillar = z.infer<typeof landingServicePillarSchema>;
+
+export const landingPricingPlanSchema = z.object({
+  id: z.string().min(1),
+  name_ar: z.string().min(1),
+  name_en: z.string().min(1),
+  description_ar: z.string().min(1),
+  description_en: z.string().min(1),
+  price_monthly: z.number().nullable().optional(),
+  price_yearly: z.number().nullable().optional(),
+  features_ar: z.array(z.string()).default([]),
+  features_en: z.array(z.string()).default([]),
+  is_popular: z.boolean().default(false),
+  cta_label_ar: z.string().min(1),
+  cta_label_en: z.string().min(1),
+});
+export type LandingPricingPlan = z.infer<typeof landingPricingPlanSchema>;
+
+export const landingProcessStepSchema = z.object({
+  id: z.string().min(1),
+  title_ar: z.string().min(1),
+  title_en: z.string().min(1),
+  description_ar: z.string().min(1),
+  description_en: z.string().min(1),
+  icon_name: z.string().min(1).default("ClipboardList"),
+});
+export type LandingProcessStep = z.infer<typeof landingProcessStepSchema>;
+
 export const landingSettingsSchema = z.object({
   // Section visibility — keyed by canonical id. Missing key = visible.
   sections: z.record(z.string(), z.boolean()).default({}),
@@ -144,6 +182,11 @@ export const landingSettingsSchema = z.object({
   // Stats — the big numbers shown in the stats strip. Empty = theme uses
   // either AboutSettings.stats (Sky) or its own defaults.
   stats: z.array(landingStatSchema).default([]),
+  
+  // Custom arrays for specific Pro sections
+  services_pillars: z.array(landingServicePillarSchema).default([]),
+  pricing_plans: z.array(landingPricingPlanSchema).default([]),
+  process_steps: z.array(landingProcessStepSchema).default([]),
 
   // Marketing Testimonials. Empty = theme uses fallback or database reviews.
   testimonials: z.array(

@@ -38,6 +38,9 @@ import {
   type LandingLogoItem,
   type LandingHeroSlide,
   type LandingSectionId,
+  type LandingServicePillar,
+  type LandingPricingPlan,
+  type LandingProcessStep,
 } from "@/lib/validators/settings";
 import {
   saveLandingSettingsAction,
@@ -335,6 +338,9 @@ export function LandingForm({
           <TabsTrigger value="faqs">FAQ</TabsTrigger>
           <TabsTrigger value="testimonials">{isAr ? "آراء العملاء" : "Testimonials"}</TabsTrigger>
           <TabsTrigger value="section_content">{isAr ? "نصوص الأقسام" : "Section Content"}</TabsTrigger>
+          <TabsTrigger value="services_pillars">{isAr ? "باقات الخدمات" : "Services"}</TabsTrigger>
+          <TabsTrigger value="pricing_plans">{isAr ? "باقات الأسعار" : "Pricing"}</TabsTrigger>
+          <TabsTrigger value="process_steps">{isAr ? "خطوات العمل" : "Process"}</TabsTrigger>
         </TabsList>
 
         {/* ─── SECTIONS ─────────────────────────────────────── */}
