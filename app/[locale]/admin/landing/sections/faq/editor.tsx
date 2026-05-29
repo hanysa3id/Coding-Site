@@ -45,7 +45,7 @@ export function FAQEditor({
   return (
     <SectionEditorShell
       titleAr="الأسئلة الشائعة (FAQ)"
-      titleEn="FAQ Section"
+      titleEn="FAQ / Common Inquiries"
       descriptionAr="تعديل نصوص مقدمة قسم الأسئلة والأجوبة المتكررة"
       descriptionEn="Edit the text content for the frequently asked questions section"
       locale={locale}

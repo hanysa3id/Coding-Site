@@ -58,7 +58,7 @@ export default async function CmsPublicPage({
       </header>
       <Card>
         <CardContent
-          className="pt-6"
+          className="pt-6 prose prose-slate dark:prose-invert prose-sm md:prose-base max-w-none"
           dangerouslySetInnerHTML={{ __html: html || "" }}
         />
       </Card>

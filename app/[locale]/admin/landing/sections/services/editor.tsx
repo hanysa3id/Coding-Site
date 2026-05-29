@@ -262,6 +262,34 @@ function PillarCard({
 }) {
   const ActiveIcon = ICON_OPTIONS.find((o) => o.value === pillar.icon_name)?.Icon ?? Code2;
 
+  function addItem() {
+    const items = pillar.items || [];
+    onChange({
+      items: [
+        ...items,
+        {
+          id: uid(),
+          name_ar: "ميزة جديدة",
+          name_en: "New Feature",
+          desc_ar: "",
+          desc_en: "",
+        },
+      ],
+    });
+  }
+
+  function removeItem(itemIdx: number) {
+    const items = pillar.items || [];
+    onChange({ items: items.filter((_, i) => i !== itemIdx) });
+  }
+
+  function updateItem(itemIdx: number, patch: any) {
+    const items = pillar.items || [];
+    onChange({
+      items: items.map((it, i) => (i === itemIdx ? { ...it, ...patch } : it)),
+    });
+  }
+
   return (
     <Card>
       <CardContent className="p-5 space-y-4">
@@ -382,6 +410,88 @@ function PillarCard({
           type="textarea"
           rows={3}
         />
+
+        <div className="pt-4 border-t border-border mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <Label className="text-sm font-semibold">
+                {isAr ? "عناصر الباقة (المميزات)" : "Pillar Items (Features)"}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {isAr 
+                  ? "إذا أضفت عناصر هنا، ستظهر بدلاً من الخدمات المسحوبة تلقائياً من قاعدة البيانات."
+                  : "If you add items here, they will override the automatic services from the database."}
+              </p>
+            </div>
+            <Button type="button" size="sm" variant="secondary" onClick={addItem}>
+              <Plus className="h-3 w-3 me-1" />
+              {isAr ? "إضافة عنصر" : "Add Item"}
+            </Button>
+          </div>
+
+          <div className="space-y-3">
+            {(pillar.items || []).map((item, itemIdx) => (
+              <div key={item.id} className="relative rounded-md border border-border/60 bg-muted/20 p-3 pe-10 space-y-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 rtl:left-2 ltr:right-2 h-7 w-7 text-muted-foreground hover:text-destructive"
+                  onClick={() => removeItem(itemIdx)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+                
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <Label className="text-[10px] uppercase text-muted-foreground">{isAr ? "الاسم (عربي)" : "Name (Ar)"}</Label>
+                    <Input 
+                      dir="rtl"
+                      className="h-8 text-xs" 
+                      value={item.name_ar} 
+                      onChange={(e) => updateItem(itemIdx, { name_ar: e.target.value })} 
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] uppercase text-muted-foreground">{isAr ? "الاسم (إنجليزي)" : "Name (En)"}</Label>
+                    <Input 
+                      dir="ltr"
+                      className="h-8 text-xs" 
+                      value={item.name_en} 
+                      onChange={(e) => updateItem(itemIdx, { name_en: e.target.value })} 
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <Label className="text-[10px] uppercase text-muted-foreground">{isAr ? "وصف قصير (عربي)" : "Short Desc (Ar)"}</Label>
+                    <Input 
+                      dir="rtl"
+                      className="h-8 text-xs" 
+                      value={item.desc_ar || ""} 
+                      onChange={(e) => updateItem(itemIdx, { desc_ar: e.target.value })} 
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] uppercase text-muted-foreground">{isAr ? "وصف قصير (إنجليزي)" : "Short Desc (En)"}</Label>
+                    <Input 
+                      dir="ltr"
+                      className="h-8 text-xs" 
+                      value={item.desc_en || ""} 
+                      onChange={(e) => updateItem(itemIdx, { desc_en: e.target.value })} 
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+            {(pillar.items || []).length === 0 && (
+              <div className="text-center p-4 border border-dashed rounded-md text-xs text-muted-foreground">
+                {isAr ? "لا توجد عناصر مخصصة. سيتم عرض الخدمات التلقائية." : "No custom items. Automatic services will be displayed."}
+              </div>
+            )}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

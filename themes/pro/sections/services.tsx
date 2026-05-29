@@ -350,27 +350,51 @@ export function ProServices({
                 {/* Child Services */}
                 <div className="border-t border-white/5 pt-4 mb-5">
                   <div className="grid gap-2">
-                    {list.map((service) => {
-                      const desc = isAr ? service.short_description_ar : service.short_description_en;
-                      return (
-                        <div
-                          key={service.id}
-                          className="pro-service-card-expand rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-start"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <span className="h-2 w-2 rounded-full shrink-0" style={{ background: pillar.glow_color }} />
-                            <span className="text-sm font-bold text-white leading-tight">
-                              {isAr ? service.name_ar : service.name_en}
-                            </span>
-                          </div>
-                          {desc && (
-                            <div className="pro-service-expand-body">
-                              <p className="text-xs text-slate-400 leading-relaxed ps-4 pt-2">{desc}</p>
+                    {pillar.items && pillar.items.length > 0 ? (
+                      pillar.items.map((item) => {
+                        const desc = isAr ? item.desc_ar : item.desc_en;
+                        return (
+                          <div
+                            key={item.id}
+                            className="pro-service-card-expand rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-start"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <span className="h-2 w-2 rounded-full shrink-0" style={{ background: pillar.glow_color }} />
+                              <span className="text-sm font-bold text-white leading-tight">
+                                {isAr ? item.name_ar : item.name_en}
+                              </span>
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                            {desc && (
+                              <div className="pro-service-expand-body">
+                                <p className="text-xs text-slate-400 leading-relaxed ps-4 pt-2">{desc}</p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    ) : (
+                      list.map((service) => {
+                        const desc = isAr ? service.short_description_ar : service.short_description_en;
+                        return (
+                          <div
+                            key={service.id}
+                            className="pro-service-card-expand rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-start"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <span className="h-2 w-2 rounded-full shrink-0" style={{ background: pillar.glow_color }} />
+                              <span className="text-sm font-bold text-white leading-tight">
+                                {isAr ? service.name_ar : service.name_en}
+                              </span>
+                            </div>
+                            {desc && (
+                              <div className="pro-service-expand-body">
+                                <p className="text-xs text-slate-400 leading-relaxed ps-4 pt-2">{desc}</p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                 </div>
 

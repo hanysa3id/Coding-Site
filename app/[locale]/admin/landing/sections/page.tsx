@@ -66,7 +66,7 @@ const SECTION_GROUPS: SectionGroup[] = [
     items: [
       { id: "team", icon: Type, ar: "فريق العمل", en: "Team", path: "team", descAr: "نصوص قسم فريق العمل", descEn: "Team section headings and text" },
       { id: "blog", icon: Type, ar: "المدونة", en: "Blog", path: "blog", descAr: "نصوص قسم المقالات والأخبار", descEn: "Blog and news section headings" },
-      { id: "faq", icon: HelpCircle, ar: "الأسئلة الشائعة", en: "FAQ", path: "faq", descAr: "نصوص قسم الأسئلة المتكررة", descEn: "Frequently asked questions section" },
+      { id: "faq", icon: HelpCircle, ar: "الأسئلة الشائعة", en: "FAQ / Common Inquiries", path: "faq", descAr: "نصوص قسم الأسئلة المتكررة", descEn: "Frequently asked questions section" },
     ]
   },
   {

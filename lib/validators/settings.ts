@@ -85,6 +85,15 @@ export const landingHeroSlideSchema = z.object({
 });
 export type LandingHeroSlide = z.infer<typeof landingHeroSlideSchema>;
 
+export const landingServicePillarItemSchema = z.object({
+  id: z.string().min(1),
+  name_ar: z.string().min(1),
+  name_en: z.string().min(1),
+  desc_ar: z.string().nullable().optional(),
+  desc_en: z.string().nullable().optional(),
+});
+export type LandingServicePillarItem = z.infer<typeof landingServicePillarItemSchema>;
+
 export const landingServicePillarSchema = z.object({
   id: z.string().min(1),
   bucket: z.enum(["build", "grow", "maintain"]),
@@ -94,6 +103,7 @@ export const landingServicePillarSchema = z.object({
   description_en: z.string().min(1),
   icon_name: z.string().min(1).default("Code2"),
   glow_color: z.string().min(1).default("rgba(6, 182, 212, 0.25)"),
+  items: z.array(landingServicePillarItemSchema).default([]).optional(),
 });
 export type LandingServicePillar = z.infer<typeof landingServicePillarSchema>;
 
