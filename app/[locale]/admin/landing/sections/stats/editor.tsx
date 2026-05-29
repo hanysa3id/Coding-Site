@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { SectionEditorShell } from "../_components/section-editor-shell";
-import { BilingualInput } from "../_components/bilingual-input";
+import { SectionHeaderFields, SectionDescriptionFields } from "../_components/section-field-group";
 import type { LandingSettings } from "@/lib/validators/settings";
+import { BarChart3 } from "lucide-react";
 
 export function StatsEditor({
   initialData,
@@ -17,48 +18,50 @@ export function StatsEditor({
   
   const overrides = data.section_overrides[sectionId] || {};
 
+  const isDirty = useMemo(() => {
+    return JSON.stringify(data) !== JSON.stringify(initialData);
+  }, [data, initialData]);
+
   function updateOverride(key: string, value: string) {
-    setData({
-      ...data,
+    setData((prev) => ({
+      ...prev,
       section_overrides: {
-        ...data.section_overrides,
+        ...prev.section_overrides,
         [sectionId]: {
-          ...overrides,
+          ...prev.section_overrides[sectionId],
           [key]: value,
         },
       },
-    });
+    }));
+  }
+
+  function handleReset() {
+    setData(initialData);
   }
 
   return (
     <SectionEditorShell
-      titleAr="تعديل الإحصائيات"
-      titleEn="Edit Stats Section"
-      descriptionAr="تعديل عناوين قسم الإحصائيات"
-      descriptionEn="Edit stats section content"
+      titleAr="الإحصائيات (Stats)"
+      titleEn="Stats Section"
+      descriptionAr="تعديل نصوص الإحصائيات (الأرقام تُعدل من قائمة الإعدادات الجانبية)"
+      descriptionEn="Edit stats section text (Numbers are edited in the sidebar)"
       locale={locale}
       data={data}
       setData={setData}
+      icon={<BarChart3 className="h-5 w-5" />}
+      isDirty={isDirty}
+      onReset={handleReset}
     >
       <div className="space-y-6">
-        <h3 className="font-semibold text-lg">{locale === "ar" ? "المحتوى النصي" : "Text Content"}</h3>
-        <BilingualInput
-          labelAr="العنوان الرئيسي"
-          labelEn="Heading"
-          valAr={overrides.title_ar ?? ""}
-          valEn={overrides.title_en ?? ""}
-          onChangeAr={(v) => updateOverride("title_ar", v)}
-          onChangeEn={(v) => updateOverride("title_en", v)}
+        <SectionHeaderFields
+          locale={locale}
+          overrides={overrides}
+          onUpdate={updateOverride}
         />
-        <BilingualInput
-          labelAr="الوصف (اختياري)"
-          labelEn="Subtitle (Optional)"
-          valAr={overrides.subtitle_ar ?? ""}
-          valEn={overrides.subtitle_en ?? ""}
-          onChangeAr={(v) => updateOverride("subtitle_ar", v)}
-          onChangeEn={(v) => updateOverride("subtitle_en", v)}
-          type="textarea"
-          rows={2}
+        <SectionDescriptionFields
+          locale={locale}
+          overrides={overrides}
+          onUpdate={updateOverride}
         />
       </div>
     </SectionEditorShell>

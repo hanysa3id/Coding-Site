@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { saveLandingSettingsAction } from "../../../settings/actions";
 import type { LandingSettings } from "@/lib/validators/settings";
+import { cn } from "@/lib/utils";
 
 interface SectionEditorShellProps {
   titleAr: string;
@@ -19,6 +20,9 @@ interface SectionEditorShellProps {
   data: LandingSettings;
   setData: (data: LandingSettings) => void;
   children: React.ReactNode;
+  icon?: React.ReactNode;
+  onReset?: () => void;
+  isDirty?: boolean;
 }
 
 export function SectionEditorShell({
@@ -30,6 +34,9 @@ export function SectionEditorShell({
   data,
   setData,
   children,
+  icon,
+  onReset,
+  isDirty = false,
 }: SectionEditorShellProps) {
   const isAr = locale === "ar";
   const [isPending, startTransition] = useTransition();
@@ -57,16 +64,34 @@ export function SectionEditorShell({
                 {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
               </Link>
             </Button>
-            <h1 className="text-2xl font-bold tracking-tight">{isAr ? titleAr : titleEn}</h1>
+            {icon && <div className="text-primary bg-primary/10 p-1.5 rounded-md">{icon}</div>}
+            <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+              {isAr ? titleAr : titleEn}
+              {isDirty && (
+                <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" title={isAr ? "تغييرات غير محفوظة" : "Unsaved changes"} />
+              )}
+            </h1>
           </div>
           <p className="text-sm text-muted-foreground ms-10">
             {isAr ? descriptionAr : descriptionEn}
           </p>
         </div>
-        <Button onClick={onSave} disabled={isPending}>
-          <Save className="h-4 w-4 mr-2" />
-          {isAr ? "حفظ التعديلات" : "Save Changes"}
-        </Button>
+        <div className="flex items-center gap-2">
+          {onReset && (
+            <Button 
+              variant="outline" 
+              onClick={onReset} 
+              disabled={isPending || !isDirty}
+              className={cn(isDirty && "border-amber-500/50 text-amber-500 hover:text-amber-600 hover:bg-amber-50")}
+            >
+              {isAr ? "إلغاء التغييرات" : "Discard Changes"}
+            </Button>
+          )}
+          <Button onClick={onSave} disabled={isPending || !isDirty}>
+            <Save className="h-4 w-4 mr-2" />
+            {isAr ? "حفظ التعديلات" : "Save Changes"}
+          </Button>
+        </div>
       </div>
 
       <Card>
