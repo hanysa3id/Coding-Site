@@ -289,7 +289,6 @@ function PillarCard({
       items: items.map((it, i) => (i === itemIdx ? { ...it, ...patch } : it)),
     });
   }
-
   return (
     <Card>
       <CardContent className="p-5 space-y-4">
@@ -410,7 +409,6 @@ function PillarCard({
           type="textarea"
           rows={3}
         />
-
         <div className="grid gap-4 sm:grid-cols-2 mt-4 pt-4 border-t border-border">
           <BilingualInput
             labelAr="نص الزر (عربي)"
