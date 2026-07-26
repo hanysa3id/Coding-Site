@@ -39,8 +39,9 @@ export function LoginForm() {
       }
       toast.success(tc("loading"));
       const next = searchParams.get("next") ?? "/dashboard";
-      router.push(next);
-      router.refresh();
+      // Full-page navigation ensures the browser applies the auth cookies
+      // set by the server action before the next request hits the middleware.
+      window.location.href = next;
     });
   }
 
