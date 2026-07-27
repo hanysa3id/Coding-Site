@@ -1,4 +1,4 @@
-export const SITE_NAME = "Company Platform";
+export const SITE_NAME = "AFAQ";
 export const SITE_DESCRIPTION_AR =
   "منصة متكاملة لخدمات البرمجة والتصميم — اطلب خدمتك، تابع التنفيذ، واستلم مشروعك باحترافية.";
 export const SITE_DESCRIPTION_EN =

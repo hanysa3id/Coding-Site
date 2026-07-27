@@ -108,7 +108,7 @@ export async function getThemeCustomizationsRaw(): Promise<Record<string, unknow
  */
 export async function getSiteName(locale: string): Promise<string> {
   const site = await getSiteSettings();
-  if (!site) return locale === "ar" ? "منصة الشركة" : "Company Platform";
+  if (!site) return locale === "ar" ? "آفاق" : "AFAQ";
   return locale === "ar" ? site.name_ar : site.name_en;
 }
 

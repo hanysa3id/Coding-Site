@@ -63,7 +63,7 @@ export async function generateMetadata({
   const isAr = locale === "ar";
   const [site, seo] = await Promise.all([getSiteSettings(), getSeoSettings()]);
 
-  const fallbackName = isAr ? "منصة الشركة" : "Company Platform";
+  const fallbackName = isAr ? "آفاق" : "AFAQ";
   const fallbackDescription = isAr
     ? "منصة متكاملة لخدمات البرمجة والتصميم — اطلب خدمتك، تابع التنفيذ، واستلم مشروعك باحترافية."
     : "A complete platform for programming and design services.";

@@ -4,8 +4,8 @@
 
 insert into public.settings (key, value) values
   ('site', jsonb_build_object(
-    'name_ar', 'منصة الشركة',
-    'name_en', 'Company Platform',
+    'name_ar', 'آفاق',
+    'name_en', 'AFAQ',
     'description_ar', 'منصة متكاملة لخدمات البرمجة والتصميم',
     'description_en', 'A complete platform for programming and design services',
     'logo_url', null,
@@ -18,8 +18,8 @@ insert into public.settings (key, value) values
     'default_message_en', 'Hello, I would like to inquire about your services.'
   )),
   ('seo', jsonb_build_object(
-    'default_title_ar', 'منصة الشركة - خدمات برمجة وتصميم',
-    'default_title_en', 'Company Platform - Programming & Design Services',
+    'default_title_ar', 'آفاق - خدمات برمجة وتصميم',
+    'default_title_en', 'AFAQ - Programming & Design Services',
     'default_description_ar', 'نقدم خدمات برمجة وتصميم احترافية',
     'default_description_en', 'We provide professional programming and design services',
     'og_image', null,
